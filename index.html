@@ -49,13 +49,13 @@
     <div id="app-section" class="hidden">
         <header>
             <div class="caja-badge">Caja: <span id="totalCaja">0.00</span>€</div>
-            <button onclick="auth.signOut().then(() => window.location.reload())" style="background:rgba(255,255,255,0.2); color:white">Cerrar Sesión</button>
+            <button onclick="localStorage.clear(); location.reload();" style="background:rgba(255,255,255,0.2); color:white">Salir</button>
         </header>
 
         <div class="main-container">
             <div class="action-bar">
-                <button class="btn-retirar" onclick="abrirModal('modal-retirar')">💸 REGISTRAR SALIDA DINERO</button>
-                <button class="btn-add" onclick="abrirModal('modal-producto')" title="Añadir Producto">+</button>
+                <button class="btn-retirar" onclick="document.getElementById('modal-retirar').classList.remove('hidden')">💸 REGISTRAR SALIDA DINERO</button>
+                <button class="btn-add" onclick="document.getElementById('modal-producto').classList.remove('hidden')">+</button>
             </div>
             <div id="productos-grid" class="grid-productos"></div>
         </div>
@@ -63,21 +63,21 @@
 
     <div id="modal-venta" class="modal hidden">
         <div class="modal-content">
-            <h2 id="ventaTitulo">Coca Cola</h2>
-            <p>¿Cuántas unidades vendes?</p>
+            <h2 id="ventaTitulo">Producto</h2>
+            <p>¿Cuántas unidades?</p>
             <input type="number" id="ventaCantidad" value="1" min="1">
-            <button class="btn-save" id="confirmarVenta">CONFIRMAR VENTA</button>
-            <button class="btn-close" onclick="cerrarModal('modal-venta')">CANCELAR</button>
+            <button class="btn-save" id="btnConfirmarVenta">CONFIRMAR VENTA</button>
+            <button class="btn-close" onclick="document.getElementById('modal-venta').classList.add('hidden')">CANCELAR</button>
         </div>
     </div>
 
     <div id="modal-retirar" class="modal hidden">
         <div class="modal-content">
             <h2>Retirar de Caja</h2>
-            <input type="text" id="retiraNombre" placeholder="Nombre de quien retira">
+            <input type="text" id="retiraNombre" placeholder="Nombre">
             <input type="number" id="retiraCantidad" placeholder="Cantidad €">
             <button class="btn-save" id="saveRetirada">CONFIRMAR SALIDA</button>
-            <button class="btn-close" onclick="cerrarModal('modal-retirar')">CERRAR</button>
+            <button class="btn-close" onclick="document.getElementById('modal-retirar').classList.add('hidden')">CERRAR</button>
         </div>
     </div>
 
@@ -89,13 +89,13 @@
             <input type="number" id="newProdStock" placeholder="Stock">
             <input type="text" id="newProdImg" placeholder="URL Foto">
             <button class="btn-save" id="saveProducto">GUARDAR</button>
-            <button class="btn-close" onclick="cerrarModal('modal-producto')">CERRAR</button>
+            <button class="btn-close" onclick="document.getElementById('modal-producto').classList.add('hidden')">CERRAR</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -112,11 +112,11 @@
         const db = getFirestore(app);
 
         let vTotal = 0, rTotal = 0;
-        let productoSeleccionado = null;
+        let prodTemp = null;
 
-        // Login
         document.getElementById("loginBtn").onclick = () => {
-            signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(err => alert(err.message));
+            signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value)
+            .catch(err => alert("Error: " + err.message));
         };
 
         onAuthStateChanged(auth, user => {
@@ -127,9 +127,6 @@
             }
         });
 
-        window.abrirModal = id => document.getElementById(id).classList.remove("hidden");
-        window.cerrarModal = id => document.getElementById(id).classList.add("hidden");
-
         function iniciarApp() {
             onSnapshot(collection(db, "productos"), snap => {
                 const grid = document.getElementById("productos-grid");
@@ -138,12 +135,12 @@
                     const p = d.data();
                     const card = document.createElement("div");
                     card.className = "producto-card";
-                    card.innerHTML = `<span class="stock-tag">Stock: ${p.stock || 0}</span><img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/1046/1046771.png'}"><h3>${d.id}</h3><div class="precio">${p.precio.toFixed(2)}€</div>`;
+                    card.innerHTML = `<span class="stock-tag">Stock: ${p.stock || 0}</span><img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/1046/1046771.png'}"><h3>${d.id}</h3><div class="precio">${Number(p.precio).toFixed(2)}€</div>`;
                     card.onclick = () => {
-                        productoSeleccionado = { id: d.id, precio: p.precio };
+                        prodTemp = { id: d.id, precio: p.precio };
                         document.getElementById("ventaTitulo").innerText = d.id;
                         document.getElementById("ventaCantidad").value = 1;
-                        abrirModal("modal-venta");
+                        document.getElementById("modal-venta").classList.remove("hidden");
                     };
                     grid.appendChild(card);
                 });
@@ -153,30 +150,33 @@
             onSnapshot(collection(db, "retiradas"), snap => { rTotal = 0; snap.forEach(d => rTotal += d.data().cantidad); actualizarCaja(); });
         }
 
-        // CONFIRMAR VENTA CON CANTIDAD
-        document.getElementById("confirmarVenta").onclick = async () => {
+        // --- CORRECCIÓN AQUÍ: CONFIRMAR VENTA ---
+        document.getElementById("btnConfirmarVenta").onclick = async () => {
             const cant = parseInt(document.getElementById("ventaCantidad").value);
-            if(!cant || cant <= 0) return;
+            if(!cant || cant <= 0) return alert("Pon una cantidad válida");
 
-            const totalOperacion = productoSeleccionado.precio * cant;
-            await addDoc(collection(db, "ventas"), { 
-                producto: productoSeleccionado.id, 
-                cantidad: cant,
-                total: totalOperacion, 
-                fecha: new Date().toISOString(), 
-                usuario: auth.currentUser.email 
-            });
-            await updateDoc(doc(db, "productos", productoSeleccionado.id), { stock: increment(-cant) });
-            
-            cerrarModal("modal-venta");
+            try {
+                const totalFinal = prodTemp.precio * cant;
+                await addDoc(collection(db, "ventas"), { 
+                    producto: prodTemp.id, 
+                    cantidad: cant,
+                    total: totalFinal, 
+                    fecha: new Date().toISOString(), 
+                    usuario: auth.currentUser.email 
+                });
+                await updateDoc(doc(db, "productos", prodTemp.id), { stock: increment(-cant) });
+                document.getElementById("modal-venta").classList.add("hidden");
+            } catch (e) {
+                alert("Error al vender: " + e.message);
+            }
         };
 
         document.getElementById("saveRetirada").onclick = async () => {
             const nom = document.getElementById("retiraNombre").value;
             const cant = parseFloat(document.getElementById("retiraCantidad").value);
-            if(!nom || !cant) return alert("Faltan datos");
+            if(!nom || !cant) return alert("Rellena los datos");
             await addDoc(collection(db, "retiradas"), { nombre: nom, cantidad: cant, fecha: new Date().toISOString(), usuario: auth.currentUser.email });
-            cerrarModal("modal-retirar");
+            document.getElementById("modal-retirar").classList.add("hidden");
         };
 
         document.getElementById("saveProducto").onclick = async () => {
@@ -184,9 +184,9 @@
             const p = parseFloat(document.getElementById("newProdPrecio").value);
             const s = parseInt(document.getElementById("newProdStock").value);
             const i = document.getElementById("newProdImg").value;
-            if(!n || !p) return;
+            if(!n || !p) return alert("Faltan datos");
             await setDoc(doc(db, "productos", n), { precio: p, stock: s || 0, img: i || "" });
-            cerrarModal("modal-producto");
+            document.getElementById("modal-producto").classList.add("hidden");
         };
 
         function actualizarCaja() { document.getElementById("totalCaja").textContent = (vTotal - rTotal).toFixed(2); }
