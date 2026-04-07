@@ -3,84 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TPV Asociación - Autoservicio</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>TPV Asociación - Caja Común</title>
     <style>
-        /* Estilos rápidos para asegurar que se vea bien desde el principio */
-        :root {
-            --primary: #2c3e50;
-            --accent: #2ecc71;
-            --bg: #f4f7f6;
-        }
-
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        :root { --primary: #2c3e50; --accent: #2ecc71; --bg: #f4f7f6; --danger: #e74c3c; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
+        .hidden { display: none !important; }
         
-        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; text-align: center; }
+        /* Login */
+        .login-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 350px; margin: 100px auto; text-align: center; }
         
-        .hidden { display: none; }
+        /* Header y Stats */
+        header { background: var(--primary); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; sticky: top; }
+        .caja-total { background: white; color: var(--primary); padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 1.2rem; }
 
-        header { background: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 300px; gap: 2rem; }
+        @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
+
+        /* Productos */
+        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+        .producto-card { background: white; border-radius: 12px; padding: 1rem; text-align: center; border: 1px solid #eee; cursor: pointer; transition: 0.2s; }
+        .producto-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .producto-card img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 5px; }
         
-        .user-info { text-align: right; }
-        .user-info span { display: block; font-size: 0.9rem; opacity: 0.8; }
-        .user-info strong { font-size: 1.2rem; color: var(--accent); }
-
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
-
-        /* Cuadrícula de productos */
-        #productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
-
-        .producto-card { background: white; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s; border: 1px solid #eee; }
-        .producto-card:hover { transform: translateY(-5px); }
-        .producto-card img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 1rem; }
-        .producto-card h3 { margin: 0.5rem 0; font-size: 1.1rem; color: var(--primary); }
-        .producto-card .precio { font-weight: bold; color: var(--primary); font-size: 1.3rem; margin: 0.5rem 0; }
-        .producto-card .stock { font-size: 0.8rem; color: #7f8c8d; margin-bottom: 1rem; }
-
-        /* Botones */
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
-        #loginBtn { background: var(--primary); color: white; padding: 12px 25px; width: 100%; margin-top: 1rem; }
-        .btn-comprar { background: var(--accent); color: white; padding: 10px 20px; width: 100%; }
-        .btn-comprar:active { transform: scale(0.95); }
-        .btn-logout { background: transparent; border: 1px solid white; color: white; padding: 5px 12px; font-size: 0.8rem; margin-top: 5px; }
-
-        /* Inputs */
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        /* Historial y Otros */
+        .panel { background: white; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 1rem; }
+        h3 { margin-top: 0; font-size: 1rem; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        ul { list-style: none; padding: 0; font-size: 0.85rem; max-height: 200px; overflow-y: auto; }
+        li { padding: 5px 0; border-bottom: 1px solid #f9f9f9; }
+        
+        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; padding: 10px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-main { background: var(--primary); color: white; width: 100%; }
+        .btn-retirar { background: var(--danger); color: white; width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="login-section">
-        <div class="card">
-            <h1 style="color: var(--primary);">Asociación</h1>
-            <p>Introduce tus datos de socio</p>
-            <input type="email" id="email" placeholder="Correo electrónico (Email)">
-            <input type="password" id="password" placeholder="Tu contraseña">
-            <button id="loginBtn">Entrar al Sistema</button>
+        <div class="login-card">
+            <h2>Asociación</h2>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button id="loginBtn" class="btn-main">Entrar</button>
         </div>
     </div>
 
     <div id="app-section" class="hidden">
         <header>
-            <div>
-                <h2 style="margin:0; font-size: 1.2rem;">Panel de Consumo</h2>
-            </div>
-            <div class="user-info">
-                <span id="user-display-name">usuario@correo.com</span>
-                Saldo: <strong id="user-balance">0.00</strong>€
-                <br>
-                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
-            </div>
+            <div class="caja-total">Caja: <span id="totalCaja">0.00</span>€</div>
+            <button onclick="window.location.reload()" style="background:rgba(255,255,255,0.2); color:white;">Salir</button>
         </header>
 
         <div class="container">
-            <h2 style="color: var(--primary); border-bottom: 2px solid #ddd; padding-bottom: 10px;">Productos Disponibles</h2>
-            <div id="productos-grid">
+            <div>
+                <h2 style="margin-top:0">Productos</h2>
+                <div id="productos-grid" class="grid-productos"></div>
+            </div>
+
+            <div>
+                <div class="panel">
+                    <h3>Retirar Dinero</h3>
+                    <input type="text" id="retiraNombre" placeholder="Tu nombre">
+                    <input type="number" id="retiraCantidad" placeholder="Cantidad €">
+                    <button id="btnRetirar" class="btn-retirar">Registrar Salida</button>
                 </div>
+
+                <div class="panel">
+                    <h3>Últimos Movimientos</h3>
+                    <ul id="historial-mezclado"></ul>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
+            authDomain: "control-de-caja-41341.firebaseapp.com",
+            projectId: "control-de-caja-41341",
+            storageBucket: "control-de-caja-41341.firebasestorage.app",
+            messagingSenderId: "802067725052",
+            appId: "1:802067725052:web:a583fab3a16d4f8025f579"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let totalVentas = 0;
+        let totalRetiradas = 0;
+
+        // Login
+        document.getElementById("loginBtn").onclick = async () => {
+            const email = document.getElementById("email").value;
+            const pass = document.getElementById("password").value;
+            try { await signInWithEmailAndPassword(auth, email, pass); } 
+            catch (e) { alert("Error: " + e.message); }
+        };
+
+        // Estado Usuario
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById("login-section").classList.add("hidden");
+                document.getElementById("app-section").classList.remove("hidden");
+                iniciarTPV();
+            }
+        });
+
+        function iniciarTPV() {
+            cargarProductos();
+            escucharCaja();
+        }
+
+        function cargarProductos() {
+            onSnapshot(collection(db, "productos"), (snap) => {
+                const grid = document.getElementById("productos-grid");
+                grid.innerHTML = "";
+                snap.forEach(d => {
+                    const p = d.data();
+                    const id = d.id;
+                    const card = document.createElement("div");
+                    card.className = "producto-card";
+                    card.innerHTML = `
+                        <img src="${p.img || 'https://via.placeholder.com/70'}">
+                        <div style="font-weight:bold">${id}</div>
+                        <div style="color:var(--accent)">${p.precio.toFixed(2)}€</div>
+                    `;
+                    card.onclick = () => vender(id, p.precio, p.stock);
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        async function vender(id, precio, stock) {
+            if (confirm(`¿Vender ${id}?`)) {
+                await addDoc(collection(db, "ventas"), {
+                    producto: id,
+                    total: precio,
+                    fecha: new Date().toISOString(),
+                    usuario: auth.currentUser.email
+                });
+                await updateDoc(doc(db, "productos", id), { stock: stock - 1 });
+            }
+        }
+
+        document.getElementById("btnRetirar").onclick = async () => {
+            const nombre = document.getElementById("retiraNombre").value;
+            const cantidad = parseFloat(document.getElementById("retiraCantidad").value);
+            if (!nombre || !cantidad) return alert("Rellena los datos");
+
+            await addDoc(collection(db, "retiradas"), {
+                nombre: nombre,
+                cantidad: cantidad,
+                fecha: new Date().toISOString(),
+                usuario: auth.currentUser.email
+            });
+            document.getElementById("retiraCantidad").value = "";
+        };
+
+        function escucharCaja() {
+            // Escuchar Ventas para sumar
+            onSnapshot(collection(db, "ventas"), (snap) => {
+                totalVentas = 0;
+                snap.forEach(d => totalVentas += d.data().total);
+                actualizarUI();
+            });
+
+            // Escuchar Retiradas para restar
+            onSnapshot(collection(db, "retiradas"), (snap) => {
+                totalRetiradas = 0;
+                const hist = document.getElementById("historial-mezclado");
+                hist.innerHTML = "";
+                snap.forEach(d => {
+                    const r = d.data();
+                    totalRetiradas += r.cantidad;
+                    const li = document.createElement("li");
+                    li.innerHTML = `<span style="color:red">-${r.cantidad}€</span> por ${r.nombre}`;
+                    hist.appendChild(li);
+                });
+                actualizarUI();
+            });
+        }
+
+        function actualizarUI() {
+            document.getElementById("totalCaja").textContent = (totalVentas - totalRetiradas).toFixed(2);
+        }
+    </script>
 </body>
 </html>
