@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
+
   // 🔹 Firebase imports
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, doc, setDoc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
   // 🔹 Config Firebase
   const firebaseConfig = {
@@ -33,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const addProductForm = document.getElementById("addProductForm");
   const addNewProductBtn = document.getElementById("addNewProductBtn");
 
-  // 🔹 Variables
   let totalCaja = 0;
   let productos = [];
 
@@ -60,20 +60,27 @@ document.addEventListener("DOMContentLoaded", () => {
     addProductForm.style.display = addProductForm.style.display === "none" ? "block" : "none";
   });
 
-  // 🔹 Añadir producto nuevo
+  // 🔹 Añadir producto
   addNewProductBtn.addEventListener("click", async () => {
     const nombre = document.getElementById("newName").value;
     const precio = parseFloat(document.getElementById("newPrice").value);
     const stock = parseInt(document.getElementById("newStock").value);
     const img = document.getElementById("newImg").value;
-    if (!nombre || !precio || !stock) return alert("Datos incorrectos");
-    const prodRef = doc(db, "productos", nombre);
-    await setDoc(prodRef, { precio, stock, img });
-    document.getElementById("newName").value = "";
-    document.getElementById("newPrice").value = "";
-    document.getElementById("newStock").value = "";
-    document.getElementById("newImg").value = "";
-    addProductForm.style.display = "none";
+
+    if (!nombre || !precio || !stock) return alert("Faltan datos del producto");
+
+    try {
+      const prodRef = doc(db, "productos", nombre);
+      await setDoc(prodRef, { precio, stock, img });
+      alert("Producto añadido correctamente!");
+      document.getElementById("newName").value = "";
+      document.getElementById("newPrice").value = "";
+      document.getElementById("newStock").value = "";
+      document.getElementById("newImg").value = "";
+      addProductForm.style.display = "none";
+    } catch (error) {
+      alert("Error al añadir producto: " + error.message);
+    }
   });
 
   // 🔹 Usuario logueado
@@ -90,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 🔹 Cargar productos Firestore
+  // 🔹 Cargar productos
   function cargarProductos() {
     const q = query(collection(db, "productos"), orderBy("nombre"));
     onSnapshot(q, snapshot => {
@@ -102,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 🔹 Renderizar botones productos
+  // 🔹 Renderizar productos
   function renderProductos() {
     productosDiv.innerHTML = "";
     productos.forEach((p) => {
@@ -185,4 +192,5 @@ document.addEventListener("DOMContentLoaded", () => {
       actualizarCaja();
     });
   }
+
 });
