@@ -3,49 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caja de la Asociación</title>
+    <title>TPV Asociación - Autoservicio</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos rápidos para asegurar que se vea bien desde el principio */
+        :root {
+            --primary: #2c3e50;
+            --accent: #2ecc71;
+            --bg: #f4f7f6;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        
+        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: 50px auto; text-align: center; }
+        
+        .hidden { display: none; }
+
+        header { background: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        
+        .user-info { text-align: right; }
+        .user-info span { display: block; font-size: 0.9rem; opacity: 0.8; }
+        .user-info strong { font-size: 1.2rem; color: var(--accent); }
+
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+
+        /* Cuadrícula de productos */
+        #productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+
+        .producto-card { background: white; border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.2s; border: 1px solid #eee; }
+        .producto-card:hover { transform: translateY(-5px); }
+        .producto-card img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 1rem; }
+        .producto-card h3 { margin: 0.5rem 0; font-size: 1.1rem; color: var(--primary); }
+        .producto-card .precio { font-weight: bold; color: var(--primary); font-size: 1.3rem; margin: 0.5rem 0; }
+        .producto-card .stock { font-size: 0.8rem; color: #7f8c8d; margin-bottom: 1rem; }
+
+        /* Botones */
+        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        #loginBtn { background: var(--primary); color: white; padding: 12px 25px; width: 100%; margin-top: 1rem; }
+        .btn-comprar { background: var(--accent); color: white; padding: 10px 20px; width: 100%; }
+        .btn-comprar:active { transform: scale(0.95); }
+        .btn-logout { background: transparent; border: 1px solid white; color: white; padding: 5px 12px; font-size: 0.8rem; margin-top: 5px; }
+
+        /* Inputs */
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    </style>
 </head>
 <body>
-    <header>
-        <h1 id="main-title">Asociación "El Pueblo"</h1>
-        <div id="user-info" class="hidden">
-            <span id="current-user-name"></span> | Saldo: <strong id="current-user-balance">€0.00</strong>
-            <button onclick="logout()" class="btn-small">Salir</button>
+
+    <div id="login-section">
+        <div class="card">
+            <h1 style="color: var(--primary);">Asociación</h1>
+            <p>Introduce tus datos de socio</p>
+            <input type="email" id="email" placeholder="Correo electrónico (Email)">
+            <input type="password" id="password" placeholder="Tu contraseña">
+            <button id="loginBtn">Entrar al Sistema</button>
         </div>
-    </header>
+    </div>
 
-    <main class="container">
-        <section id="socios-section" class="card">
-            <h2>¿Quién eres?</h2>
-            <div id="lista-socios" class="grid-socios"></div>
-            <hr>
-            <button id="admin-access" class="btn-secondary">⚙️ Gestión Tesorería</button>
-        </section>
-
-        <section id="productos-section" class="hidden">
-            <h2>Selecciona tu consumición</h2>
-            <div id="grid-productos" class="grid-productos"></div>
-        </section>
-
-        <section id="admin-section" class="card hidden">
-            <button onclick="closeAdmin()" class="btn-small">Volver</button>
-            <h2>Panel de Control</h2>
-            <div class="tabs">
-                <button onclick="showTab('tab-usuarios')">Socios/Saldo</button>
-                <button onclick="showTab('tab-stock')">Inventario</button>
-                <button onclick="showTab('tab-caja')">Caja/Ventas</button>
+    <div id="app-section" class="hidden">
+        <header>
+            <div>
+                <h2 style="margin:0; font-size: 1.2rem;">Panel de Consumo</h2>
             </div>
-            
-            <div id="tab-usuarios" class="tab-content">
-                <h3>Añadir/Recargar Socio</h3>
-                <input type="text" id="member-name" placeholder="Nombre del Socio">
-                <input type="number" id="member-initial-cash" placeholder="Carga Inicial €">
-                <button onclick="addMember()" class="btn-success">Registrar/Cargar</button>
+            <div class="user-info">
+                <span id="user-display-name">usuario@correo.com</span>
+                Saldo: <strong id="user-balance">0.00</strong>€
+                <br>
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
             </div>
-            </section>
-    </main>
+        </header>
+
+        <div class="container">
+            <h2 style="color: var(--primary); border-bottom: 2px solid #ddd; padding-bottom: 10px;">Productos Disponibles</h2>
+            <div id="productos-grid">
+                </div>
+        </div>
+    </div>
 
     <script type="module" src="app.js"></script>
+
 </body>
 </html>
