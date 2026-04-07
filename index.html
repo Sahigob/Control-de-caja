@@ -1,63 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Caja Asociación TPV</title>
-<link rel="stylesheet" href="styles.css">
-<style>
-  body { font-family: Arial; padding: 20px; }
-  #login { border:1px solid #333; padding:20px; width:300px; }
-  #productos { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
-  .producto { border:1px solid #555; padding:10px; width:120px; text-align:center; cursor:pointer; }
-  .producto img { width:100px; height:100px; object-fit:cover; }
-  button { margin:5px 0; width:100%; cursor:pointer; }
-  #addProductForm { display:none; border:1px solid #333; padding:10px; margin-top:10px; width:300px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caja de la Asociación</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<h1>Caja Asociación</h1>
+    <header>
+        <h1 id="main-title">Asociación "El Pueblo"</h1>
+        <div id="user-info" class="hidden">
+            <span id="current-user-name"></span> | Saldo: <strong id="current-user-balance">€0.00</strong>
+            <button onclick="logout()" class="btn-small">Salir</button>
+        </div>
+    </header>
 
-<!-- LOGIN -->
-<div id="login">
-  <h2>Iniciar sesión</h2>
-  <input type="email" id="email" placeholder="Correo"><br><br>
-  <input type="password" id="password" placeholder="Contraseña"><br><br>
-  <button id="loginBtn">Entrar</button>
-  <button id="registerBtn">Registrarse</button>
-</div>
+    <main class="container">
+        <section id="socios-section" class="card">
+            <h2>¿Quién eres?</h2>
+            <div id="lista-socios" class="grid-socios"></div>
+            <hr>
+            <button id="admin-access" class="btn-secondary">⚙️ Gestión Tesorería</button>
+        </section>
 
-<!-- APP PRINCIPAL -->
-<div id="app" style="display:none;">
-  <div>
-    <button id="showAddProductBtn">Añadir Producto</button>
-    <h2>Total en caja: €<span id="totalCaja">0</span></h2>
-  </div>
+        <section id="productos-section" class="hidden">
+            <h2>Selecciona tu consumición</h2>
+            <div id="grid-productos" class="grid-productos"></div>
+        </section>
 
-  <!-- Formulario añadir producto -->
-  <div id="addProductForm">
-    <h3>Nuevo Producto</h3>
-    <input type="text" id="newName" placeholder="Nombre"><br>
-    <input type="number" id="newPrice" placeholder="Precio"><br>
-    <input type="number" id="newStock" placeholder="Stock"><br>
-    <input type="text" id="newImg" placeholder="URL Imagen"><br>
-    <button id="addNewProductBtn">Añadir</button>
-  </div>
+        <section id="admin-section" class="card hidden">
+            <button onclick="closeAdmin()" class="btn-small">Volver</button>
+            <h2>Panel de Control</h2>
+            <div class="tabs">
+                <button onclick="showTab('tab-usuarios')">Socios/Saldo</button>
+                <button onclick="showTab('tab-stock')">Inventario</button>
+                <button onclick="showTab('tab-caja')">Caja/Ventas</button>
+            </div>
+            
+            <div id="tab-usuarios" class="tab-content">
+                <h3>Añadir/Recargar Socio</h3>
+                <input type="text" id="member-name" placeholder="Nombre del Socio">
+                <input type="number" id="member-initial-cash" placeholder="Carga Inicial €">
+                <button onclick="addMember()" class="btn-success">Registrar/Cargar</button>
+            </div>
+            </section>
+    </main>
 
-  <!-- Botones de productos -->
-  <div id="productos"></div>
-
-  <h2>Historial de ventas</h2>
-  <ul id="historial"></ul>
-
-  <h2>Retirar dinero</h2>
-  <input type="text" id="nombreRetirada" placeholder="Nombre">
-  <input type="number" id="cantidadRetirada" placeholder="Cantidad">
-  <button id="retirarBtn">Retirar</button>
-
-  <h3>Historial de retiradas</h3>
-  <ul id="historialRetiradas"></ul>
-</div>
-
-<script type="module" src="./app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
