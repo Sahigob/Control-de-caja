@@ -1,101 +1,157 @@
+// 1. Importaciones de los módulos de Firebase (Siempre al principio)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, addDoc, query, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, collection, onSnapshot, addDoc, increment, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-const firebaseConfig = { /* TU CONFIG DE ANTES */ };
+// 2. Configuración de tu proyecto
+const firebaseConfig = {
+    apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
+    authDomain: "control-de-caja-41341.firebaseapp.com",
+    projectId: "control-de-caja-41341",
+    storageBucket: "control-de-caja-41341.firebasestorage.app",
+    messagingSenderId: "802067725052",
+    appId: "1:802067725052:web:a583fab3a16d4f8025f579"
+};
+
+// 3. Inicialización
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-let socioActivo = null;
+// Variables de estado local
+let usuarioActualEmail = null;
 
-// --- INICIO: CARGAR LISTA DE SOCIOS ---
-function cargarSocios() {
-    onSnapshot(collection(db, "socios"), (snapshot) => {
-        const lista = document.getElementById("lista-socios");
-        lista.innerHTML = "";
-        snapshot.forEach(docSnap => {
-            const socio = { id: docSnap.id, ...docSnap.data() };
-            const btn = document.createElement("button");
-            btn.className = "socio-card";
-            btn.innerHTML = `<strong>${socio.id}</strong><br>Saldo: €${socio.saldo.toFixed(2)}`;
-            btn.onclick = () => seleccionarSocio(socio);
-            lista.appendChild(btn);
-        });
-    });
-}
+// --- ELEMENTOS DEL DOM ---
+const loginSection = document.getElementById("login-section");
+const appSection = document.getElementById("app-section");
+const emailInput = document.getElementById("email");
+const passInput = document.getElementById("password");
+const loginBtn = document.getElementById("loginBtn");
 
-function seleccionarSocio(socio) {
-    socioActivo = socio;
-    document.getElementById("socios-section").classList.add("hidden");
-    document.getElementById("productos-section").classList.remove("hidden");
-    document.getElementById("user-info").classList.remove("hidden");
-    document.getElementById("current-user-name").textContent = socio.id;
-    document.getElementById("current-user-balance").textContent = `€${socio.saldo.toFixed(2)}`;
-    cargarProductos();
-}
+// --- LÓGICA DE AUTENTICACIÓN ---
 
-// --- COMPRA DE PRODUCTO ---
-function cargarProductos() {
-    onSnapshot(collection(db, "productos"), (snapshot) => {
-        const grid = document.getElementById("grid-productos");
-        grid.innerHTML = "";
-        snapshot.forEach(docSnap => {
-            const p = { id: docSnap.id, ...docSnap.data() };
-            const btn = document.createElement("div");
-            btn.className = "producto-card-touch";
-            btn.innerHTML = `
-                <img src="${p.img || 'https://via.placeholder.com/80'}">
-                <h4>${p.id}</h4>
-                <p>€${p.precio.toFixed(2)}</p>
-            `;
-            btn.onclick = () => realizarVenta(p);
-            grid.appendChild(btn);
-        });
-    });
-}
-
-async function realizarVenta(producto) {
-    if (socioActivo.saldo < producto.precio) {
-        return alert("¡Uy! No tienes saldo suficiente. Avisa al tesorero.");
-    }
+// Iniciar Sesión
+loginBtn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const pass = passInput.value.trim();
+    
+    if (!email || !pass) return alert("Por favor, rellena todos los campos");
 
     try {
-        // 1. Restar saldo al socio
-        const socioRef = doc(db, "socios", socioActivo.id);
-        await updateDoc(socioRef, { saldo: increment(-producto.precio) });
+        await signInWithEmailAndPassword(auth, email, pass);
+    } catch (error) {
+        alert("Error al acceder: " + error.message);
+    }
+});
+
+// Cerrar Sesión
+window.logout = () => {
+    signOut(auth);
+};
+
+// Observador del estado del usuario (Detecta si entra o sale)
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        usuarioActualEmail = user.email;
+        loginSection.style.display = "none";
+        appSection.style.display = "block";
+        
+        // Escuchar datos del usuario en tiempo real (Saldo)
+        escucharDatosUsuario(user.email);
+        // Cargar los productos para vender
+        cargarProductos();
+    } else {
+        usuarioActualEmail = null;
+        loginSection.style.display = "block";
+        appSection.style.display = "none";
+    }
+});
+
+// --- LÓGICA DE NEGOCIO ---
+
+// 1. Escuchar el saldo del usuario en tiempo real
+function escucharDatosUsuario(email) {
+    const userRef = doc(db, "usuarios", email);
+    onSnapshot(userRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            document.getElementById("user-display-name").textContent = email;
+            document.getElementById("user-balance").textContent = data.saldo.toFixed(2);
+        } else {
+            console.error("El usuario no existe en la colección 'usuarios' de Firestore");
+            alert("Error: No se encontró perfil de socio para este email.");
+        }
+    });
+}
+
+// 2. Cargar productos desde Firestore
+function cargarProductos() {
+    const productosGrid = document.getElementById("productos-grid");
+    // Ordenamos por nombre
+    const q = query(collection(db, "productos"), orderBy("precio", "asc"));
+    
+    onSnapshot(q, (snapshot) => {
+        productosGrid.innerHTML = "";
+        snapshot.forEach((docSnap) => {
+            const p = { id: docSnap.id, ...docSnap.data() };
+            
+            const card = document.createElement("div");
+            card.className = "producto-card";
+            card.innerHTML = `
+                <img src="${p.img || 'https://via.placeholder.com/100'}" alt="${p.id}">
+                <h3>${p.id}</h3>
+                <p class="precio">€${p.precio.toFixed(2)}</p>
+                <p class="stock">Stock: ${p.stock}</p>
+                <button class="btn-comprar" onclick="realizarCompra('${p.id}', ${p.precio}, ${p.stock})">
+                    Comprar ahora
+                </button>
+            `;
+            productosGrid.appendChild(card);
+        });
+    });
+}
+
+// 3. Procesar la compra (Sistema de Confianza)
+window.realizarCompra = async (prodId, precio, stockActual) => {
+    if (!usuarioActualEmail) return;
+    if (stockActual <= 0) return alert("Lo sentimos, no queda stock.");
+
+    // Confirmación rápida
+    if (!confirm(`¿Quieres comprar ${prodId} por €${precio}?`)) return;
+
+    try {
+        const userRef = doc(db, "usuarios", usuarioActualEmail);
+        const userSnap = await getDoc(userRef);
+        const saldoActual = userSnap.data().saldo;
+
+        if (saldoActual < precio) {
+            return alert("Saldo insuficiente. Por favor, recarga tu cuenta con el tesorero.");
+        }
+
+        // --- TRANSACCIÓN ---
+        // 1. Restar saldo al usuario
+        await updateDoc(userRef, {
+            saldo: increment(-precio)
+        });
 
         // 2. Restar stock al producto
-        const prodRef = doc(db, "productos", producto.id);
-        await updateDoc(prodRef, { stock: increment(-1) });
+        const prodRef = doc(db, "productos", prodId);
+        await updateDoc(prodRef, {
+            stock: increment(-1)
+        });
 
-        // 3. Registrar la venta
+        // 3. Registrar la venta en el historial
         await addDoc(collection(db, "ventas"), {
-            socio: socioActivo.id,
-            producto: producto.id,
-            total: producto.precio,
+            usuario: usuarioActualEmail,
+            producto: prodId,
+            total: precio,
             fecha: new Date().toISOString()
         });
 
-        alert(`¡Gracias ${socioActivo.id}! Disfruta tu ${producto.id}`);
-        window.location.reload(); // Volver al inicio para el siguiente socio
-    } catch (e) {
-        alert("Error al registrar: " + e.message);
+        console.log("Compra realizada con éxito");
+        
+    } catch (error) {
+        console.error("Error en la compra:", error);
+        alert("Hubo un error al procesar el pago.");
     }
-}
-
-// --- GESTIÓN (ADMIN) ---
-window.addMember = async () => {
-    const nombre = document.getElementById("member-name").value;
-    const carga = parseFloat(document.getElementById("member-initial-cash").value) || 0;
-    if(!nombre) return;
-    
-    // Si el socio ya existe, suma el saldo nuevo al anterior
-    const socioRef = doc(db, "socios", nombre);
-    await setDoc(socioRef, { saldo: increment(carga) }, { merge: true });
-    alert("Saldo actualizado");
 };
-
-// Botón de salir (logout manual)
-window.logout = () => window.location.reload();
-
-// Iniciar aplicación
-cargarSocios();
