@@ -1,196 +1,101 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot, addDoc, query, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-  // 🔹 Firebase imports
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, doc, setDoc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+const firebaseConfig = { /* TU CONFIG DE ANTES */ };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  // 🔹 Config Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
-    authDomain: "control-de-caja-41341.firebaseapp.com",
-    projectId: "control-de-caja-41341",
-    storageBucket: "control-de-caja-41341.firebasestorage.app",
-    messagingSenderId: "802067725052",
-    appId: "1:802067725052:web:a583fab3a16d4f8025f579",
-    measurementId: "G-0TZZT5GEEE"
-  };
+let socioActivo = null;
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getFirestore(app);
+// --- INICIO: CARGAR LISTA DE SOCIOS ---
+function cargarSocios() {
+    onSnapshot(collection(db, "socios"), (snapshot) => {
+        const lista = document.getElementById("lista-socios");
+        lista.innerHTML = "";
+        snapshot.forEach(docSnap => {
+            const socio = { id: docSnap.id, ...docSnap.data() };
+            const btn = document.createElement("button");
+            btn.className = "socio-card";
+            btn.innerHTML = `<strong>${socio.id}</strong><br>Saldo: €${socio.saldo.toFixed(2)}`;
+            btn.onclick = () => seleccionarSocio(socio);
+            lista.appendChild(btn);
+        });
+    });
+}
 
-  // 🔹 DOM
-  const loginBtn = document.getElementById("loginBtn");
-  const registerBtn = document.getElementById("registerBtn");
-  const appDiv = document.getElementById("app");
-  const loginDiv = document.getElementById("login");
-  const totalCajaSpan = document.getElementById("totalCaja");
-  const historial = document.getElementById("historial");
-  const historialRetiradas = document.getElementById("historialRetiradas");
-  const retirarBtn = document.getElementById("retirarBtn");
-  const productosDiv = document.getElementById("productos");
-  const showAddProductBtn = document.getElementById("showAddProductBtn");
-  const addProductForm = document.getElementById("addProductForm");
-  const addNewProductBtn = document.getElementById("addNewProductBtn");
+function seleccionarSocio(socio) {
+    socioActivo = socio;
+    document.getElementById("socios-section").classList.add("hidden");
+    document.getElementById("productos-section").classList.remove("hidden");
+    document.getElementById("user-info").classList.remove("hidden");
+    document.getElementById("current-user-name").textContent = socio.id;
+    document.getElementById("current-user-balance").textContent = `€${socio.saldo.toFixed(2)}`;
+    cargarProductos();
+}
 
-  let totalCaja = 0;
-  let productos = [];
+// --- COMPRA DE PRODUCTO ---
+function cargarProductos() {
+    onSnapshot(collection(db, "productos"), (snapshot) => {
+        const grid = document.getElementById("grid-productos");
+        grid.innerHTML = "";
+        snapshot.forEach(docSnap => {
+            const p = { id: docSnap.id, ...docSnap.data() };
+            const btn = document.createElement("div");
+            btn.className = "producto-card-touch";
+            btn.innerHTML = `
+                <img src="${p.img || 'https://via.placeholder.com/80'}">
+                <h4>${p.id}</h4>
+                <p>€${p.precio.toFixed(2)}</p>
+            `;
+            btn.onclick = () => realizarVenta(p);
+            grid.appendChild(btn);
+        });
+    });
+}
 
-  // 🔹 Login
-  loginBtn.addEventListener("click", () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    if (!email || !password) return alert("Completa email y contraseña");
-    signInWithEmailAndPassword(auth, email, password)
-      .catch(err => alert("Error login: " + err.message));
-  });
-
-  // 🔹 Registro
-  registerBtn.addEventListener("click", () => {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    if (!email || !password) return alert("Completa email y contraseña");
-    createUserWithEmailAndPassword(auth, email, password)
-      .catch(err => alert("Error registro: " + err.message));
-  });
-
-  // 🔹 Mostrar formulario añadir producto
-  showAddProductBtn.addEventListener("click", () => {
-    addProductForm.style.display = addProductForm.style.display === "none" ? "block" : "none";
-  });
-
-  // 🔹 Añadir producto
-  addNewProductBtn.addEventListener("click", async () => {
-    const nombre = document.getElementById("newName").value;
-    const precio = parseFloat(document.getElementById("newPrice").value);
-    const stock = parseInt(document.getElementById("newStock").value);
-    const img = document.getElementById("newImg").value;
-
-    if (!nombre || !precio || !stock) return alert("Faltan datos del producto");
+async function realizarVenta(producto) {
+    if (socioActivo.saldo < producto.precio) {
+        return alert("¡Uy! No tienes saldo suficiente. Avisa al tesorero.");
+    }
 
     try {
-      const prodRef = doc(db, "productos", nombre);
-      await setDoc(prodRef, { precio, stock, img });
-      alert("Producto añadido correctamente!");
-      document.getElementById("newName").value = "";
-      document.getElementById("newPrice").value = "";
-      document.getElementById("newStock").value = "";
-      document.getElementById("newImg").value = "";
-      addProductForm.style.display = "none";
-    } catch (error) {
-      alert("Error al añadir producto: " + error.message);
+        // 1. Restar saldo al socio
+        const socioRef = doc(db, "socios", socioActivo.id);
+        await updateDoc(socioRef, { saldo: increment(-producto.precio) });
+
+        // 2. Restar stock al producto
+        const prodRef = doc(db, "productos", producto.id);
+        await updateDoc(prodRef, { stock: increment(-1) });
+
+        // 3. Registrar la venta
+        await addDoc(collection(db, "ventas"), {
+            socio: socioActivo.id,
+            producto: producto.id,
+            total: producto.precio,
+            fecha: new Date().toISOString()
+        });
+
+        alert(`¡Gracias ${socioActivo.id}! Disfruta tu ${producto.id}`);
+        window.location.reload(); // Volver al inicio para el siguiente socio
+    } catch (e) {
+        alert("Error al registrar: " + e.message);
     }
-  });
+}
 
-  // 🔹 Usuario logueado
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      loginDiv.style.display = "none";
-      appDiv.style.display = "block";
-      cargarProductos();
-      cargarHistorial();
-      cargarRetiradas();
-    } else {
-      loginDiv.style.display = "block";
-      appDiv.style.display = "none";
-    }
-  });
+// --- GESTIÓN (ADMIN) ---
+window.addMember = async () => {
+    const nombre = document.getElementById("member-name").value;
+    const carga = parseFloat(document.getElementById("member-initial-cash").value) || 0;
+    if(!nombre) return;
+    
+    // Si el socio ya existe, suma el saldo nuevo al anterior
+    const socioRef = doc(db, "socios", nombre);
+    await setDoc(socioRef, { saldo: increment(carga) }, { merge: true });
+    alert("Saldo actualizado");
+};
 
-  // 🔹 Cargar productos
-  function cargarProductos() {
-    const q = query(collection(db, "productos"), orderBy("nombre"));
-    onSnapshot(q, snapshot => {
-      productos = [];
-      snapshot.forEach(doc => {
-        productos.push({ nombre: doc.id, ...doc.data() });
-      });
-      renderProductos();
-    });
-  }
+// Botón de salir (logout manual)
+window.logout = () => window.location.reload();
 
-  // 🔹 Renderizar productos
-  function renderProductos() {
-    productosDiv.innerHTML = "";
-    productos.forEach((p) => {
-      const div = document.createElement("div");
-      div.className = "producto";
-      div.innerHTML = `<img src="${p.img}" alt="${p.nombre}"><br>${p.nombre}<br>€${p.precio}<br>Stock: ${p.stock}`;
-      div.onclick = () => manejarProducto(p);
-      productosDiv.appendChild(div);
-    });
-  }
-
-  // 🔹 Manejar click producto
-  async function manejarProducto(producto) {
-    const accion = prompt("¿Vender o añadir stock? (v/s)").toLowerCase();
-    if (accion === "v") {
-      const cantidad = parseInt(prompt(`Cantidad a vender (Stock: ${producto.stock})`));
-      if (!cantidad || cantidad <= 0 || cantidad > producto.stock) return alert("Cantidad incorrecta");
-      const total = cantidad * producto.precio;
-      totalCaja += total;
-      actualizarCaja();
-      producto.stock -= cantidad;
-      const prodRef = doc(db, "productos", producto.nombre);
-      await updateDoc(prodRef, { stock: producto.stock });
-      await addDoc(collection(db, "ventas"), { producto: producto.nombre, cantidad, total, fecha: new Date().toISOString(), usuario: auth.currentUser.email });
-    } else if (accion === "s") {
-      const cantidad = parseInt(prompt("Cantidad a añadir al stock"));
-      if (!cantidad || cantidad <= 0) return alert("Cantidad incorrecta");
-      producto.stock += cantidad;
-      const prodRef = doc(db, "productos", producto.nombre);
-      await updateDoc(prodRef, { stock: producto.stock });
-    }
-  }
-
-  // 🔹 Actualizar caja
-  function actualizarCaja() {
-    totalCajaSpan.textContent = totalCaja.toFixed(2);
-  }
-
-  // 🔹 Retirar dinero
-  retirarBtn.addEventListener("click", async () => {
-    const nombre = document.getElementById("nombreRetirada").value;
-    const cantidad = parseFloat(document.getElementById("cantidadRetirada").value);
-    if (!nombre || !cantidad || cantidad <= 0) return alert("Datos incorrectos");
-    totalCaja -= cantidad;
-    actualizarCaja();
-    await addDoc(collection(db, "retiradas"), { nombre, cantidad, fecha: new Date().toISOString(), usuario: auth.currentUser.email });
-    document.getElementById("nombreRetirada").value = "";
-    document.getElementById("cantidadRetirada").value = "";
-  });
-
-  // 🔹 Historial ventas
-  function cargarHistorial() {
-    const q = query(collection(db, "ventas"), orderBy("fecha"));
-    onSnapshot(q, snapshot => {
-      historial.innerHTML = "";
-      totalCaja = 0;
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const li = document.createElement("li");
-        li.textContent = `${data.producto} x${data.cantidad} = €${data.total} (${data.usuario})`;
-        historial.appendChild(li);
-        totalCaja += data.total;
-      });
-      actualizarCaja();
-    });
-  }
-
-  // 🔹 Historial retiradas
-  function cargarRetiradas() {
-    const q = query(collection(db, "retiradas"), orderBy("fecha"));
-    onSnapshot(q, snapshot => {
-      historialRetiradas.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const li = document.createElement("li");
-        li.textContent = `${data.nombre} retiró €${data.cantidad} (${data.usuario})`;
-        historialRetiradas.appendChild(li);
-        totalCaja -= data.cantidad;
-      });
-      actualizarCaja();
-    });
-  }
-
-});
+// Iniciar aplicación
+cargarSocios();
