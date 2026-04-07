@@ -2,84 +2,57 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TPV Asociación - Caja Común</title>
+    <title>Caja Asociación</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #2ecc71; --bg: #f4f7f6; --danger: #e74c3c; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
-        .hidden { display: none !important; }
-        
-        /* Login */
-        .login-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 350px; margin: 100px auto; text-align: center; }
-        
-        /* Header y Stats */
-        header { background: var(--primary); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; sticky: top; }
-        .caja-total { background: white; color: var(--primary); padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 1.2rem; }
-
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 300px; gap: 2rem; }
-        @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
-
-        /* Productos */
-        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
-        .producto-card { background: white; border-radius: 12px; padding: 1rem; text-align: center; border: 1px solid #eee; cursor: pointer; transition: 0.2s; }
-        .producto-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-        .producto-card img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 5px; }
-        
-        /* Historial y Otros */
-        .panel { background: white; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 1rem; }
-        h3 { margin-top: 0; font-size: 1rem; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        ul { list-style: none; padding: 0; font-size: 0.85rem; max-height: 200px; overflow-y: auto; }
-        li { padding: 5px 0; border-bottom: 1px solid #f9f9f9; }
-        
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; padding: 10px; }
-        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-main { background: var(--primary); color: white; width: 100%; }
-        .btn-retirar { background: var(--danger); color: white; width: 100%; margin-top: 10px; }
+        body { font-family: Arial; background: #f0f0f0; text-align: center; }
+        .hidden { display: none; }
+        .card { background: white; padding: 20px; border-radius: 10px; display: inline-block; margin-top: 50px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        input { display: block; margin: 10px auto; padding: 10px; width: 200px; }
+        button { padding: 10px 20px; cursor: pointer; background: #2c3e50; color: white; border: none; border-radius: 5px; margin: 5px; }
+        .btn-vender { background: #27ae60; }
+        .btn-retirar { background: #e74c3c; }
+        #productos { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
+        .producto { background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd; width: 150px; cursor: pointer; }
+        .producto img { width: 80px; height: 80px; object-fit: contain; }
+        header { background: #2c3e50; color: white; padding: 20px; font-size: 24px; }
+        #historial { text-align: left; max-width: 500px; margin: 20px auto; background: white; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="login-section">
-        <div class="login-card">
-            <h2>Asociación</h2>
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button id="loginBtn" class="btn-main">Entrar</button>
-        </div>
+    <div id="login-div" class="card">
+        <h2>Entrar</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button id="loginBtn">ENTRAR</button>
     </div>
 
-    <div id="app-section" class="hidden">
+    <div id="app-div" class="hidden">
         <header>
-            <div class="caja-total">Caja: <span id="totalCaja">0.00</span>€</div>
-            <button onclick="window.location.reload()" style="background:rgba(255,255,255,0.2); color:white;">Salir</button>
+            CAJA: <span id="totalCaja">0.00</span>€
+            <button onclick="window.location.reload()" style="float:right; font-size: 12px;">SALIR</button>
         </header>
 
-        <div class="container">
-            <div>
-                <h2 style="margin-top:0">Productos</h2>
-                <div id="productos-grid" class="grid-productos"></div>
-            </div>
+        <h3>Toca un producto para venderlo:</h3>
+        <div id="productos"></div>
 
-            <div>
-                <div class="panel">
-                    <h3>Retirar Dinero</h3>
-                    <input type="text" id="retiraNombre" placeholder="Tu nombre">
-                    <input type="number" id="retiraCantidad" placeholder="Cantidad €">
-                    <button id="btnRetirar" class="btn-retirar">Registrar Salida</button>
-                </div>
+        <hr>
 
-                <div class="panel">
-                    <h3>Últimos Movimientos</h3>
-                    <ul id="historial-mezclado"></ul>
-                </div>
-            </div>
+        <div class="card">
+            <h3>Retirar Dinero</h3>
+            <input type="text" id="nombreRetirada" placeholder="¿Quién retira?">
+            <input type="number" id="cantidadRetirada" placeholder="Cantidad €">
+            <button id="retirarBtn" class="btn-retirar">REGISTRAR RETIRADA</button>
         </div>
+
+        <h3>Últimos Movimientos:</h3>
+        <div id="historial"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, updateDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
@@ -94,103 +67,88 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let totalVentas = 0;
-        let totalRetiradas = 0;
+        let totalCajaVentas = 0;
+        let totalCajaRetiradas = 0;
 
-        // Login
-        document.getElementById("loginBtn").onclick = async () => {
+        // BOTÓN LOGIN
+        document.getElementById("loginBtn").onclick = () => {
             const email = document.getElementById("email").value;
             const pass = document.getElementById("password").value;
-            try { await signInWithEmailAndPassword(auth, email, pass); } 
-            catch (e) { alert("Error: " + e.message); }
+            signInWithEmailAndPassword(auth, email, pass).catch(err => alert("Error: " + err.message));
         };
 
-        // Estado Usuario
-        onAuthStateChanged(auth, (user) => {
+        // DETECTAR USUARIO
+        onAuthStateChanged(auth, user => {
             if (user) {
-                document.getElementById("login-section").classList.add("hidden");
-                document.getElementById("app-section").classList.remove("hidden");
-                iniciarTPV();
+                document.getElementById("login-div").classList.add("hidden");
+                document.getElementById("app-div").classList.remove("hidden");
+                cargarTodo();
             }
         });
 
-        function iniciarTPV() {
-            cargarProductos();
-            escucharCaja();
-        }
-
-        function cargarProductos() {
-            onSnapshot(collection(db, "productos"), (snap) => {
-                const grid = document.getElementById("productos-grid");
-                grid.innerHTML = "";
+        function cargarTodo() {
+            // Cargar Productos
+            onSnapshot(collection(db, "productos"), snap => {
+                const div = document.getElementById("productos");
+                div.innerHTML = "";
                 snap.forEach(d => {
                     const p = d.data();
-                    const id = d.id;
-                    const card = document.createElement("div");
-                    card.className = "producto-card";
-                    card.innerHTML = `
-                        <img src="${p.img || 'https://via.placeholder.com/70'}">
-                        <div style="font-weight:bold">${id}</div>
-                        <div style="color:var(--accent)">${p.precio.toFixed(2)}€</div>
-                    `;
-                    card.onclick = () => vender(id, p.precio, p.stock);
-                    grid.appendChild(card);
+                    const item = document.createElement("div");
+                    item.className = "producto";
+                    item.innerHTML = `<img src="${p.img || ''}"><br><b>${d.id}</b><br>${p.precio}€`;
+                    item.onclick = () => vender(d.id, p.precio, p.stock);
+                    div.appendChild(item);
+                });
+            });
+
+            // Sumar Ventas
+            onSnapshot(collection(db, "ventas"), snap => {
+                totalCajaVentas = 0;
+                snap.forEach(d => totalCajaVentas += d.data().total);
+                actualizarCaja();
+            });
+
+            // Sumar Retiradas y Mostrar Historial
+            onSnapshot(query(collection(db, "retiradas"), orderBy("fecha", "desc"), limit(5)), snap => {
+                totalCajaRetiradas = 0;
+                const hist = document.getElementById("historial");
+                hist.innerHTML = "";
+                
+                // Calculamos el total de TODAS las retiradas
+                onSnapshot(collection(db, "retiradas"), all => {
+                    totalCajaRetiradas = 0;
+                    all.forEach(d => totalCajaRetiradas += d.data().cantidad);
+                    actualizarCaja();
+                });
+
+                snap.forEach(d => {
+                    const r = d.data();
+                    hist.innerHTML += `<li>${r.nombre}: -${r.cantidad}€</li>`;
                 });
             });
         }
 
         async function vender(id, precio, stock) {
-            if (confirm(`¿Vender ${id}?`)) {
-                await addDoc(collection(db, "ventas"), {
-                    producto: id,
-                    total: precio,
-                    fecha: new Date().toISOString(),
-                    usuario: auth.currentUser.email
+            if(confirm("¿Vender " + id + "?")) {
+                await addDoc(collection(db, "ventas"), { 
+                    producto: id, total: precio, fecha: new Date().toISOString(), usuario: auth.currentUser.email 
                 });
-                await updateDoc(doc(db, "productos", id), { stock: stock - 1 });
+                await updateDoc(doc(db, "productos", id), { stock: (stock || 1) - 1 });
             }
         }
 
-        document.getElementById("btnRetirar").onclick = async () => {
-            const nombre = document.getElementById("retiraNombre").value;
-            const cantidad = parseFloat(document.getElementById("retiraCantidad").value);
-            if (!nombre || !cantidad) return alert("Rellena los datos");
-
-            await addDoc(collection(db, "retiradas"), {
-                nombre: nombre,
-                cantidad: cantidad,
-                fecha: new Date().toISOString(),
-                usuario: auth.currentUser.email
+        document.getElementById("retirarBtn").onclick = async () => {
+            const n = document.getElementById("nombreRetirada").value;
+            const c = parseFloat(document.getElementById("cantidadRetirada").value);
+            if(!n || !c) return alert("Faltan datos");
+            await addDoc(collection(db, "retiradas"), { 
+                nombre: n, cantidad: c, fecha: new Date().toISOString(), usuario: auth.currentUser.email 
             });
-            document.getElementById("retiraCantidad").value = "";
+            document.getElementById("cantidadRetirada").value = "";
         };
 
-        function escucharCaja() {
-            // Escuchar Ventas para sumar
-            onSnapshot(collection(db, "ventas"), (snap) => {
-                totalVentas = 0;
-                snap.forEach(d => totalVentas += d.data().total);
-                actualizarUI();
-            });
-
-            // Escuchar Retiradas para restar
-            onSnapshot(collection(db, "retiradas"), (snap) => {
-                totalRetiradas = 0;
-                const hist = document.getElementById("historial-mezclado");
-                hist.innerHTML = "";
-                snap.forEach(d => {
-                    const r = d.data();
-                    totalRetiradas += r.cantidad;
-                    const li = document.createElement("li");
-                    li.innerHTML = `<span style="color:red">-${r.cantidad}€</span> por ${r.nombre}`;
-                    hist.appendChild(li);
-                });
-                actualizarUI();
-            });
-        }
-
-        function actualizarUI() {
-            document.getElementById("totalCaja").textContent = (totalVentas - totalRetiradas).toFixed(2);
+        function actualizarCaja() {
+            document.getElementById("totalCaja").textContent = (totalCajaVentas - totalCajaRetiradas).toFixed(2);
         }
     </script>
 </body>
