@@ -2,34 +2,49 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Caja Asociación</title>
+  <title>Caja Asociación TPV</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    #login { border: 1px solid #333; padding: 20px; width: 300px; }
-    #productos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-    .producto { border: 1px solid #555; padding: 10px; width: 120px; text-align: center; }
-    button { margin: 5px 0; width: 100%; }
+    body { font-family: Arial; padding: 20px; }
+    #login { border:1px solid #333; padding:20px; width:300px; }
+    #productos { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+    .producto { border:1px solid #555; padding:10px; width:120px; text-align:center; cursor:pointer; }
+    .producto img { width:100px; height:100px; object-fit:cover; }
+    button { margin:5px 0; width:100%; }
+    #addProductForm { display:none; border:1px solid #333; padding:10px; margin-top:10px; width:300px; }
   </style>
 </head>
 <body>
   <h1>Caja Asociación</h1>
 
-  <!-- Login -->
+  <!-- LOGIN -->
   <div id="login">
     <h2>Iniciar sesión</h2>
-    <input type="email" id="email" placeholder="Correo" style="width:100%; margin-bottom:10px;">
-    <input type="password" id="password" placeholder="Contraseña" style="width:100%; margin-bottom:10px;">
+    <input type="email" id="email" placeholder="Correo"><br><br>
+    <input type="password" id="password" placeholder="Contraseña"><br><br>
     <button id="loginBtn">Entrar</button>
     <button id="registerBtn">Registrarse</button>
   </div>
 
-  <!-- App principal -->
-  <div id="app" style="display:none; margin-top:20px;">
-    <h2>Productos</h2>
-    <div id="productos"></div>
+  <!-- APP PRINCIPAL -->
+  <div id="app" style="display:none;">
+    <div>
+      <button id="showAddProductBtn">Añadir Producto</button>
+      <h2>Total en caja: €<span id="totalCaja">0</span></h2>
+    </div>
 
-    <h2>Total en caja: €<span id="totalCaja">0</span></h2>
+    <!-- Formulario añadir producto -->
+    <div id="addProductForm">
+      <h3>Nuevo Producto</h3>
+      <input type="text" id="newName" placeholder="Nombre"><br>
+      <input type="number" id="newPrice" placeholder="Precio"><br>
+      <input type="number" id="newStock" placeholder="Stock"><br>
+      <input type="text" id="newImg" placeholder="URL Imagen"><br>
+      <button id="addNewProductBtn">Añadir</button>
+    </div>
+
+    <!-- Botones de productos -->
+    <div id="productos"></div>
 
     <h2>Historial de ventas</h2>
     <ul id="historial"></ul>
