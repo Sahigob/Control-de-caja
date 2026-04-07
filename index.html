@@ -3,133 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TPV Asociación - Gestión Pro</title>
+    <title>TPV Asociación - Modo Carrito</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; }
+        :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         .hidden { display: none !important; }
         
-        header { background: var(--primary); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .caja-badge { background: white; color: var(--primary); padding: 8px 20px; border-radius: 30px; font-weight: bold; font-size: 1.4rem; border: 2px solid var(--accent); }
+        /* CABECERA */
+        header { background: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; }
+        .caja-badge { background: white; color: var(--primary); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 1.2rem; border: 2px solid var(--accent); }
 
-        .main-container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
-        .action-bar { display: flex; gap: 10px; margin-bottom: 25px; }
+        /* DISEÑO DIVIDIDO: PRODUCTOS | TICKET */
+        .app-layout { display: flex; flex: 1; overflow: hidden; }
         
-        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; padding: 12px 15px; transition: 0.2s; }
-        .btn-retirar { background: var(--danger); color: white; flex: 1; }
-        .btn-historial { background: var(--info); color: white; flex: 1; }
-        .btn-add-stock { background: var(--accent); color: white; flex: 1; }
-        .btn-new-prod { background: var(--primary); color: white; width: 45px; font-size: 1.2rem; }
+        /* ZONA IZQUIERDA: PRODUCTOS */
+        .productos-section { flex: 1; overflow-y: auto; padding: 20px; border-right: 2px solid #ddd; }
+        .action-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        
+        /* TARJETAS */
+        .producto-card { background: white; border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #ddd; cursor: pointer; position: relative; transition: 0.2s; user-select: none; }
+        .producto-card:active { transform: scale(0.95); background: #f9f9f9; }
+        .producto-card img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 8px; }
+        .stock-tag { position: absolute; top: 5px; left: 5px; background: #eee; padding: 2px 6px; border-radius: 5px; font-size: 0.7rem; font-weight: bold; }
+        .btn-delete-card { position: absolute; top: 5px; right: 5px; color: #ccc; font-size: 14px; padding: 5px; }
+        .btn-delete-card:hover { color: var(--danger); }
 
-        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
-        .producto-card { background: white; border-radius: 18px; padding: 20px; text-align: center; border: 1px solid #ddd; cursor: pointer; position: relative; }
-        .producto-card img { width: 85px; height: 85px; object-fit: contain; margin-bottom: 10px; }
-        .stock-tag { position: absolute; top: 10px; left: 10px; background: #eee; padding: 4px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; }
-        
-        /* BOTÓN ELIMINAR EN TARJETA */
-        .btn-delete-card { position: absolute; top: 8px; right: 8px; background: #ff444422; color: #ff4444; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: 0.2s; }
-        .btn-delete-card:hover { background: var(--danger); color: white; }
+        /* ZONA DERECHA: TICKET (CALCULADORA) */
+        .ticket-section { width: 350px; background: white; display: flex; flex-direction: column; box-shadow: -2px 0 10px rgba(0,0,0,0.1); }
+        .ticket-header { padding: 15px; background: #eee; font-weight: bold; font-size: 1.1rem; text-align: center; }
+        .ticket-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .ticket-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .ticket-item-info { flex: 1; }
+        .ticket-item-total { font-weight: bold; margin-left: 10px; width: 60px; text-align: right; }
+        .btn-remove-item { color: var(--danger); background: none; border: none; cursor: pointer; padding: 0 10px; font-size: 1.1rem; }
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 10px; box-sizing: border-box; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; }
-        
-        .list-item-stock { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        .btn-confirm { background: var(--accent); color: white; width: 100%; padding: 15px; margin-top: 10px; font-size: 1.1rem; }
-        .btn-close { background: #95a5a6; color: white; width: 100%; margin-top: 10px; }
-        
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
+        .ticket-footer { padding: 20px; background: #f9f9f9; border-top: 2px solid #ddd; }
+        .total-pagar { font-size: 2rem; font-weight: 900; text-align: center; color: var(--primary); margin-bottom: 15px; }
+        .btn-cobrar { background: var(--accent); color: white; width: 100%; padding: 15px; border-radius: 12px; font-size: 1.3rem; font-weight: bold; box-shadow: 0 4px 0 #1e8449; }
+        .btn-cobrar:active { transform: translateY(3px); box-shadow: none; }
+
+        /* MODALES GENERALES */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 999; }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; }
+        button { cursor: pointer; border: none; font-weight: bold; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-    <div id="login-section" style="display:flex; justify-content:center; align-items:center; height:100vh; background:var(--primary);">
-        <div style="background:white; padding:40px; border-radius:20px; width:280px; text-align:center;">
-            <h2 style="margin-top:0">TPV Acceso</h2>
+    <div id="login-section" class="modal">
+        <div class="modal-content" style="max-width: 300px">
+            <h2>Acceso TPV</h2>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Contraseña">
-            <button id="loginBtn" style="background: var(--accent); color:white; width:100%; font-size:1.1rem">ENTRAR</button>
+            <button onclick="login()" style="background: var(--accent); color:white; width:100%; padding:15px">ENTRAR</button>
         </div>
     </div>
 
-    <div id="app-section" class="hidden">
+    <div id="app-section" class="hidden" style="height:100vh; display:flex; flex-direction:column;">
         <header>
-            <div class="caja-badge"><span id="totalCaja">0.00</span>€</div>
-            <button onclick="location.reload()" style="color:white; background:transparent; font-size:0.8rem">SALIR</button>
+            <div class="caja-badge">CAJA: <span id="totalCaja">0.00</span>€</div>
+            <button onclick="location.reload()" style="background:transparent; color:white">Salir</button>
         </header>
 
-        <div class="main-container">
-            <div class="action-bar">
-                <button class="btn-retirar" onclick="abrir('modal-retirar')">💸 RETIRAR</button>
-                <button class="btn-historial" onclick="abrir('modal-historial')">📊 MOVIMS.</button>
-                <button class="btn-add-stock" onclick="abrirModStock()">📦 +STOCK</button>
-                <button class="btn-new-prod" onclick="abrir('modal-nuevo-prod')" title="Crear Producto Nuevo">★</button>
-            </div>
-            <div id="productos-grid" class="grid-productos"></div>
+        <div class="app-layout">
+            <section class="productos-section">
+                <div class="action-bar">
+                    <button onclick="abrir('modal-retirar')" style="background:var(--danger); color:white; flex:1">💸 Retiro</button>
+                    <button onclick="abrir('modal-historial')" style="background:var(--info); color:white; flex:1">📊 Historial</button>
+                    <button onclick="abrirModStock()" style="background:var(--primary); color:white; flex:1">📦 +Stock</button>
+                    <button onclick="abrir('modal-nuevo-prod')" style="background:var(--primary); color:white; width:45px">★</button>
+                </div>
+                <div id="productos-grid" class="grid-productos"></div>
+            </section>
+
+            <section class="ticket-section">
+                <div class="ticket-header">TICKET ACTUAL</div>
+                <div id="ticket-list" class="ticket-list">
+                    </div>
+                <div class="ticket-footer">
+                    <div class="total-pagar"><span id="ticket-total">0.00</span>€</div>
+                    <button id="btn-cobrar" class="btn-cobrar">COBRAR Y FINALIZAR</button>
+                    <button onclick="limpiarTicket()" style="background:#ccc; width:100%; margin-top:10px; padding:8px; font-size:0.8rem">VACIAR TICKET</button>
+                </div>
+            </section>
         </div>
     </div>
 
-    <div id="modal-venta" class="modal hidden">
-        <div class="modal-content" style="max-width:320px">
-            <h2 id="ventaTitulo" style="margin-top:0">Venta</h2>
-            <input type="number" id="ventaCantidad" value="1" min="1">
-            <button class="btn-confirm" id="btnConfirmarVenta">VENDER</button>
-            <button class="btn-close" onclick="cerrar('modal-venta')">CANCELAR</button>
+    <div id="modal-cantidad" class="modal hidden">
+        <div class="modal-content" style="max-width: 250px">
+            <h3 id="cant-nombre">Producto</h3>
+            <input type="number" id="input-cantidad" value="1" min="1">
+            <button onclick="agregarAlTicket()" style="background:var(--accent); color:white; width:100%; padding:15px">AÑADIR</button>
+            <button onclick="cerrar('modal-cantidad')" style="background:#95a5a6; color:white; width:100%; margin-top:10px; padding:10px">CANCELAR</button>
+        </div>
+    </div>
+
+    <div id="modal-historial" class="modal hidden">
+        <div class="modal-content" style="max-width: 500px">
+            <h2 style="margin-top:0">Historial de Ventas</h2>
+            <div id="lista-historial" style="text-align:left; max-height: 300px; overflow-y:auto; font-size:0.8rem"></div>
+            <button onclick="cerrar('modal-historial')" class="btn-cobrar" style="background:#95a5a6; margin-top:20px">CERRAR</button>
         </div>
     </div>
 
     <div id="modal-add-stock" class="modal hidden">
         <div class="modal-content">
-            <h2 style="margin-top:0">Reponer Almacén</h2>
-            <p style="font-size:0.9rem; color:#666">Selecciona el producto que ha llegado:</p>
-            <div id="lista-para-stock"></div>
-            <button class="btn-close" onclick="cerrar('modal-add-stock')">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-confirmar-stock" class="modal hidden">
-        <div class="modal-content" style="max-width:320px">
-            <h3 id="stockNombreLabel"></h3>
-            <p>¿Cuántas unidades nuevas entran?</p>
-            <input type="number" id="inputSumaStock" value="24">
-            <button class="btn-confirm" id="btnFinalizarStock">AÑADIR AL STOCK</button>
-            <button class="btn-close" onclick="cerrar('modal-confirmar-stock')">VOLVER</button>
+            <h3>Reponer Unidades</h3>
+            <div id="lista-para-stock" style="text-align:left"></div>
+            <button onclick="cerrar('modal-add-stock')" style="margin-top:20px">CERRAR</button>
         </div>
     </div>
 
     <div id="modal-nuevo-prod" class="modal hidden">
-        <div class="modal-content" style="max-width:350px">
-            <h2 style="margin-top:0">Crear Nuevo Producto</h2>
-            <input type="text" id="newNombre" placeholder="Nombre">
-            <input type="number" id="newPrecio" placeholder="Precio €" step="0.01">
-            <input type="text" id="newImg" placeholder="URL Foto">
-            <button class="btn-confirm" id="btnGuardarNuevo">CREAR PRODUCTO</button>
-            <button class="btn-close" onclick="cerrar('modal-nuevo-prod')">CANCELAR</button>
-        </div>
-    </div>
-
-    <div id="modal-historial" class="modal hidden">
         <div class="modal-content">
-            <h2 style="margin-top:0">Historial</h2>
-            <div style="display:flex; gap:5px; margin-bottom:10px">
-                <button onclick="verTab('V')" id="tV" style="flex:1; background:var(--accent); color:white">Ventas</button>
-                <button onclick="verTab('R')" id="tR" style="flex:1; background:#ddd">Retiradas</button>
-            </div>
-            <div id="cV"><table><thead><tr><th>Hora</th><th>Prod.</th><th>€</th></tr></thead><tbody id="lV"></tbody></table></div>
-            <div id="cR" class="hidden"><table><thead><tr><th>Hora</th><th>Nombre</th><th>€</th></tr></thead><tbody id="lR"></tbody></table></div>
-            <button class="btn-close" onclick="cerrar('modal-historial')">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-retirar" class="modal hidden">
-        <div class="modal-content" style="max-width:320px">
-            <h2>Salida de Caja</h2>
-            <input type="text" id="retNom" placeholder="Nombre">
-            <input type="number" id="retCant" placeholder="Cantidad €">
-            <button class="btn-confirm" id="btnRetiro">CONFIRMAR</button>
-            <button class="btn-close" onclick="cerrar('modal-retirar')">VOLVER</button>
+            <h3>Nuevo Producto</h3>
+            <input type="text" id="newN" placeholder="Nombre">
+            <input type="number" id="newP" placeholder="Precio" step="0.01">
+            <input type="text" id="newI" placeholder="URL Imagen">
+            <button onclick="guardarNuevo()" class="btn-cobrar">GUARDAR</button>
+            <button onclick="cerrar('modal-nuevo-prod')">CANCELAR</button>
         </div>
     </div>
 
@@ -151,118 +145,160 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let vT = 0, rT = 0, pS = null, listadoProds = [];
+        let ticket = [];
+        let productosData = [];
+        let pActual = null;
+        let vTotal = 0, rTotal = 0;
 
         window.abrir = id => document.getElementById(id).classList.remove("hidden");
         window.cerrar = id => document.getElementById(id).classList.add("hidden");
 
-        document.getElementById("loginBtn").onclick = () => {
+        window.login = () => {
             signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(e => alert(e.message));
         };
 
         onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
 
         function iniciar() {
+            // Cargar Productos
             onSnapshot(collection(db, "productos"), snap => {
                 const g = document.getElementById("productos-grid"); g.innerHTML = "";
-                listadoProds = [];
+                productosData = [];
                 snap.forEach(d => {
                     const p = d.data();
-                    listadoProds.push({id: d.id, ...p});
-                    const div = document.createElement("div");
-                    div.className = "producto-card";
-                    div.innerHTML = `
-                        <div class="btn-delete-card" onclick="borrarProducto(event, '${d.id}')">✖</div>
-                        <span class="stock-tag">Stock: ${p.stock || 0}</span>
+                    productosData.push({id: d.id, ...p});
+                    const card = document.createElement("div");
+                    card.className = "producto-card";
+                    card.innerHTML = `
+                        <div class="btn-delete-card" onclick="event.stopPropagation(); borrarP('${d.id}')">✖</div>
+                        <span class="stock-tag">${p.stock || 0}</span>
                         <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3121/3121784.png'}">
-                        <h3>${d.id}</h3>
-                        <div style="font-weight:bold; color:var(--accent)">${Number(p.precio).toFixed(2)}€</div>
+                        <div style="font-size:0.8rem; font-weight:bold">${d.id}</div>
+                        <div style="color:var(--accent); font-weight:900">${Number(p.precio).toFixed(2)}€</div>
                     `;
-                    div.onclick = () => { pS = {id: d.id, precio: p.precio}; document.getElementById("ventaTitulo").innerText = d.id; abrir("modal-venta"); };
-                    g.appendChild(div);
+                    card.onclick = () => {
+                        pActual = { id: d.id, precio: p.precio };
+                        document.getElementById("cant-nombre").innerText = d.id;
+                        document.getElementById("input-cantidad").value = 1;
+                        abrir("modal-cantidad");
+                    };
+                    g.appendChild(card);
                 });
             });
 
-            const qV = query(collection(db, "ventas"), orderBy("fecha", "desc"));
-            onSnapshot(qV, s => {
-                vT = 0; const l = document.getElementById("lV"); l.innerHTML = "";
-                s.forEach(d => { const v = d.data(); vT += v.total; l.innerHTML += `<tr><td>${v.fecha.split('T')[1].substring(0,5)}</td><td>${v.producto}</td><td>${v.total.toFixed(2)}€</td></tr>`; });
-                act();
-            });
-
-            const qR = query(collection(db, "retiradas"), orderBy("fecha", "desc"));
-            onSnapshot(qR, s => {
-                rT = 0; const l = document.getElementById("lR"); l.innerHTML = "";
-                s.forEach(d => { const r = d.data(); rT += r.cantidad; l.innerHTML += `<tr><td>${r.fecha.split('T')[1].substring(0,5)}</td><td>${r.nombre}</td><td>${r.cantidad.toFixed(2)}€</td></tr>`; });
-                act();
-            });
+            // Cargar Caja
+            onSnapshot(collection(db, "ventas"), s => { vTotal = 0; s.forEach(d => vTotal += d.data().total); actCaja(); });
+            onSnapshot(collection(db, "retiradas"), s => { rTotal = 0; s.forEach(d => rTotal += d.data().cantidad); actCaja(); });
         }
 
-        // FUNCIÓN BORRAR PRODUCTO
-        window.borrarProducto = async (e, id) => {
-            e.stopPropagation();
-            if(confirm(`¿Seguro que quieres eliminar "${id}" para siempre?`)) {
-                await deleteDoc(doc(db, "productos", id));
+        // --- LÓGICA DEL TICKET ---
+        window.agregarAlTicket = () => {
+            const cant = parseInt(document.getElementById("input-cantidad").value);
+            if(!cant || cant < 1) return;
+            
+            // Si ya está en el ticket, sumar cantidad
+            const index = ticket.findIndex(item => item.id === pActual.id);
+            if(index >= 0) {
+                ticket[index].cantidad += cant;
+            } else {
+                ticket.push({ id: pActual.id, cantidad: cant, precio: pActual.precio });
+            }
+            
+            cerrar("modal-cantidad");
+            dibujarTicket();
+        };
+
+        function dibujarTicket() {
+            const lista = document.getElementById("ticket-list");
+            lista.innerHTML = "";
+            let suma = 0;
+
+            ticket.forEach((item, index) => {
+                const totalItem = item.cantidad * item.precio;
+                suma += totalItem;
+                lista.innerHTML += `
+                    <div class="ticket-item">
+                        <div class="ticket-item-info">
+                            <strong>${item.id}</strong><br>
+                            ${item.cantidad} x ${item.precio.toFixed(2)}€
+                        </div>
+                        <div class="ticket-item-total">${totalItem.toFixed(2)}€</div>
+                        <button class="btn-remove-item" onclick="quitarDelTicket(${index})">🗑️</button>
+                    </div>
+                `;
+            });
+            document.getElementById("ticket-total").innerText = suma.toFixed(2);
+        }
+
+        window.quitarDelTicket = (index) => {
+            ticket.splice(index, 1);
+            dibujarTicket();
+        };
+
+        window.limpiarTicket = () => {
+            ticket = [];
+            dibujarTicket();
+        };
+
+        // --- FINALIZAR VENTA (EL BOTÓN VERDE) ---
+        document.getElementById("btn-cobrar").onclick = async () => {
+            if(ticket.length === 0) return alert("El ticket está vacío");
+
+            const btn = document.getElementById("btn-cobrar");
+            btn.innerText = "PROCESANDO...";
+            btn.disabled = true;
+
+            try {
+                for (const item of ticket) {
+                    // 1. Restar Stock
+                    await updateDoc(doc(db, "productos", item.id), { stock: increment(-item.cantidad) });
+                    
+                    // 2. Guardar Venta
+                    await addDoc(collection(db, "ventas"), {
+                        producto: item.id,
+                        cantidad: item.cantidad,
+                        total: item.cantidad * item.precio,
+                        fecha: new Date().toISOString()
+                    });
+                }
+                
+                alert("¡Venta completada con éxito!");
+                limpiarTicket();
+            } catch (e) {
+                alert("Error al cobrar: " + e.message);
+            } finally {
+                btn.innerText = "COBRAR Y FINALIZAR";
+                btn.disabled = false;
             }
         };
 
-        // GESTIÓN DE STOCK SIN REESCRIBIR
+        // --- OTRAS FUNCIONES ---
+        window.borrarP = async (id) => { if(confirm("¿Borrar " + id + "?")) await deleteDoc(doc(db, "productos", id)); };
+        
+        window.guardarNuevo = async () => {
+            const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), i = document.getElementById("newI").value;
+            if(!n || !p) return;
+            await setDoc(doc(db, "productos", n), { precio: p, stock: 0, img: i });
+            cerrar("modal-nuevo-prod");
+        };
+
         window.abrirModStock = () => {
-            const cont = document.getElementById("lista-para-stock");
-            cont.innerHTML = "";
-            listadoProds.forEach(p => {
-                cont.innerHTML += `
-                    <div class="list-item-stock">
-                        <span><strong>${p.id}</strong> (Actual: ${p.stock})</span>
-                        <button onclick="prepararSuma('${p.id}')" style="background:var(--info); color:white; padding:5px 10px">+ Añadir</button>
-                    </div>`;
+            const l = document.getElementById("lista-para-stock"); l.innerHTML = "";
+            productosData.forEach(p => {
+                l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between">
+                    <span>${p.id}</span>
+                    <button onclick="sumarStock('${p.id}')" style="background:var(--accent); color:white; padding:5px">+ Añadir 24</button>
+                </div>`;
             });
             abrir("modal-add-stock");
         };
 
-        window.prepararSuma = id => {
-            pS = {id: id};
-            document.getElementById("stockNombreLabel").innerText = id;
-            cerrar("modal-add-stock");
-            abrir("modal-confirmar-stock");
+        window.sumarStock = async (id) => {
+            await updateDoc(doc(db, "productos", id), { stock: increment(24) });
+            alert("Stock actualizado");
         };
 
-        document.getElementById("btnFinalizarStock").onclick = async () => {
-            const n = parseInt(document.getElementById("inputSumaStock").value);
-            if(isNaN(n)) return;
-            await updateDoc(doc(db, "productos", pS.id), { stock: increment(n) });
-            cerrar("modal-confirmar-stock");
-        };
-
-        // ACCIONES BÁSICAS
-        document.getElementById("btnConfirmarVenta").onclick = async () => {
-            const c = parseInt(document.getElementById("ventaCantidad").value);
-            if(!c || c < 1) return;
-            cerrar("modal-venta");
-            await updateDoc(doc(db, "productos", pS.id), { stock: increment(-c) });
-            await addDoc(collection(db, "ventas"), { producto: pS.id, cantidad: c, total: pS.precio * c, fecha: new Date().toISOString() });
-        };
-
-        document.getElementById("btnGuardarNuevo").onclick = async () => {
-            const n = document.getElementById("newNombre").value, p = parseFloat(document.getElementById("newPrecio").value), i = document.getElementById("newImg").value;
-            if(!n || isNaN(p)) return;
-            cerrar("modal-nuevo-prod");
-            await setDoc(doc(db, "productos", n), { precio: p, stock: 0, img: i || "" });
-        };
-
-        document.getElementById("btnRetiro").onclick = async () => {
-            const n = document.getElementById("retNom").value, c = parseFloat(document.getElementById("retCant").value);
-            if(!n || !c) return;
-            cerrar("modal-retirar");
-            await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() });
-        };
-
-        window.verTab = t => {
-            if(t==='V'){ abrir('cV'); cerrar('cR'); document.getElementById('tV').style.background='var(--accent)'; document.getElementById('tR').style.background='#ddd'; }
-            else { abrir('cR'); cerrar('cV'); document.getElementById('tR').style.background='var(--danger)'; document.getElementById('tV').style.background='#ddd'; }
-        };
-
-        function act() { document.getElementById("totalCaja").innerText = (vT - rT).toFixed(2); }
+        function actCaja() { document.getElementById("totalCaja").innerText = (vTotal - rTotal).toFixed(2); }
     </script>
 </body>
 </html>
