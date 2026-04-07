@@ -1,15 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, updateDoc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-// 🔹 Tus credenciales de Firebase
+// 🔹 Configuración real de Firebase
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_STORAGE_BUCKET",
-  messagingSenderId: "TU_MESSAGING_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
+  authDomain: "control-de-caja-41341.firebaseapp.com",
+  projectId: "control-de-caja-41341",
+  storageBucket: "control-de-caja-41341.firebasestorage.app",
+  messagingSenderId: "802067725052",
+  appId: "1:802067725052:web:a583fab3a16d4f8025f579",
+  measurementId: "G-0TZZT5GEEE"
 };
 
 // Inicializar Firebase
@@ -18,7 +19,7 @@ const auth = getAuth();
 const db = getFirestore(app);
 const provider = new GithubAuthProvider();
 
-// Elementos
+// Elementos del DOM
 const loginBtn = document.getElementById("loginBtn");
 const appDiv = document.getElementById("app");
 const totalCajaSpan = document.getElementById("totalCaja");
@@ -26,7 +27,7 @@ const historial = document.getElementById("historial");
 const historialRetiradas = document.getElementById("historialRetiradas");
 const retirarBtn = document.getElementById("retirarBtn");
 
-// Productos con stock inicial
+// Productos iniciales con stock
 const productos = [
   { nombre: "Cerveza", precio: 1.5, stock: 50 },
   { nombre: "CocaCola", precio: 1, stock: 30 },
@@ -38,7 +39,7 @@ const productos = [
 
 let totalCaja = 0;
 
-// Login
+// 🔐 Login con GitHub
 loginBtn.addEventListener("click", () => {
   signInWithPopup(auth, provider).catch(console.error);
 });
@@ -57,7 +58,7 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-// Cargar stock desde Firestore
+// 🔹 Cargar stock desde Firestore
 async function cargarStock() {
   const prodRef = collection(db, "productos");
   for (let producto of productos) {
@@ -72,10 +73,11 @@ async function cargarStock() {
   renderProductos();
 }
 
-// Render productos
+// 🔹 Mostrar productos en la interfaz
 function renderProductos() {
   const contenedor = document.getElementById("productos");
   contenedor.innerHTML = "";
+
   productos.forEach((producto, index) => {
     const div = document.createElement("div");
     div.className = "producto";
@@ -85,11 +87,13 @@ function renderProductos() {
       Stock: ${producto.stock}
     `;
 
-    const comprarBtn = document.createElement("button");
-    comprarBtn.textContent = "Vender";
-    comprarBtn.onclick = () => comprar(index);
-    div.appendChild(comprarBtn);
+    // Botón vender
+    const venderBtn = document.createElement("button");
+    venderBtn.textContent = "Vender";
+    venderBtn.onclick = () => comprar(index);
+    div.appendChild(venderBtn);
 
+    // Botón agregar stock
     const stockBtn = document.createElement("button");
     stockBtn.textContent = "+ Stock";
     stockBtn.onclick = () => agregarStock(index);
@@ -99,7 +103,7 @@ function renderProductos() {
   });
 }
 
-// Comprar producto
+// 🔹 Comprar producto
 async function comprar(index) {
   const producto = productos[index];
   const cantidad = parseFloat(prompt(`Cantidad (Stock disponible: ${producto.stock})`));
@@ -113,7 +117,7 @@ async function comprar(index) {
   producto.stock -= cantidad;
   renderProductos();
 
-  // Guardar stock en Firestore
+  // Actualizar stock en Firestore
   const prodRef = doc(db, "productos", producto.nombre);
   await updateDoc(prodRef, { stock: producto.stock });
 
@@ -127,11 +131,12 @@ async function comprar(index) {
   });
 }
 
-// Agregar stock
+// 🔹 Agregar stock
 async function agregarStock(index) {
   const producto = productos[index];
   const cantidad = parseInt(prompt("Cantidad a añadir al stock"));
   if (!cantidad || cantidad <= 0) return;
+
   producto.stock += cantidad;
   renderProductos();
 
@@ -139,7 +144,7 @@ async function agregarStock(index) {
   await updateDoc(prodRef, { stock: producto.stock });
 }
 
-// Retirar dinero
+// 🔹 Retirar dinero
 retirarBtn.addEventListener("click", async () => {
   const nombre = document.getElementById("nombreRetirada").value;
   const cantidad = parseFloat(document.getElementById("cantidadRetirada").value);
@@ -159,12 +164,12 @@ retirarBtn.addEventListener("click", async () => {
   document.getElementById("cantidadRetirada").value = "";
 });
 
-// Actualizar total caja
+// 🔹 Actualizar total en caja
 function actualizarCaja() {
   totalCajaSpan.textContent = totalCaja.toFixed(2);
 }
 
-// Historial ventas
+// 🔹 Historial de ventas
 function cargarHistorial() {
   const q = query(collection(db, "ventas"), orderBy("fecha"));
   onSnapshot(q, snapshot => {
@@ -181,7 +186,7 @@ function cargarHistorial() {
   });
 }
 
-// Historial retiradas
+// 🔹 Historial de retiradas
 function cargarRetiradas() {
   const q = query(collection(db, "retiradas"), orderBy("fecha"));
   onSnapshot(q, snapshot => {
