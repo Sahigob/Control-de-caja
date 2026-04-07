@@ -3,105 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TPV Asociación - Control de Caja</title>
+    <title>TPV Asociación - Versión Final</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: #333; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
         .hidden { display: none !important; }
         
-        /* CABECERA */
-        header { background: var(--primary); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); sticky: top; }
-        .caja-badge { background: white; color: var(--primary); padding: 10px 25px; border-radius: 30px; font-weight: bold; font-size: 1.5rem; border: 2px solid var(--accent); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        header { background: var(--primary); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .caja-badge { background: white; color: var(--primary); padding: 10px 25px; border-radius: 30px; font-weight: bold; font-size: 1.5rem; border: 2px solid var(--accent); }
 
-        /* CONTENEDOR */
         .main-container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
-        
-        /* BOTONES DE ACCIÓN */
         .action-bar { display: flex; gap: 15px; margin-bottom: 25px; }
-        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; padding: 14px 20px; transition: all 0.2s ease; }
-        button:active { transform: scale(0.95); }
-        .btn-retirar { background: var(--danger); color: white; flex: 1; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-add { background: var(--primary); color: white; width: 60px; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; }
+        
+        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; padding: 14px 20px; transition: 0.2s; }
+        .btn-retirar { background: var(--danger); color: white; flex: 1; font-size: 1rem; }
+        .btn-add { background: var(--primary); color: white; width: 60px; font-size: 1.8rem; }
 
-        /* GRID DE PRODUCTOS */
         .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
-        .producto-card { background: white; border-radius: 18px; padding: 20px; text-align: center; border: 1px solid #eee; cursor: pointer; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .producto-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
-        .producto-card img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1)); }
-        .producto-card h3 { margin: 8px 0; font-size: 1.1rem; color: var(--primary); }
-        .producto-card .precio { font-weight: 800; color: var(--accent); font-size: 1.3rem; }
-        .stock-tag { position: absolute; top: 12px; right: 12px; background: #f0f0f0; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; color: #666; }
+        .producto-card { background: white; border-radius: 18px; padding: 20px; text-align: center; border: 1px solid #ddd; cursor: pointer; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .producto-card img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 10px; }
+        .stock-tag { position: absolute; top: 10px; right: 10px; background: #eee; padding: 4px 8px; border-radius: 10px; font-size: 0.8rem; color: #666; }
 
-        /* MODALES */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); }
-        .modal-content { background: white; padding: 35px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        input { width: 100%; padding: 15px; margin: 12px 0; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1.2rem; text-align: center; outline: none; }
-        input:focus { border-color: var(--accent); }
-        .btn-confirm { background: var(--accent); color: white; width: 100%; margin-top: 15px; font-size: 1.2rem; }
-        .btn-cancel { background: #95a5a6; color: white; width: 100%; margin-top: 8px; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; }
+        
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 1.1rem; text-align: center; }
+        .btn-confirm { background: var(--accent); color: white; width: 100%; margin-top: 10px; font-size: 1.1rem; padding: 15px; }
+        .btn-cancel { background: #95a5a6; color: white; width: 100%; margin-top: 10px; }
 
-        /* LOGIN */
         .login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--primary); }
-        .login-card { background: white; padding: 45px; border-radius: 25px; width: 340px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
+        .login-card { background: white; padding: 40px; border-radius: 20px; width: 300px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="login-section" class="login-screen">
         <div class="login-card">
-            <h1 style="color: var(--primary); margin-bottom: 30px;">TPV Login</h1>
-            <input type="email" id="email" placeholder="Email de la asociación">
+            <h2>Asociación</h2>
+            <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Contraseña">
-            <button id="loginBtn" style="background: var(--accent); color:white; width:100%; margin-top: 20px;">ACCEDER</button>
+            <button id="loginBtn" style="background: var(--accent); color:white; width:100%">ENTRAR</button>
         </div>
     </div>
 
     <div id="app-section" class="hidden">
         <header>
             <div class="caja-badge">CAJA: <span id="totalCaja">0.00</span>€</div>
-            <button onclick="location.reload()" style="background:rgba(255,255,255,0.15); color:white; font-size: 0.9rem;">Cerrar Sesión</button>
+            <button onclick="location.reload()" style="color:white; background:transparent">Salir</button>
         </header>
 
         <div class="main-container">
             <div class="action-bar">
-                <button class="btn-retirar" onclick="document.getElementById('modal-retirar').classList.remove('hidden')">💸 Retirar de Caja</button>
-                <button class="btn-add" onclick="document.getElementById('modal-producto').classList.remove('hidden')" title="Añadir Producto">+</button>
+                <button class="btn-retirar" onclick="abrir('modal-retirar')">💸 REGISTRAR SALIDA DINERO</button>
+                <button class="btn-add" onclick="abrir('modal-producto')">+</button>
             </div>
-
-            <div id="productos-grid" class="grid-productos">
-                </div>
+            <div id="productos-grid" class="grid-productos"></div>
         </div>
     </div>
 
     <div id="modal-venta" class="modal hidden">
         <div class="modal-content">
-            <h2 id="ventaTitulo" style="margin-top:0">Producto</h2>
-            <p style="color: #666;">¿Cuántas unidades se han vendido?</p>
+            <h2 id="ventaTitulo">Producto</h2>
             <input type="number" id="ventaCantidad" value="1" min="1">
-            <button class="btn-confirm" id="btnConfirmarVenta">CONFIRMAR VENTA</button>
-            <button class="btn-cancel" onclick="document.getElementById('modal-venta').classList.add('hidden')">CANCELAR</button>
-        </div>
-    </div>
-
-    <div id="modal-retirar" class="modal hidden">
-        <div class="modal-content">
-            <h2 style="margin-top:0">Retirar Efectivo</h2>
-            <input type="text" id="retiraNombre" placeholder="¿Quién retira?">
-            <input type="number" id="retiraCantidad" placeholder="Cantidad en €" step="0.01">
-            <button class="btn-confirm" id="btnConfirmarRetirada">REGISTRAR SALIDA</button>
-            <button class="btn-cancel" onclick="document.getElementById('modal-retirar').classList.add('hidden')">VOLVER</button>
+            <button class="btn-confirm" id="btnConfirmarVenta">VENDER</button>
+            <button class="btn-cancel" onclick="cerrar('modal-venta')">CANCELAR</button>
         </div>
     </div>
 
     <div id="modal-producto" class="modal hidden">
         <div class="modal-content">
-            <h2 style="margin-top:0">Nuevo Artículo</h2>
-            <input type="text" id="newProdNombre" placeholder="Nombre (ej: Lata Coca Cola)">
-            <input type="number" id="newProdPrecio" placeholder="Precio venta €" step="0.05">
-            <input type="number" id="newProdStock" placeholder="Stock actual">
-            <input type="text" id="newProdImg" placeholder="URL Foto (opcional)">
+            <h2>Añadir Artículo</h2>
+            <input type="text" id="newNombre" placeholder="Nombre">
+            <input type="number" id="newPrecio" placeholder="Precio €" step="0.01">
+            <input type="number" id="newStock" placeholder="Stock inicial">
+            <input type="text" id="newImg" placeholder="URL Imagen (opcional)">
             <button class="btn-confirm" id="btnGuardarProducto">GUARDAR PRODUCTO</button>
-            <button class="btn-cancel" onclick="document.getElementById('modal-producto').classList.add('hidden')">CERRAR</button>
+            <button class="btn-cancel" onclick="cerrar('modal-producto')">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="modal-retirar" class="modal hidden">
+        <div class="modal-content">
+            <h2>Retirar de Caja</h2>
+            <input type="text" id="retNombre" placeholder="Nombre">
+            <input type="number" id="retCantidad" placeholder="Euros €">
+            <button class="btn-confirm" id="btnConfirmarRetirada">CONFIRMAR SALIDA</button>
+            <button class="btn-cancel" onclick="cerrar('modal-retirar')">VOLVER</button>
         </div>
     </div>
 
@@ -110,7 +97,6 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-        // Configuración de tu Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
             authDomain: "control-de-caja-41341.firebaseapp.com",
@@ -124,131 +110,76 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let totalVentas = 0, totalRetiradas = 0, prodActual = null;
+        let vTot = 0, rTot = 0, pSel = null;
 
-        // ACCIÓN: LOGIN
+        window.abrir = id => document.getElementById(id).classList.remove("hidden");
+        window.cerrar = id => document.getElementById(id).classList.add("hidden");
+
         document.getElementById("loginBtn").onclick = () => {
-            const email = document.getElementById("email").value;
-            const pass = document.getElementById("password").value;
-            signInWithEmailAndPassword(auth, email, pass).catch(err => alert("Error de acceso: " + err.message));
+            signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(e => alert(e.message));
         };
 
-        // DETECTOR DE SESIÓN
         onAuthStateChanged(auth, user => {
             if(user) {
-                document.getElementById("login-section").classList.add("hidden");
-                document.getElementById("app-section").classList.remove("hidden");
-                cargarDatosEscritorio();
+                cerrar("login-section");
+                abrir("app-section");
+                iniciar();
             }
         });
 
-        // CARGAR DATOS DE FIRESTORE
-        function cargarDatosEscritorio() {
-            // Escuchar Productos en Tiempo Real
+        function iniciar() {
             onSnapshot(collection(db, "productos"), snap => {
-                const grid = document.getElementById("productos-grid");
-                grid.innerHTML = "";
+                const g = document.getElementById("productos-grid");
+                g.innerHTML = "";
                 snap.forEach(d => {
                     const p = d.data();
-                    const card = document.createElement("div");
-                    card.className = "producto-card";
-                    card.innerHTML = `
-                        <span class="stock-tag">Stock: ${p.stock || 0}</span>
-                        <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3121/3121784.png'}">
-                        <h3>${d.id}</h3>
-                        <div class="precio">${Number(p.precio).toFixed(2)}€</div>
-                    `;
-                    card.onclick = () => {
-                        prodActual = { id: d.id, precio: Number(p.precio) };
+                    const div = document.createElement("div");
+                    div.className = "producto-card";
+                    div.innerHTML = `<span class="stock-tag">Stock: ${p.stock || 0}</span><img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3121/3121784.png'}"><h3>${d.id}</h3><div class="precio">${Number(p.precio).toFixed(2)}€</div>`;
+                    div.onclick = () => {
+                        pSel = { id: d.id, precio: p.precio };
                         document.getElementById("ventaTitulo").innerText = d.id;
                         document.getElementById("ventaCantidad").value = 1;
-                        document.getElementById("modal-venta").classList.remove("hidden");
+                        abrir("modal-venta");
                     };
-                    grid.appendChild(card);
+                    g.appendChild(div);
                 });
             });
 
-            // Escuchar Caja (Ventas)
-            onSnapshot(collection(db, "ventas"), snap => {
-                totalVentas = 0;
-                snap.forEach(d => totalVentas += Number(d.data().total));
-                actualizarPantallaCaja();
-            });
-
-            // Escuchar Caja (Retiradas)
-            onSnapshot(collection(db, "retiradas"), snap => {
-                totalRetiradas = 0;
-                snap.forEach(d => totalRetiradas += Number(d.data().cantidad));
-                actualizarPantallaCaja();
-            });
+            onSnapshot(collection(db, "ventas"), s => { vTot = 0; s.forEach(d => vTot += d.data().total); actCaja(); });
+            onSnapshot(collection(db, "retiradas"), s => { rTot = 0; s.forEach(d => rTot += d.data().cantidad); actCaja(); });
         }
 
-        // ACCIÓN: VENDER (RESTA STOCK + SUMA CAJA)
+        // ACCIÓN: VENDER
         document.getElementById("btnConfirmarVenta").onclick = async () => {
-            const cant = parseInt(document.getElementById("ventaCantidad").value);
-            if(!cant || cant <= 0) return alert("Indica una cantidad");
-
-            // Cerramos modal primero
-            document.getElementById("modal-venta").classList.add("hidden");
-
-            try {
-                // 1. Restar Stock
-                const pRef = doc(db, "productos", prodActual.id);
-                await updateDoc(pRef, { stock: increment(-cant) });
-
-                // 2. Registrar Venta
-                await addDoc(collection(db, "ventas"), {
-                    producto: prodActual.id,
-                    cantidad: cant,
-                    total: prodActual.precio * cant,
-                    fecha: new Date().toISOString(),
-                    usuario: auth.currentUser.email
-                });
-            } catch (e) {
-                alert("Error al procesar. Revisa las REGLAS de Firebase. " + e.message);
-            }
+            const c = parseInt(document.getElementById("ventaCantidad").value);
+            if(!c || c < 1) return;
+            cerrar("modal-venta");
+            await updateDoc(doc(db, "productos", pSel.id), { stock: increment(-c) });
+            await addDoc(collection(db, "ventas"), { producto: pSel.id, cantidad: c, total: pSel.precio * c, fecha: new Date().toISOString() });
         };
 
-        // ACCIÓN: RETIRAR DINERO
-        document.getElementById("btnConfirmarRetirada").onclick = async () => {
-            const nom = document.getElementById("retiraNombre").value;
-            const cant = parseFloat(document.getElementById("retiraCantidad").value);
-            if(!nom || !cant) return alert("Rellena todos los campos");
-
-            document.getElementById("modal-retirar").classList.add("hidden");
-
-            await addDoc(collection(db, "retiradas"), {
-                nombre: nom,
-                cantidad: cant,
-                fecha: new Date().toISOString(),
-                usuario: auth.currentUser.email
-            });
-            
-            document.getElementById("retiraCantidad").value = "";
-            document.getElementById("retiraNombre").value = "";
-        };
-
-        // ACCIÓN: CREAR PRODUCTO
+        // ACCIÓN: GUARDAR PRODUCTO (Corregido)
         document.getElementById("btnGuardarProducto").onclick = async () => {
-            const n = document.getElementById("newProdNombre").value;
-            const p = parseFloat(document.getElementById("newProdPrecio").value);
-            const s = parseInt(document.getElementById("newProdStock").value);
-            const i = document.getElementById("newProdImg").value;
-
-            if(!n || !p) return alert("Nombre y Precio son obligatorios");
-
-            document.getElementById("modal-producto").classList.add("hidden");
-
-            await setDoc(doc(db, "productos", n), {
-                precio: p,
-                stock: s || 0,
-                img: i || ""
-            });
+            const n = document.getElementById("newNombre").value;
+            const p = parseFloat(document.getElementById("newPrecio").value);
+            const s = parseInt(document.getElementById("newStock").value);
+            const i = document.getElementById("newImg").value;
+            if(!n || isNaN(p)) return alert("Faltan datos");
+            cerrar("modal-producto");
+            await setDoc(doc(db, "productos", n), { precio: p, stock: s || 0, img: i || "" });
         };
 
-        function actualizarPantallaCaja() {
-            document.getElementById("totalCaja").textContent = (totalVentas - totalRetiradas).toFixed(2);
-        }
+        // ACCIÓN: RETIRAR
+        document.getElementById("btnConfirmarRetirada").onclick = async () => {
+            const n = document.getElementById("retNombre").value;
+            const c = parseFloat(document.getElementById("retCantidad").value);
+            if(!n || !c) return;
+            cerrar("modal-retirar");
+            await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() });
+        };
+
+        function actCaja() { document.getElementById("totalCaja").innerText = (vTot - rTot).toFixed(2); }
     </script>
 </body>
 </html>
