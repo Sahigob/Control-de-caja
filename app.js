@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebas
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-// CONFIGURACIÓN REAL DE FIREBASE
+// 🔹 Configuración Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
   authDomain: "control-de-caja-41341.firebaseapp.com",
@@ -13,12 +13,11 @@ const firebaseConfig = {
   measurementId: "G-0TZZT5GEEE"
 };
 
-// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore(app);
 
-// ELEMENTOS DEL DOM
+// DOM
 const loginBtn = document.getElementById("loginBtn");
 const registerBtn = document.getElementById("registerBtn");
 const appDiv = document.getElementById("app");
@@ -28,7 +27,7 @@ const historial = document.getElementById("historial");
 const historialRetiradas = document.getElementById("historialRetiradas");
 const retirarBtn = document.getElementById("retirarBtn");
 
-// PRODUCTOS CON STOCK
+// Productos iniciales
 const productos = [
   { nombre: "Cerveza", precio: 1.5, stock: 50 },
   { nombre: "CocaCola", precio: 1, stock: 30 },
@@ -40,25 +39,21 @@ const productos = [
 
 let totalCaja = 0;
 
-// LOGIN
+// Login
 loginBtn.addEventListener("click", () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-
-  signInWithEmailAndPassword(auth, email, password)
-    .catch(err => alert(err.message));
+  signInWithEmailAndPassword(auth, email, password).catch(err => alert(err.message));
 });
 
-// REGISTRO
+// Registrar
 registerBtn.addEventListener("click", () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-
-  createUserWithEmailAndPassword(auth, email, password)
-    .catch(err => alert(err.message));
+  createUserWithEmailAndPassword(auth, email, password).catch(err => alert(err.message));
 });
 
-// DETECTAR USUARIO LOGUEADO
+// Detectar usuario logueado
 onAuthStateChanged(auth, user => {
   if (user) {
     loginDiv.style.display = "none";
@@ -72,9 +67,11 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-// CARGAR STOCK
+// Cargar stock y renderizar
 async function cargarStock() {
   const prodRef = collection(db, "productos");
+  let primerCarga = false;
+
   for (let producto of productos) {
     const docRef = doc(prodRef, producto.nombre);
     const docSnap = await getDoc(docRef);
@@ -82,19 +79,33 @@ async function cargarStock() {
       producto.stock = docSnap.data().stock;
     } else {
       await setDoc(docRef, { stock: producto.stock });
+      primerCarga = true;
     }
   }
+
   renderProductos();
+
+  if (primerCarga) {
+    const q = query(collection(db, "productos"));
+    onSnapshot(q, snapshot => {
+      snapshot.forEach(doc => {
+        const prod = productos.find(p => p.nombre === doc.id);
+        if (prod) prod.stock = doc.data().stock;
+      });
+      renderProductos();
+    });
+  }
 }
 
-// MOSTRAR PRODUCTOS
+// Renderizar productos
 function renderProductos() {
   const contenedor = document.getElementById("productos");
   contenedor.innerHTML = "";
+
   productos.forEach((producto, index) => {
     const div = document.createElement("div");
     div.className = "producto";
-    div.innerHTML = `<strong>${producto.nombre}</strong> - €${producto.precio} - Stock: ${producto.stock} `;
+    div.innerHTML = `<strong>${producto.nombre}</strong><br>€${producto.precio}<br>Stock: ${producto.stock}`;
 
     const venderBtn = document.createElement("button");
     venderBtn.textContent = "Vender";
@@ -110,12 +121,12 @@ function renderProductos() {
   });
 }
 
-// COMPRAR PRODUCTO
+// Comprar
 async function comprar(index) {
   const producto = productos[index];
   const cantidad = parseFloat(prompt(`Cantidad (Stock disponible: ${producto.stock})`));
   if (!cantidad || cantidad <= 0) return;
-  if (cantidad > producto.stock) return alert("No hay suficiente stock disponible");
+  if (cantidad > producto.stock) return alert("No hay suficiente stock");
 
   const total = producto.precio * cantidad;
   totalCaja += total;
@@ -136,7 +147,7 @@ async function comprar(index) {
   });
 }
 
-// AGREGAR STOCK
+// Agregar stock
 async function agregarStock(index) {
   const producto = productos[index];
   const cantidad = parseInt(prompt("Cantidad a añadir al stock"));
@@ -149,7 +160,7 @@ async function agregarStock(index) {
   await updateDoc(prodRef, { stock: producto.stock });
 }
 
-// RETIRAR DINERO
+// Retirar dinero
 retirarBtn.addEventListener("click", async () => {
   const nombre = document.getElementById("nombreRetirada").value;
   const cantidad = parseFloat(document.getElementById("cantidadRetirada").value);
@@ -169,12 +180,12 @@ retirarBtn.addEventListener("click", async () => {
   document.getElementById("cantidadRetirada").value = "";
 });
 
-// ACTUALIZAR TOTAL
+// Actualizar total
 function actualizarCaja() {
   totalCajaSpan.textContent = totalCaja.toFixed(2);
 }
 
-// HISTORIAL VENTAS
+// Historial ventas
 function cargarHistorial() {
   const q = query(collection(db, "ventas"), orderBy("fecha"));
   onSnapshot(q, snapshot => {
@@ -191,7 +202,7 @@ function cargarHistorial() {
   });
 }
 
-// HISTORIAL RETIRADAS
+// Historial retiradas
 function cargarRetiradas() {
   const q = query(collection(db, "retiradas"), orderBy("fecha"));
   onSnapshot(q, snapshot => {
