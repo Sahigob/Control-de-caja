@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 // 🔹 Configuración real de Firebase
@@ -17,10 +17,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore(app);
-const provider = new GithubAuthProvider();
 
 // Elementos del DOM
 const loginBtn = document.getElementById("loginBtn");
+const registerBtn = document.getElementById("registerBtn");
 const appDiv = document.getElementById("app");
 const totalCajaSpan = document.getElementById("totalCaja");
 const historial = document.getElementById("historial");
@@ -39,9 +39,22 @@ const productos = [
 
 let totalCaja = 0;
 
-// 🔐 Login con GitHub
+// 🔐 Login con Email/Password
 loginBtn.addEventListener("click", () => {
-  signInWithPopup(auth, provider).catch(console.error);
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  signInWithEmailAndPassword(auth, email, password)
+    .catch(err => alert(err.message));
+});
+
+// 🔐 Registrar nuevo usuario
+registerBtn.addEventListener("click", () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .catch(err => alert(err.message));
 });
 
 // Detectar usuario logueado
@@ -127,7 +140,7 @@ async function comprar(index) {
     cantidad,
     total,
     fecha: new Date().toISOString(),
-    usuario: auth.currentUser.displayName || "Desconocido"
+    usuario: auth.currentUser.email
   });
 }
 
@@ -157,7 +170,7 @@ retirarBtn.addEventListener("click", async () => {
     nombre,
     cantidad,
     fecha: new Date().toISOString(),
-    usuario: auth.currentUser.displayName || "Desconocido"
+    usuario: auth.currentUser.email
   });
 
   document.getElementById("nombreRetirada").value = "";
