@@ -3,93 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TPV Asociación Pro</title>
+    <title>TPV Asociación - Control de Caja</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: #333; }
         .hidden { display: none !important; }
         
-        header { background: var(--primary); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .caja-badge { background: white; color: var(--primary); padding: 10px 20px; border-radius: 30px; font-weight: bold; font-size: 1.4rem; border: 2px solid var(--accent); }
+        /* CABECERA */
+        header { background: var(--primary); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); sticky: top; }
+        .caja-badge { background: white; color: var(--primary); padding: 10px 25px; border-radius: 30px; font-weight: bold; font-size: 1.5rem; border: 2px solid var(--accent); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
 
-        .main-container { max-width: 1100px; margin: 20px auto; padding: 0 20px; }
+        /* CONTENEDOR */
+        .main-container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
         
-        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; margin-top: 20px; }
-        .producto-card { background: white; border-radius: 15px; padding: 15px; text-align: center; border: 1px solid #ddd; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; }
-        .producto-card:hover { transform: translateY(-5px); border-color: var(--accent); }
-        .producto-card img { width: 90px; height: 90px; object-fit: contain; margin-bottom: 10px; }
-        .producto-card .stock-tag { position: absolute; top: 10px; right: 10px; background: #eee; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; color: #666; }
+        /* BOTONES DE ACCIÓN */
+        .action-bar { display: flex; gap: 15px; margin-bottom: 25px; }
+        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; padding: 14px 20px; transition: all 0.2s ease; }
+        button:active { transform: scale(0.95); }
+        .btn-retirar { background: var(--danger); color: white; flex: 1; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-add { background: var(--primary); color: white; width: 60px; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; }
 
-        .action-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; padding: 12px 20px; transition: 0.2s; }
-        .btn-retirar { background: var(--danger); color: white; flex: 1; font-size: 1rem; }
-        .btn-add { background: var(--primary); color: white; width: 50px; font-size: 1.5rem; }
-        
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1.2rem; text-align: center; }
-        .btn-save { background: var(--accent); color: white; width: 100%; margin-top: 10px; font-size: 1.1rem; }
-        .btn-close { background: #95a5a6; color: white; width: 100%; margin-top: 5px; }
+        /* GRID DE PRODUCTOS */
+        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+        .producto-card { background: white; border-radius: 18px; padding: 20px; text-align: center; border: 1px solid #eee; cursor: pointer; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .producto-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .producto-card img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1)); }
+        .producto-card h3 { margin: 8px 0; font-size: 1.1rem; color: var(--primary); }
+        .producto-card .precio { font-weight: 800; color: var(--accent); font-size: 1.3rem; }
+        .stock-tag { position: absolute; top: 12px; right: 12px; background: #f0f0f0; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; color: #666; }
 
-        .login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        /* MODALES */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); }
+        .modal-content { background: white; padding: 35px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        input { width: 100%; padding: 15px; margin: 12px 0; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1.2rem; text-align: center; outline: none; }
+        input:focus { border-color: var(--accent); }
+        .btn-confirm { background: var(--accent); color: white; width: 100%; margin-top: 15px; font-size: 1.2rem; }
+        .btn-cancel { background: #95a5a6; color: white; width: 100%; margin-top: 8px; }
+
+        /* LOGIN */
+        .login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--primary); }
+        .login-card { background: white; padding: 45px; border-radius: 25px; width: 340px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
     <div id="login-section" class="login-screen">
         <div class="login-card">
-            <h2 style="color: var(--primary)">Asociación</h2>
-            <input type="email" id="email" placeholder="Email">
+            <h1 style="color: var(--primary); margin-bottom: 30px;">TPV Login</h1>
+            <input type="email" id="email" placeholder="Email de la asociación">
             <input type="password" id="password" placeholder="Contraseña">
-            <button id="loginBtn" style="background: var(--primary); color:white; width:100%">ENTRAR</button>
+            <button id="loginBtn" style="background: var(--accent); color:white; width:100%; margin-top: 20px;">ACCEDER</button>
         </div>
     </div>
 
     <div id="app-section" class="hidden">
         <header>
-            <div class="caja-badge">Caja: <span id="totalCaja">0.00</span>€</div>
-            <button onclick="localStorage.clear(); location.reload();" style="background:rgba(255,255,255,0.2); color:white">Salir</button>
+            <div class="caja-badge">CAJA: <span id="totalCaja">0.00</span>€</div>
+            <button onclick="location.reload()" style="background:rgba(255,255,255,0.15); color:white; font-size: 0.9rem;">Cerrar Sesión</button>
         </header>
 
         <div class="main-container">
             <div class="action-bar">
-                <button class="btn-retirar" onclick="document.getElementById('modal-retirar').classList.remove('hidden')">💸 REGISTRAR SALIDA DINERO</button>
-                <button class="btn-add" onclick="document.getElementById('modal-producto').classList.remove('hidden')">+</button>
+                <button class="btn-retirar" onclick="document.getElementById('modal-retirar').classList.remove('hidden')">💸 Retirar de Caja</button>
+                <button class="btn-add" onclick="document.getElementById('modal-producto').classList.remove('hidden')" title="Añadir Producto">+</button>
             </div>
-            <div id="productos-grid" class="grid-productos"></div>
+
+            <div id="productos-grid" class="grid-productos">
+                </div>
         </div>
     </div>
 
     <div id="modal-venta" class="modal hidden">
         <div class="modal-content">
-            <h2 id="ventaTitulo">Cargando...</h2>
-            <p>¿Cuántas unidades?</p>
+            <h2 id="ventaTitulo" style="margin-top:0">Producto</h2>
+            <p style="color: #666;">¿Cuántas unidades se han vendido?</p>
             <input type="number" id="ventaCantidad" value="1" min="1">
-            <button class="btn-save" id="btnConfirmarVenta">CONFIRMAR VENTA</button>
-            <button class="btn-close" onclick="document.getElementById('modal-venta').classList.add('hidden')">CANCELAR</button>
+            <button class="btn-confirm" id="btnConfirmarVenta">CONFIRMAR VENTA</button>
+            <button class="btn-cancel" onclick="document.getElementById('modal-venta').classList.add('hidden')">CANCELAR</button>
         </div>
     </div>
 
     <div id="modal-retirar" class="modal hidden">
         <div class="modal-content">
-            <h2>Retirar de Caja</h2>
-            <input type="text" id="retiraNombre" placeholder="Nombre">
-            <input type="number" id="retiraCantidad" placeholder="Cantidad €">
-            <button class="btn-save" id="saveRetirada">CONFIRMAR SALIDA</button>
-            <button class="btn-close" onclick="document.getElementById('modal-retirar').classList.add('hidden')">CERRAR</button>
+            <h2 style="margin-top:0">Retirar Efectivo</h2>
+            <input type="text" id="retiraNombre" placeholder="¿Quién retira?">
+            <input type="number" id="retiraCantidad" placeholder="Cantidad en €" step="0.01">
+            <button class="btn-confirm" id="btnConfirmarRetirada">REGISTRAR SALIDA</button>
+            <button class="btn-cancel" onclick="document.getElementById('modal-retirar').classList.add('hidden')">VOLVER</button>
         </div>
     </div>
 
     <div id="modal-producto" class="modal hidden">
         <div class="modal-content">
-            <h2>Nuevo Producto</h2>
-            <input type="text" id="newProdNombre" placeholder="Nombre">
-            <input type="number" id="newProdPrecio" placeholder="Precio €" step="0.05">
-            <input type="number" id="newProdStock" placeholder="Stock">
-            <input type="text" id="newProdImg" placeholder="URL Foto">
-            <button class="btn-save" id="saveProducto">GUARDAR</button>
-            <button class="btn-close" onclick="document.getElementById('modal-producto').classList.add('hidden')">CERRAR</button>
+            <h2 style="margin-top:0">Nuevo Artículo</h2>
+            <input type="text" id="newProdNombre" placeholder="Nombre (ej: Lata Coca Cola)">
+            <input type="number" id="newProdPrecio" placeholder="Precio venta €" step="0.05">
+            <input type="number" id="newProdStock" placeholder="Stock actual">
+            <input type="text" id="newProdImg" placeholder="URL Foto (opcional)">
+            <button class="btn-confirm" id="btnGuardarProducto">GUARDAR PRODUCTO</button>
+            <button class="btn-cancel" onclick="document.getElementById('modal-producto').classList.add('hidden')">CERRAR</button>
         </div>
     </div>
 
@@ -98,6 +110,7 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+        // Configuración de tu Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
             authDomain: "control-de-caja-41341.firebaseapp.com",
@@ -111,21 +124,27 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let vTotal = 0, rTotal = 0, prodTemp = null;
+        let totalVentas = 0, totalRetiradas = 0, prodActual = null;
 
+        // ACCIÓN: LOGIN
         document.getElementById("loginBtn").onclick = () => {
-            signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(err => alert(err.message));
+            const email = document.getElementById("email").value;
+            const pass = document.getElementById("password").value;
+            signInWithEmailAndPassword(auth, email, pass).catch(err => alert("Error de acceso: " + err.message));
         };
 
+        // DETECTOR DE SESIÓN
         onAuthStateChanged(auth, user => {
             if(user) {
                 document.getElementById("login-section").classList.add("hidden");
                 document.getElementById("app-section").classList.remove("hidden");
-                iniciarApp();
+                cargarDatosEscritorio();
             }
         });
 
-        function iniciarApp() {
+        // CARGAR DATOS DE FIRESTORE
+        function cargarDatosEscritorio() {
+            // Escuchar Productos en Tiempo Real
             onSnapshot(collection(db, "productos"), snap => {
                 const grid = document.getElementById("productos-grid");
                 grid.innerHTML = "";
@@ -133,9 +152,14 @@
                     const p = d.data();
                     const card = document.createElement("div");
                     card.className = "producto-card";
-                    card.innerHTML = `<span class="stock-tag">Stock: ${p.stock || 0}</span><img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/1046/1046771.png'}"><h3>${d.id}</h3><div class="precio">${Number(p.precio).toFixed(2)}€</div>`;
+                    card.innerHTML = `
+                        <span class="stock-tag">Stock: ${p.stock || 0}</span>
+                        <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3121/3121784.png'}">
+                        <h3>${d.id}</h3>
+                        <div class="precio">${Number(p.precio).toFixed(2)}€</div>
+                    `;
                     card.onclick = () => {
-                        prodTemp = { id: d.id, precio: Number(p.precio) };
+                        prodActual = { id: d.id, precio: Number(p.precio) };
                         document.getElementById("ventaTitulo").innerText = d.id;
                         document.getElementById("ventaCantidad").value = 1;
                         document.getElementById("modal-venta").classList.remove("hidden");
@@ -144,64 +168,86 @@
                 });
             });
 
-            onSnapshot(collection(db, "ventas"), snap => { vTotal = 0; snap.forEach(d => vTotal += Number(d.data().total)); actualizarCaja(); });
-            onSnapshot(collection(db, "retiradas"), snap => { rTotal = 0; snap.forEach(d => rTotal += Number(d.data().cantidad)); actualizarCaja(); });
+            // Escuchar Caja (Ventas)
+            onSnapshot(collection(db, "ventas"), snap => {
+                totalVentas = 0;
+                snap.forEach(d => totalVentas += Number(d.data().total));
+                actualizarPantallaCaja();
+            });
+
+            // Escuchar Caja (Retiradas)
+            onSnapshot(collection(db, "retiradas"), snap => {
+                totalRetiradas = 0;
+                snap.forEach(d => totalRetiradas += Number(d.data().cantidad));
+                actualizarPantallaCaja();
+            });
         }
 
-        // --- FUNCIÓN CORREGIDA ---
+        // ACCIÓN: VENDER (RESTA STOCK + SUMA CAJA)
         document.getElementById("btnConfirmarVenta").onclick = async () => {
-            const cantInput = document.getElementById("ventaCantidad").value;
-            const cant = parseInt(cantInput);
-            
-            if(!cant || cant <= 0) return alert("Cantidad no válida");
+            const cant = parseInt(document.getElementById("ventaCantidad").value);
+            if(!cant || cant <= 0) return alert("Indica una cantidad");
 
-            // 1. Cerramos el modal inmediatamente
+            // Cerramos modal primero
             document.getElementById("modal-venta").classList.add("hidden");
 
             try {
-                const totalOperacion = prodTemp.precio * cant;
-                
-                // 2. Registramos la venta
-                await addDoc(collection(db, "ventas"), { 
-                    producto: prodTemp.id, 
+                // 1. Restar Stock
+                const pRef = doc(db, "productos", prodActual.id);
+                await updateDoc(pRef, { stock: increment(-cant) });
+
+                // 2. Registrar Venta
+                await addDoc(collection(db, "ventas"), {
+                    producto: prodActual.id,
                     cantidad: cant,
-                    total: totalOperacion, 
-                    fecha: new Date().toISOString(), 
-                    usuario: auth.currentUser.email 
+                    total: prodActual.precio * cant,
+                    fecha: new Date().toISOString(),
+                    usuario: auth.currentUser.email
                 });
-
-                // 3. Restamos del stock (Referencia directa al ID del producto)
-                const productoRef = doc(db, "productos", prodTemp.id);
-                await updateDoc(productoRef, { 
-                    stock: increment(-cant) 
-                });
-
             } catch (e) {
-                console.error(e);
-                alert("Error al procesar: " + e.message);
+                alert("Error al procesar. Revisa las REGLAS de Firebase. " + e.message);
             }
         };
 
-        document.getElementById("saveRetirada").onclick = async () => {
+        // ACCIÓN: RETIRAR DINERO
+        document.getElementById("btnConfirmarRetirada").onclick = async () => {
             const nom = document.getElementById("retiraNombre").value;
             const cant = parseFloat(document.getElementById("retiraCantidad").value);
-            if(!nom || !cant) return alert("Datos incompletos");
+            if(!nom || !cant) return alert("Rellena todos los campos");
+
             document.getElementById("modal-retirar").classList.add("hidden");
-            await addDoc(collection(db, "retiradas"), { nombre: nom, cantidad: cant, fecha: new Date().toISOString(), usuario: auth.currentUser.email });
+
+            await addDoc(collection(db, "retiradas"), {
+                nombre: nom,
+                cantidad: cant,
+                fecha: new Date().toISOString(),
+                usuario: auth.currentUser.email
+            });
+            
+            document.getElementById("retiraCantidad").value = "";
+            document.getElementById("retiraNombre").value = "";
         };
 
-        document.getElementById("saveProducto").onclick = async () => {
+        // ACCIÓN: CREAR PRODUCTO
+        document.getElementById("btnGuardarProducto").onclick = async () => {
             const n = document.getElementById("newProdNombre").value;
             const p = parseFloat(document.getElementById("newProdPrecio").value);
             const s = parseInt(document.getElementById("newProdStock").value);
             const i = document.getElementById("newProdImg").value;
-            if(!n || !p) return alert("Falta nombre o precio");
+
+            if(!n || !p) return alert("Nombre y Precio son obligatorios");
+
             document.getElementById("modal-producto").classList.add("hidden");
-            await setDoc(doc(db, "productos", n), { precio: p, stock: s || 0, img: i || "" });
+
+            await setDoc(doc(db, "productos", n), {
+                precio: p,
+                stock: s || 0,
+                img: i || ""
+            });
         };
 
-        function actualizarCaja() { 
-            document.getElementById("totalCaja").textContent = (vTotal - rTotal).toFixed(2); 
+        function actualizarPantallaCaja() {
+            document.getElementById("totalCaja").textContent = (totalVentas - totalRetiradas).toFixed(2);
         }
     </script>
 </body>
