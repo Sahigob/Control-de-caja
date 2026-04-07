@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TPV Asociación - Gestión de Almacén</title>
+    <title>TPV Asociación - Versión Completa</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
@@ -29,11 +29,16 @@
 
         .ticket-footer { padding: 20px; background: #f9f9f9; border-top: 2px solid #ddd; }
         .total-pagar { font-size: 2rem; font-weight: 900; text-align: center; color: var(--primary); margin-bottom: 15px; }
-        .btn-cobrar { background: var(--accent); color: white; width: 100%; padding: 15px; border-radius: 12px; font-size: 1.3rem; font-weight: bold; cursor: pointer; }
+        .btn-cobrar { background: var(--accent); color: white; width: 100%; padding: 15px; border-radius: 12px; font-size: 1.3rem; font-weight: bold; cursor: pointer; border:none; }
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 999; }
-        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; max-height: 80vh; overflow-y: auto; }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 450px; text-align: center; max-height: 85vh; overflow-y: auto; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
+        .text-danger { color: var(--danger); font-weight: bold; }
+        .text-success { color: var(--accent); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -56,9 +61,9 @@
         <div class="app-layout">
             <section class="productos-section">
                 <div class="action-bar">
-                    <button onclick="abrir('modal-retirar')" style="background:var(--danger); color:white; flex:1; border:none; border-radius:8px; cursor:pointer;">💸 Retiro</button>
-                    <button onclick="abrir('modal-historial')" style="background:var(--info); color:white; flex:1; border:none; border-radius:8px; cursor:pointer;">📊 Historial</button>
-                    <button onclick="abrirModStock()" style="background:var(--primary); color:white; flex:1; border:none; border-radius:8px; cursor:pointer;">📦 +Stock</button>
+                    <button onclick="abrir('modal-retirar')" style="background:var(--danger); color:white; flex:1; padding:12px; border:none; border-radius:8px; cursor:pointer;">💸 Retirar</button>
+                    <button onclick="abrir('modal-historial')" style="background:var(--info); color:white; flex:1; padding:12px; border:none; border-radius:8px; cursor:pointer;">📊 Historial</button>
+                    <button onclick="abrirModStock()" style="background:var(--primary); color:white; flex:1; padding:12px; border:none; border-radius:8px; cursor:pointer;">📦 +Stock</button>
                     <button onclick="abrir('modal-nuevo-prod')" style="background:var(--primary); color:white; width:45px; border:none; border-radius:8px; cursor:pointer;">★</button>
                 </div>
                 <div id="productos-grid" class="grid-productos"></div>
@@ -76,32 +81,61 @@
         </div>
     </div>
 
+    <div id="modal-historial" class="modal hidden">
+        <div class="modal-content">
+            <h3>Historial de Movimientos</h3>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <button onclick="verTab('V')" id="tV" style="flex:1; padding:8px; background:var(--accent); color:white; border:none; border-radius:5px;">Ventas</button>
+                <button onclick="verTab('R')" id="tR" style="flex:1; padding:8px; background:#ddd; border:none; border-radius:5px;">Retiradas</button>
+            </div>
+            <div id="cont-V">
+                <table>
+                    <thead><tr><th>Hora</th><th>Producto</th><th>Total</th></tr></thead>
+                    <tbody id="lista-ventas"></tbody>
+                </table>
+            </div>
+            <div id="cont-R" class="hidden">
+                <table>
+                    <thead><tr><th>Hora</th><th>Concepto</th><th>Cant.</th></tr></thead>
+                    <tbody id="lista-retiradas"></tbody>
+                </table>
+            </div>
+            <button onclick="cerrar('modal-historial')" style="margin-top:20px; width:100%; padding:10px; border:none; border-radius:8px; background:#95a5a6; color:white;">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="modal-retirar" class="modal hidden">
+        <div class="modal-content" style="max-width:300px">
+            <h3>Salida de Dinero</h3>
+            <input type="text" id="retNombre" placeholder="¿Quién lo retira?">
+            <input type="number" id="retCantidad" placeholder="Importe €" step="0.01">
+            <button onclick="ejecutarRetiro()" style="background:var(--danger); color:white; width:100%; padding:15px; border:none; border-radius:8px;">CONFIRMAR RETIRADA</button>
+            <button onclick="cerrar('modal-retirar')" style="margin-top:10px; background:none; border:none;">Cancelar</button>
+        </div>
+    </div>
+
     <div id="modal-cantidad" class="modal hidden">
         <div class="modal-content" style="max-width: 250px">
             <h3 id="cant-nombre">Producto</h3>
-            <p>Cantidad vendida:</p>
             <input type="number" id="input-cantidad" value="1" min="1">
-            <button onclick="agregarAlTicket()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:8px; cursor:pointer;">AÑADIR</button>
-            <button onclick="cerrar('modal-cantidad')" style="background:#95a5a6; color:white; width:100%; margin-top:10px; padding:10px; border:none; border-radius:8px; cursor:pointer;">CANCELAR</button>
+            <button onclick="agregarAlTicket()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:8px;">AÑADIR</button>
+            <button onclick="cerrar('modal-cantidad')" style="background:#95a5a6; color:white; width:100%; margin-top:10px; padding:10px; border:none; border-radius:8px;">CANCELAR</button>
         </div>
     </div>
 
     <div id="modal-add-stock" class="modal hidden">
         <div class="modal-content">
-            <h3>Reponer Unidades</h3>
-            <p style="font-size:0.8rem; color:#666">Haz clic en el producto para añadir stock:</p>
-            <div id="lista-para-stock" style="text-align:left"></div>
-            <button onclick="cerrar('modal-add-stock')" style="margin-top:20px; padding:10px; border-radius:8px; border:none; cursor:pointer;">CERRAR</button>
+            <h3>Añadir Stock</h3>
+            <div id="lista-para-stock"></div>
+            <button onclick="cerrar('modal-add-stock')" style="margin-top:15px;">CERRAR</button>
         </div>
     </div>
 
     <div id="modal-stock-manual" class="modal hidden">
         <div class="modal-content" style="max-width:280px">
             <h3 id="stock-nombre-manual"></h3>
-            <p>¿Cuántas unidades nuevas entran?</p>
-            <input type="number" id="input-stock-cantidad" value="24" min="1">
-            <button onclick="finalizarCargaStock()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:8px; cursor:pointer;">ACTUALIZAR STOCK</button>
-            <button onclick="cerrar('modal-stock-manual')" style="background:#95a5a6; color:white; width:100%; margin-top:10px; padding:10px; border:none; border-radius:8px; cursor:pointer;">VOLVER</button>
+            <input type="number" id="input-stock-cantidad" value="24">
+            <button onclick="finalizarCargaStock()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:8px;">GUARDAR STOCK</button>
         </div>
     </div>
 
@@ -109,17 +143,17 @@
         <div class="modal-content">
             <h3>Nuevo Producto</h3>
             <input type="text" id="newN" placeholder="Nombre">
-            <input type="number" id="newP" placeholder="Precio" step="0.01">
-            <input type="text" id="newI" placeholder="URL Imagen">
-            <button onclick="guardarNuevo()" class="btn-cobrar" style="border:none;">GUARDAR</button>
-            <button onclick="cerrar('modal-nuevo-prod')" style="margin-top:10px; background:none; border:none; cursor:pointer;">Cancelar</button>
+            <input type="number" id="newP" placeholder="Precio">
+            <input type="text" id="newI" placeholder="URL Foto">
+            <button onclick="guardarNuevo()" class="btn-cobrar">CREAR</button>
+            <button onclick="cerrar('modal-nuevo-prod')" style="margin-top:10px; border:none; background:none;">Cancelar</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
@@ -134,36 +168,31 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let ticket = [];
-        let productosData = [];
-        let pActual = null;
-        let vTotal = 0, rTotal = 0;
+        let ticket = [], productosData = [], pActual = null, vTotal = 0, rTotal = 0;
 
         window.abrir = id => document.getElementById(id).classList.remove("hidden");
         window.cerrar = id => document.getElementById(id).classList.add("hidden");
 
         window.login = () => {
-            signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(e => alert("Error: " + e.message));
+            signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(e => alert(e.message));
         };
 
         onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
 
         function iniciar() {
+            // Escuchar Productos
             onSnapshot(collection(db, "productos"), snap => {
                 const g = document.getElementById("productos-grid"); g.innerHTML = "";
                 productosData = [];
                 snap.forEach(d => {
-                    const p = d.data();
-                    productosData.push({id: d.id, ...p});
+                    const p = d.data(); productosData.push({id: d.id, ...p});
                     const card = document.createElement("div");
                     card.className = "producto-card";
-                    card.innerHTML = `
-                        <div class="btn-delete-card" onclick="event.stopPropagation(); borrarP('${d.id}')">✖</div>
+                    card.innerHTML = `<div class="btn-delete-card" onclick="event.stopPropagation(); borrarP('${d.id}')">✖</div>
                         <span class="stock-tag">${p.stock || 0}</span>
                         <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3121/3121784.png'}">
                         <div style="font-size:0.8rem; font-weight:bold">${d.id}</div>
-                        <div style="color:var(--accent); font-weight:900">${Number(p.precio).toFixed(2)}€</div>
-                    `;
+                        <div style="color:var(--accent); font-weight:900">${Number(p.precio).toFixed(2)}€</div>`;
                     card.onclick = () => {
                         pActual = { id: d.id, precio: p.precio };
                         document.getElementById("cant-nombre").innerText = d.id;
@@ -174,61 +203,66 @@
                 });
             });
 
-            onSnapshot(collection(db, "ventas"), s => { vTotal = 0; s.forEach(d => vTotal += d.data().total); actCaja(); });
-            onSnapshot(collection(db, "retiradas"), s => { rTotal = 0; s.forEach(d => rTotal += d.data().cantidad); actCaja(); });
+            // Escuchar Ventas para Historial y Caja
+            const qV = query(collection(db, "ventas"), orderBy("fecha", "desc"));
+            onSnapshot(qV, s => {
+                vTotal = 0;
+                const l = document.getElementById("lista-ventas"); l.innerHTML = "";
+                s.forEach(d => {
+                    const v = d.data(); vTotal += v.total;
+                    const hora = v.fecha ? v.fecha.split('T')[1].substring(0,5) : '--:--';
+                    l.innerHTML += `<tr><td>${hora}</td><td>${v.producto} (x${v.cantidad})</td><td class="text-success">${Number(v.total).toFixed(2)}€</td></tr>`;
+                });
+                actCaja();
+            });
+
+            // Escuchar Retiradas para Historial y Caja
+            const qR = query(collection(db, "retiradas"), orderBy("fecha", "desc"));
+            onSnapshot(qR, s => {
+                rTotal = 0;
+                const l = document.getElementById("lista-retiradas"); l.innerHTML = "";
+                s.forEach(d => {
+                    const r = d.data(); rTotal += r.cantidad;
+                    const hora = r.fecha ? r.fecha.split('T')[1].substring(0,5) : '--:--';
+                    l.innerHTML += `<tr><td>${hora}</td><td>${r.nombre}</td><td class="text-danger">-${Number(r.cantidad).toFixed(2)}€</td></tr>`;
+                });
+                actCaja();
+            });
         }
 
-        // --- GESTIÓN STOCK MANUAL ---
-        window.abrirModStock = () => {
-            const l = document.getElementById("lista-para-stock"); l.innerHTML = "";
-            productosData.forEach(p => {
-                l.innerHTML += `<div onclick="prepararStockManual('${p.id}')" style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; cursor:pointer;">
-                    <strong>${p.id}</strong> 
-                    <span>Actual: ${p.stock || 0} > <span style="color:var(--info)">+ añadir</span></span>
-                </div>`;
-            });
-            abrir("modal-add-stock");
+        // --- FUNCIONES DE ACCIÓN ---
+        window.ejecutarRetiro = async () => {
+            const nom = document.getElementById("retNombre").value;
+            const cant = parseFloat(document.getElementById("retCantidad").value);
+            if(!nom || !cant) return;
+            await addDoc(collection(db, "retiradas"), { nombre: nom, cantidad: cant, fecha: new Date().toISOString() });
+            cerrar("modal-retirar");
+            document.getElementById("retNombre").value = ""; document.getElementById("retCantidad").value = "";
         };
 
-        window.prepararStockManual = (id) => {
-            pActual = { id: id };
-            document.getElementById("stock-nombre-manual").innerText = id;
-            document.getElementById("input-stock-cantidad").value = 24;
-            cerrar("modal-add-stock");
-            abrir("modal-stock-manual");
+        window.verTab = (t) => {
+            if(t==='V') { abrir('cont-V'); cerrar('cont-R'); document.getElementById('tV').style.background='var(--accent)'; document.getElementById('tR').style.background='#ddd'; }
+            else { abrir('cont-R'); cerrar('cont-V'); document.getElementById('tR').style.background='var(--danger)'; document.getElementById('tV').style.background='#ddd'; }
         };
 
-        window.finalizarCargaStock = async () => {
-            const cant = parseInt(document.getElementById("input-stock-cantidad").value);
-            if(isNaN(cant) || cant < 1) return;
-            await updateDoc(doc(db, "productos", pActual.id), { stock: increment(cant) });
-            cerrar("modal-stock-manual");
-            alert("Stock actualizado: " + pActual.id + " +" + cant);
-        };
-
-        // --- TICKET Y COBRO ---
         window.agregarAlTicket = () => {
             const cant = parseInt(document.getElementById("input-cantidad").value);
             if(!cant || cant < 1) return;
-            const idx = ticket.findIndex(item => item.id === pActual.id);
+            const idx = ticket.findIndex(i => i.id === pActual.id);
             if(idx >= 0) ticket[idx].cantidad += cant;
             else ticket.push({ id: pActual.id, cantidad: cant, precio: pActual.precio });
-            cerrar("modal-cantidad");
-            dibujarTicket();
+            cerrar("modal-cantidad"); dibujarTicket();
         };
 
         function dibujarTicket() {
-            const lista = document.getElementById("ticket-list"); lista.innerHTML = "";
-            let suma = 0;
-            ticket.forEach((item, index) => {
-                const totalItem = item.cantidad * item.precio;
-                suma += totalItem;
-                lista.innerHTML += `<div class="ticket-item">
-                    <span><b>${item.cantidad}x</b> ${item.id}</span>
-                    <span>${totalItem.toFixed(2)}€ <button onclick="quitar(${index})" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold">X</button></span>
-                </div>`;
+            const l = document.getElementById("ticket-list"); l.innerHTML = "";
+            let s = 0;
+            ticket.forEach((it, i) => {
+                const tot = it.cantidad * it.precio; s += tot;
+                l.innerHTML += `<div class="ticket-item"><span><b>${it.cantidad}x</b> ${it.id}</span>
+                <span>${tot.toFixed(2)}€ <button onclick="quitar(${i})" style="color:red; border:none; background:none; cursor:pointer;">X</button></span></div>`;
             });
-            document.getElementById("ticket-total").innerText = suma.toFixed(2);
+            document.getElementById("ticket-total").innerText = s.toFixed(2);
         }
 
         window.quitar = (i) => { ticket.splice(i,1); dibujarTicket(); };
@@ -236,27 +270,33 @@
 
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
-            const btn = document.getElementById("btn-cobrar");
-            btn.innerText = "PROCESANDO..."; btn.disabled = true;
-            try {
-                for (const item of ticket) {
-                    await updateDoc(doc(db, "productos", item.id), { stock: increment(-item.cantidad) });
-                    await addDoc(collection(db, "ventas"), {
-                        producto: item.id, cantidad: item.cantidad, total: item.cantidad * item.precio, fecha: new Date().toISOString()
-                    });
-                }
-                limpiarTicket();
-            } catch (e) { alert("Error: " + e.message); }
-            finally { btn.innerText = "COBRAR Y FINALIZAR"; btn.disabled = false; }
+            const btn = document.getElementById("btn-cobrar"); btn.disabled = true;
+            for (const it of ticket) {
+                await updateDoc(doc(db, "productos", it.id), { stock: increment(-it.cantidad) });
+                await addDoc(collection(db, "ventas"), { producto: it.id, cantidad: it.cantidad, total: it.cantidad * it.precio, fecha: new Date().toISOString() });
+            }
+            limpiarTicket(); btn.disabled = false;
         };
 
-        window.borrarP = async (id) => { if(confirm("¿Borrar " + id + "?")) await deleteDoc(doc(db, "productos", id)); };
-        
+        // Stock Manual
+        window.abrirModStock = () => {
+            const l = document.getElementById("lista-para-stock"); l.innerHTML = "";
+            productosData.forEach(p => {
+                l.innerHTML += `<div onclick="prepStock('${p.id}')" style="padding:10px; border-bottom:1px solid #eee; cursor:pointer;"><b>${p.id}</b> (Stock: ${p.stock})</div>`;
+            });
+            abrir("modal-add-stock");
+        };
+        window.prepStock = (id) => { pActual = {id}; document.getElementById("stock-nombre-manual").innerText = id; cerrar("modal-add-stock"); abrir("modal-stock-manual"); };
+        window.finalizarCargaStock = async () => {
+            const c = parseInt(document.getElementById("input-stock-cantidad").value);
+            await updateDoc(doc(db, "productos", pActual.id), { stock: increment(c) });
+            cerrar("modal-stock-manual");
+        };
+
+        window.borrarP = async (id) => { if(confirm("¿Borrar permanentemente?")) await deleteDoc(doc(db, "productos", id)); };
         window.guardarNuevo = async () => {
             const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), i = document.getElementById("newI").value;
-            if(!n || isNaN(p)) return;
-            await setDoc(doc(db, "productos", n), { precio: p, stock: 0, img: i });
-            cerrar("modal-nuevo-prod");
+            if(n && p) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, img: i }); cerrar("modal-nuevo-prod"); }
         };
 
         function actCaja() { document.getElementById("totalCaja").innerText = (vTotal - rTotal).toFixed(2); }
