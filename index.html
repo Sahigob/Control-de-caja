@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Pro - Versión Final con Imágenes</title>
+    <title>TPV Pro - Versión Final Total</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
@@ -19,7 +19,7 @@
         .category-bar button { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; white-space: nowrap; font-size: 0.8rem; }
         .category-bar button.active { background: var(--warning); color: white; border-color: var(--warning); }
         .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
-        .producto-card { background: white; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #ddd; position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; min-height: 150px; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.1s; }
+        .producto-card { background: white; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #ddd; position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; min-height: 150px; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .producto-card img { width: 65px; height: 65px; object-fit: contain; margin-bottom: 5px; }
         .stock-tag { position: absolute; top: 5px; left: 5px; background: rgba(238, 238, 238, 0.95); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; border: 1px solid #ccc; color: #333; }
         .ticket-section { width: 320px; background: white; border-left: 2px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
@@ -31,7 +31,7 @@
         .modal-content { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         .btn-mix { padding: 15px; border-radius: 10px; border: 2px solid #eee; background: white; font-weight: bold; cursor: pointer; }
-        @media (max-width: 768px) { .app-layout { flex-direction: column; } .ticket-section { width: 100%; border-left: none; } body { overflow-y: auto; } }
+        @media (max-width: 768px) { .app-layout { flex-direction: column; } .ticket-section { width: 100%; border-left: none; border-top: 2px solid #ddd; } body { overflow-y: auto; } }
     </style>
 </head>
 <body>
@@ -59,13 +59,15 @@
                     <button onclick="abrirModStock()" style="background:var(--primary)">📦 STOCK / €</button>
                     <button onclick="abrir('modal-nuevo-prod')" style="background:var(--primary)">★</button>
                 </div>
+
                 <div class="category-bar">
                     <button onclick="filtrar('Todos')" class="active btn-cat">TODOS</button>
                     <button onclick="filtrar('Refrescos')" class="btn-cat">REFRESCOS</button>
                     <button onclick="filtrar('Cervezas')" class="btn-cat">CERVEZAS</button>
-                    <button onclick="filtrar('Copas')" class="btn-cat">COPAS / VINOS</button>
+                    <button onclick="filtrar('Cubatas')" class="btn-cat">CUBATAS</button>
                     <button onclick="filtrar('Snacks')" class="btn-cat">SNACKS</button>
                 </div>
+
                 <div id="productos-grid" class="grid-productos"></div>
             </section>
 
@@ -103,9 +105,9 @@
             <input type="text" id="newN" placeholder="Nombre">
             <input type="number" id="newP" placeholder="Precio (€)" step="0.01">
             <select id="newC">
-                <option value="Copas">Copas / Vinos</option>
-                <option value="Refrescos">Refrescos / Latas</option>
+                <option value="Refrescos">Refrescos</option>
                 <option value="Cervezas">Cervezas</option>
+                <option value="Cubatas">Cubatas</option>
                 <option value="Snacks">Snacks</option>
             </select>
             <input type="text" id="newI" placeholder="URL Imagen">
@@ -143,9 +145,22 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const REGLAS_COMBINADOS = { "Whisky": ["Coca Cola", "Fanta Naranja", "Fanta Limón"], "Ginebra": ["Tónica", "Fanta Limón"], "Ron": ["Coca Cola", "Fanta Limón"] };
-        const FRACCIONES = { "Whisky": 0.066, "Ginebra": 0.066, "Ron": 0.066, "Vino Tinto": 0.20, "Vino Blanco": 0.20 };
-        const ICONOS_CAT = { "Refrescos": "https://cdn-icons-png.flaticon.com/512/2722/2722527.png", "Cervezas": "https://cdn-icons-png.flaticon.com/512/931/931949.png", "Copas": "https://cdn-icons-png.flaticon.com/512/920/920605.png", "Snacks": "https://cdn-icons-png.flaticon.com/512/2553/2553691.png" };
+        // --- REGLAS DE NEGOCIO ---
+        const REGLAS_COMBINADOS = { 
+            "Whisky": ["Coca Cola", "Fanta Naranja", "Fanta Limón"], 
+            "Ginebra": ["Tónica", "Fanta Limón"], 
+            "Ron": ["Coca Cola", "Fanta Limón"] 
+        };
+        const FRACCIONES = { 
+            "Whisky": 0.066, "Ginebra": 0.066, "Ron": 0.066, 
+            "Vino Tinto": 0.20, "Vino Blanco": 0.20 
+        };
+        const ICONOS_CAT = { 
+            "Refrescos": "https://cdn-icons-png.flaticon.com/512/2722/2722527.png", 
+            "Cervezas": "https://cdn-icons-png.flaticon.com/512/931/931949.png", 
+            "Cubatas": "https://cdn-icons-png.flaticon.com/512/920/920605.png", 
+            "Snacks": "https://cdn-icons-png.flaticon.com/512/2553/2553691.png" 
+        };
 
         let ticket = [], productosData = [], vTotal = 0, rTotal = 0, catActual = "Todos", ventasHoy = [], retirosHoy = [];
 
@@ -164,12 +179,10 @@
         window.renderizarProductos = () => {
             const g = document.getElementById("productos-grid"); g.innerHTML = "";
             productosData.filter(p => (catActual === "Todos" || p.categoria === catActual)).forEach(p => {
-                // PRIORIDAD: 1. URL Imagen de la BD -> 2. Icono de categoría -> 3. Icono genérico
-                const imagenAMostrar = p.img || ICONOS_CAT[p.categoria] || ICONOS_CAT["Refrescos"];
-                
+                const img = p.img || ICONOS_CAT[p.categoria] || ICONOS_CAT["Refrescos"];
                 const card = document.createElement("div"); card.className = "producto-card";
                 card.innerHTML = `<span class="stock-tag">${(Number(p.stock)||0).toFixed(2)}</span>
-                    <img src="${imagenAMostrar}" onerror="this.src='${ICONOS_CAT["Refrescos"]}'">
+                    <img src="${img}" onerror="this.src='${ICONOS_CAT["Refrescos"]}'">
                     <div style="font-weight:bold; font-size:0.75rem;">${p.id}</div>
                     <div style="color:var(--accent); font-weight:bold;">${(Number(p.precio)||0).toFixed(2)}€</div>`;
                 card.onclick = () => {
@@ -195,7 +208,7 @@
             ticket.forEach((it, idx) => { 
                 const pr = Number(it.precio) || 0; s += pr;
                 l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee; align-items:center;">
-                    <span><b>${it.id}</b> ${it.mezcla ? '<br><small>+ '+it.mezcla+'</small>' : ''}</span>
+                    <span><b>${it.id}</b> ${it.mezcla ? '<br><small style="color:blue;">+ '+it.mezcla+'</small>' : ''}</span>
                     <div><span>${pr.toFixed(2)}€</span> <button onclick="ticket.splice(${idx},1);dibujarTicket()" style="border:none;background:none;color:red;margin-left:5px">✕</button></div>
                 </div>`;
             });
@@ -210,7 +223,7 @@
                 if (it.mezcla) await updateDoc(doc(db, "productos", it.mezcla), { stock: increment(-1) });
                 await addDoc(collection(db, "ventas"), { producto: it.id + (it.mezcla ? " + "+it.mezcla : ""), total: Number(it.precio) });
             }
-            ticket = []; dibujarTicket(); alert("Cobrado");
+            ticket = []; dibujarTicket(); alert("Venta registrada");
         };
 
         window.abrirModStock = () => {
@@ -220,16 +233,18 @@
                 l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
                     <div style="font-size:0.8rem;"><b>${p.id}</b><br>Stock: ${p.stock.toFixed(2)} | ${p.precio}€</div>
                     <div>
-                        <button onclick="editS('${p.id}')" style="background:var(--info); color:white; border:none; padding:5px; border-radius:4px;">+BOT</button>
+                        <button onclick="editS('${p.id}')" style="background:var(--info); color:white; border:none; padding:5px; border-radius:4px;">+STOCK</button>
                         <button onclick="editP('${p.id}', ${p.precio})" style="background:var(--warning); color:white; border:none; padding:5px; border-radius:4px;">€</button>
+                        <button onclick="borrarProd('${p.id}')" style="background:var(--danger); color:white; border:none; padding:5px; border-radius:4px;">✕</button>
                     </div>
                 </div>`;
             });
             abrir("modal-add-stock");
         };
 
-        window.editS = async id => { const n = prompt("Sumar stock:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
+        window.editS = async id => { const n = prompt("Sumar unidades/botellas:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
         window.editP = async (id, act) => { const n = prompt("Nuevo precio:", act); if(n) await updateDoc(doc(db, "productos", id), { precio: parseFloat(n) }); };
+        window.borrarProd = async id => { if(confirm("¿Eliminar " + id + "?")) await deleteDoc(doc(db, "productos", id)); };
         window.guardarNuevo = async () => {
             const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), c = document.getElementById("newC").value, i = document.getElementById("newI").value;
             if(n && p) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, categoria: c, img: i }); cerrar("modal-nuevo-prod"); }
