@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Asociación - Versión Final</title>
+    <title>TPV Asociación - Visual</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
@@ -27,8 +27,10 @@
         .grid-container { flex: 1; overflow-y: auto; padding-right: 5px; }
         .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
         
-        .producto-card { background: white; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #ddd; position: relative; cursor: pointer; height: 100px; display: flex; flex-direction: column; justify-content: center; }
-        .stock-tag { position: absolute; top: 5px; left: 5px; background: #eee; padding: 2px 5px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
+        .producto-card { background: white; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #ddd; position: relative; cursor: pointer; transition: 0.1s; display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 140px; }
+        .producto-card:active { transform: scale(0.95); background: #f9f9f9; }
+        .producto-card img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 5px; }
+        .stock-tag { position: absolute; top: 5px; left: 5px; background: rgba(238, 238, 238, 0.9); padding: 2px 5px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; border: 1px solid #ccc; }
 
         .ticket-section { width: 320px; background: white; border-left: 2px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
         .ticket-list { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; }
@@ -99,42 +101,6 @@
         </div>
     </div>
 
-    <div id="modal-add-stock" class="modal hidden">
-        <div class="modal-content">
-            <h3>Inventario y Precios</h3>
-            <input type="text" id="searchStock" placeholder="Filtrar por nombre..." onkeyup="abrirModStock()" style="margin-bottom:10px;">
-            <div id="lista-para-stock"></div>
-            <button onclick="cerrar('modal-add-stock')" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; margin-top:15px;">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-cantidad" class="modal hidden">
-        <div class="modal-content" style="text-align:center;">
-            <h3 id="cant-nombre"></h3>
-            <input type="number" id="input-cantidad" value="1" min="1">
-            <button onclick="agregarAlTicket()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:bold;">AÑADIR</button>
-            <button onclick="cerrar('modal-cantidad')" style="width:100%; background:none; border:none; margin-top:10px;">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="modal-retirar" class="modal hidden">
-        <div class="modal-content">
-            <h3>Retirada de Caja</h3>
-            <input type="text" id="retNombre" placeholder="Concepto (Ej: Cambio)">
-            <input type="number" id="retCantidad" placeholder="Importe €" step="0.01">
-            <button onclick="ejecutarRetiro()" style="width:100%; padding:12px; background:var(--danger); color:white; border:none; border-radius:8px; font-weight:bold;">CONFIRMAR RETIRADA</button>
-            <button onclick="cerrar('modal-retirar')" style="width:100%; background:none; border:none; margin-top:10px;">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="modal-historial" class="modal hidden">
-        <div class="modal-content">
-            <h3>Resumen de Hoy</h3>
-            <div id="lista-historial-render" style="font-size: 0.9rem;"></div>
-            <button onclick="cerrar('modal-historial')" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; margin-top:10px;">CERRAR</button>
-        </div>
-    </div>
-
     <div id="modal-nuevo-prod" class="modal hidden">
         <div class="modal-content">
             <h3>Nuevo Artículo</h3>
@@ -146,10 +112,16 @@
                 <option value="Cubatas">Cubatas</option>
                 <option value="Snacks">Snacks</option>
             </select>
+            <input type="text" id="newI" placeholder="URL de la imagen (opcional)">
             <button onclick="guardarNuevo()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:bold;">CREAR</button>
             <button onclick="cerrar('modal-nuevo-prod')" style="width:100%; background:none; border:none; margin-top:10px;">Cancelar</button>
         </div>
     </div>
+
+    <div id="modal-add-stock" class="modal hidden"><div class="modal-content"><h3>Inventario</h3><input type="text" id="searchStock" placeholder="Buscar..." onkeyup="abrirModStock()"><div id="lista-para-stock"></div><button onclick="cerrar('modal-add-stock')" style="width:100%; padding:10px; background:#eee; border:none; border-radius:8px; margin-top:10px;">CERRAR</button></div></div>
+    <div id="modal-cantidad" class="modal hidden"><div class="modal-content" style="text-align:center;"><h3 id="cant-nombre"></h3><input type="number" id="input-cantidad" value="1"><button onclick="agregarAlTicket()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:bold;">AÑADIR</button><button onclick="cerrar('modal-cantidad')" style="width:100%; background:none; border:none; margin-top:10px;">Cancelar</button></div></div>
+    <div id="modal-retirar" class="modal hidden"><div class="modal-content"><h3>Retirada de Caja</h3><input type="text" id="retNombre" placeholder="Concepto"><input type="number" id="retCantidad" placeholder="Importe €"><button onclick="ejecutarRetiro()" style="width:100%; padding:15px; background:var(--danger); color:white; border:none; border-radius:8px; font-weight:bold;">CONFIRMAR</button><button onclick="cerrar('modal-retirar')" style="width:100%; background:none; border:none; margin-top:10px;">Cancelar</button></div></div>
+    <div id="modal-historial" class="modal hidden"><div class="modal-content"><h3>Resumen Hoy</h3><div id="lista-historial-render"></div><button onclick="cerrar('modal-historial')" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; margin-top:10px;">CERRAR</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
@@ -161,15 +133,18 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- LAS RECETAS (Asegúrate que los ingredientes existan en Stock) ---
         const RECETAS = {
             "Whisky Cola": { "Whisky": 0.066, "Coca Cola": 1 },
             "Whisky Naranja": { "Whisky": 0.066, "Fanta de Naranja": 1 },
             "Whisky Limon": { "Whisky": 0.066, "Fanta de Limón": 1 },
-            "Ron Cola": { "Ron": 0.066, "Coca Cola": 1 },
-            "Gin Tonic": { "Ginebra": 0.066, "Tónica": 1 },
-            "Copa de Vino Tinto": { "Vino Tinto": 0.20 },
-            "Copa de Vino Blanco": { "Vino Blanco": 0.20 }
+            "Gin Tonic": { "Ginebra": 0.066, "Tónica": 1 }
+        };
+
+        const ICONOS_DEFECTO = {
+            "Refrescos": "https://cdn-icons-png.flaticon.com/512/2722/2722527.png",
+            "Cervezas": "https://cdn-icons-png.flaticon.com/512/931/931949.png",
+            "Cubatas": "https://cdn-icons-png.flaticon.com/512/920/920605.png",
+            "Snacks": "https://cdn-icons-png.flaticon.com/512/2553/2553691.png"
         };
 
         let ticket = [], productosData = [], pActual = null, vTotal = 0, rTotal = 0, catActual = "Todos", ventasHoy = [], retirosHoy = [];
@@ -179,26 +154,21 @@
         
         window.login = () => {
             const e = document.getElementById("email").value, p = document.getElementById("password").value;
-            signInWithEmailAndPassword(auth, e, p).catch(() => alert("Credenciales incorrectas"));
+            signInWithEmailAndPassword(auth, e, p).catch(() => alert("Error Acceso"));
         };
 
         onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
 
         function iniciar() {
             onSnapshot(collection(db, "productos"), snap => {
-                productosData = [];
-                snap.forEach(d => productosData.push({id: d.id, ...d.data()}));
+                productosData = []; snap.forEach(d => productosData.push({id: d.id, ...d.data()}));
                 renderizarProductos();
             });
             onSnapshot(query(collection(db, "ventas"), limit(100)), s => {
-                vTotal = 0; ventasHoy = [];
-                s.forEach(d => { const v = d.data(); vTotal += (Number(v.total) || 0); ventasHoy.push(v); });
-                actCaja();
+                vTotal = 0; s.forEach(d => vTotal += (Number(d.data().total) || 0)); actCaja();
             });
             onSnapshot(query(collection(db, "retiradas"), limit(100)), s => {
-                rTotal = 0; retirosHoy = [];
-                s.forEach(d => { const r = d.data(); rTotal += (Number(r.cantidad) || 0); retirosHoy.push(r); });
-                actCaja();
+                rTotal = 0; s.forEach(d => rTotal += (Number(d.data().cantidad) || 0)); actCaja();
             });
         }
 
@@ -214,9 +184,11 @@
             const fil = productosData.filter(p => (catActual === "Todos" || p.categoria === catActual) && p.id.toLowerCase().includes(bus));
             
             fil.forEach(p => {
+                const imgUrl = p.img || ICONOS_DEFECTO[p.categoria] || ICONOS_DEFECTO["Refrescos"];
                 const card = document.createElement("div"); card.className = "producto-card";
                 card.innerHTML = `<span class="stock-tag">${(Number(p.stock)||0).toFixed(1)}</span>
-                    <div style="font-weight:bold; font-size:0.8rem;">${p.id}</div>
+                    <img src="${imgUrl}" onerror="this.src='${ICONOS_DEFECTO["Refrescos"]}'">
+                    <div style="font-weight:bold; font-size:0.75rem;">${p.id}</div>
                     <div style="color:var(--accent); font-weight:bold;">${(Number(p.precio)||0).toFixed(2)}€</div>`;
                 card.onclick = () => { pActual = { id: p.id, precio: p.precio }; document.getElementById("cant-nombre").innerText = p.id; abrir("modal-cantidad"); };
                 g.appendChild(card);
@@ -232,10 +204,9 @@
 
         function dibujarTicket() {
             const l = document.getElementById("ticket-list"); l.innerHTML = ""; let s = 0;
-            ticket.forEach((it, i) => { 
+            ticket.forEach((it) => { 
                 const sub = it.cantidad * (Number(it.precio) || 0); s += sub;
-                l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;">
-                    <span>${it.cantidad}x ${it.id}</span><span>${sub.toFixed(2)}€</span></div>`;
+                l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;"><span>${it.cantidad}x ${it.id}</span><span>${sub.toFixed(2)}€</span></div>`;
             });
             document.getElementById("ticket-total").innerText = s.toFixed(2);
         }
@@ -244,62 +215,51 @@
 
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
-            const btn = document.getElementById("btn-cobrar"); btn.disabled = true; btn.innerText = "PROCESANDO...";
-
-            try {
-                for (const it of ticket) {
-                    const receta = RECETAS[it.id];
-                    if (receta) {
-                        for (const [ing, cant] of Object.entries(receta)) {
-                            await updateDoc(doc(db, "productos", ing), { stock: increment(-(cant * it.cantidad)) }).catch(() => console.log("Falla ing: " + ing));
-                        }
-                    } else {
-                        await updateDoc(doc(db, "productos", it.id), { stock: increment(-it.cantidad) }).catch(() => console.log("Falla: " + it.id));
+            const btn = document.getElementById("btn-cobrar"); btn.disabled = true;
+            for (const it of ticket) {
+                const receta = RECETAS[it.id];
+                if (receta) {
+                    for (const [ing, cant] of Object.entries(receta)) {
+                        await updateDoc(doc(db, "productos", ing), { stock: increment(-(cant * it.cantidad)) }).catch(e => console.log(e));
                     }
-                    await addDoc(collection(db, "ventas"), { producto: it.id, cantidad: it.cantidad, total: (it.cantidad * Number(it.precio)), fecha: new Date().toISOString() });
+                } else {
+                    await updateDoc(doc(db, "productos", it.id), { stock: increment(-it.cantidad) }).catch(e => console.log(e));
                 }
-                limpiarTicket(); alert("Venta registrada correctamente");
-            } catch (e) { alert("Error al cobrar"); }
-            finally { btn.disabled = false; btn.innerText = "COBRAR VENTA"; }
+                await addDoc(collection(db, "ventas"), { producto: it.id, cantidad: it.cantidad, total: (it.cantidad * Number(it.precio)), fecha: new Date().toISOString() });
+            }
+            limpiarTicket(); btn.disabled = false; alert("Venta OK");
         };
 
         window.abrirModStock = () => {
             const l = document.getElementById("lista-para-stock"); l.innerHTML = "";
             const bus = document.getElementById("searchStock").value.toLowerCase();
-            productosData.filter(p => p.id.toLowerCase().includes(bus)).sort((a,b)=>a.id.localeCompare(b.id)).forEach(p => {
+            productosData.filter(p => p.id.toLowerCase().includes(bus)).forEach(p => {
                 l.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
                     <span><b>${p.id}</b> (${(Number(p.stock)||0).toFixed(2)})</span>
                     <div>
                         <button onclick="editStock('${p.id}')" style="background:var(--info); color:white; border:none; padding:8px; border-radius:5px;">STOCK</button>
-                        <button onclick="editPrecio('${p.id}')" style="background:var(--warning); color:white; border:none; padding:8px; border-radius:5px; margin:0 5px;">€</button>
-                        <button onclick="borrarP('${p.id}')" style="background:var(--danger); color:white; border:none; padding:8px; border-radius:5px;">X</button>
+                        <button onclick="borrarP('${p.id}')" style="background:var(--danger); color:white; border:none; padding:8px; border-radius:5px; margin-left:5px;">X</button>
                     </div>
                 </div>`;
             });
             abrir("modal-add-stock");
         };
 
-        window.editStock = async (id) => { const n = prompt("Cantidad a añadir (usa negativos para restar):"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
-        window.editPrecio = async (id) => { const n = prompt("Nuevo precio:"); if(n) await updateDoc(doc(db, "productos", id), { precio: parseFloat(n) }); };
-        window.borrarP = async (id) => { if(confirm("¿Eliminar definitivamente?")) await deleteDoc(doc(db, "productos", id)); };
-        
+        window.editStock = async (id) => { const n = prompt("Añadir cantidad:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
+        window.borrarP = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "productos", id)); };
         window.ejecutarRetiro = async () => {
             const n = document.getElementById("retNombre").value, c = parseFloat(document.getElementById("retCantidad").value);
-            if(n && !isNaN(c)) { await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() }); cerrar("modal-retirar"); }
+            if(n && c) { await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() }); cerrar("modal-retirar"); }
         };
-
-        window.abrirHistorial = () => {
-            let h = "<b>Ventas:</b><hr>"; ventasHoy.forEach(v => h += `<div>${v.cantidad}x ${v.producto} (${Number(v.total).toFixed(2)}€)</div>`);
-            h += "<br><b>Retiradas de Caja:</b><hr>"; retirosHoy.forEach(r => h += `<div style="color:red">${r.nombre}: -${Number(r.cantidad).toFixed(2)}€</div>`);
-            document.getElementById("lista-historial-render").innerHTML = h; abrir("modal-historial");
-        };
-
         window.guardarNuevo = async () => {
-            const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), c = document.getElementById("newC").value;
-            if(n && !isNaN(p)) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, categoria: c }); cerrar("modal-nuevo-prod"); }
+            const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), c = document.getElementById("newC").value, i = document.getElementById("newI").value;
+            if(n && p) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, categoria: c, img: i || "" }); cerrar("modal-nuevo-prod"); }
         };
-
         function actCaja() { document.getElementById("totalCaja").innerText = (vTotal - rTotal).toFixed(2); }
+        window.abrirHistorial = () => {
+            let h = ""; ventasHoy.forEach(v => h += `<div>${v.producto} (${v.total.toFixed(2)}€)</div>`);
+            document.getElementById("lista-historial-render").innerHTML = h || "Sin ventas"; abrir("modal-historial");
+        };
     </script>
 </body>
 </html>
