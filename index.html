@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Asociación - Gestión Stock y Precios</title>
+    <title>TPV Asociación - Gestión Total</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
         
@@ -57,7 +57,7 @@
         .modal-content { background: white; padding: 25px; border-radius: 18px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
         input, select { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 16px !important; }
         
-        .list-item-edit { padding: 12px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; gap: 10px; }
+        .list-item-edit { padding: 12px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; gap: 8px; }
         .btn-small { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: white; flex: 1; }
     </style>
 </head>
@@ -109,10 +109,55 @@
         </div>
     </div>
 
+    <div id="modal-retirar" class="modal hidden">
+        <div class="modal-content" style="max-width:320px; text-align:center;">
+            <h3>Retirar Dinero</h3>
+            <input type="text" id="retNombre" placeholder="Concepto">
+            <input type="number" id="retCantidad" placeholder="Importe €" step="0.01">
+            <button onclick="ejecutarRetiro()" style="background:var(--danger); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">CONFIRMAR</button>
+            <button onclick="cerrar('modal-retirar')" style="background:none; border:none; margin-top:10px; color:#666;">CANCELAR</button>
+        </div>
+    </div>
+
+    <div id="modal-historial" class="modal hidden">
+        <div class="modal-content">
+            <h3>Historial de Hoy</h3>
+            <div id="lista-historial-render"></div>
+            <button onclick="cerrar('modal-historial')" style="margin-top:20px;width:100%;padding:15px;background:var(--primary);color:white;border:none;border-radius:10px;">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="modal-add-stock" class="modal hidden">
+        <div class="modal-content">
+            <h3>Gestión Stock y Precios</h3>
+            <div id="lista-para-stock"></div>
+            <button onclick="cerrar('modal-add-stock')" style="margin-top:15px;width:100%;padding:10px;border:none;border-radius:10px;background:#eee;">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="modal-stock-manual" class="modal hidden">
+        <div class="modal-content" style="max-width:280px; text-align:center;">
+            <h3 id="stock-nombre-manual"></h3>
+            <p>Añadir cantidad (botellas/uds):</p>
+            <input type="number" id="input-stock-cantidad" value="1">
+            <button onclick="finalizarCargaStock()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">SUMAR</button>
+            <button onclick="cerrar('modal-stock-manual'); abrir('modal-add-stock')" style="background:none; border:none; margin-top:10px;">VOLVER</button>
+        </div>
+    </div>
+
+    <div id="modal-edit-precio" class="modal hidden">
+        <div class="modal-content" style="max-width:280px; text-align:center;">
+            <h3 id="precio-nombre-edit"></h3>
+            <input type="number" id="input-nuevo-precio" step="0.01">
+            <button onclick="finalizarCambioPrecio()" style="background:var(--warning); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">CAMBIAR PRECIO</button>
+            <button onclick="cerrar('modal-edit-precio'); abrir('modal-add-stock')" style="background:none; border:none; margin-top:10px;">VOLVER</button>
+        </div>
+    </div>
+
     <div id="modal-nuevo-prod" class="modal hidden">
         <div class="modal-content">
-            <h3>Añadir Producto</h3>
-            <input type="text" id="newN" placeholder="Nombre">
+            <h3>Nuevo Producto</h3>
+            <input type="text" id="newN" placeholder="Nombre exacto">
             <input type="number" id="newP" placeholder="Precio €" step="0.01">
             <select id="newC">
                 <option value="Refrescos">Refrescos</option>
@@ -120,9 +165,9 @@
                 <option value="Cubatas">Cubatas</option>
                 <option value="Snacks">Snacks</option>
             </select>
-            <input type="text" id="newI" placeholder="URL Imagen">
+            <input type="text" id="newI" placeholder="URL Imagen (opcional)">
             <button onclick="guardarNuevo()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">CREAR</button>
-            <button onclick="cerrar('modal-nuevo-prod')" style="background:none; border:none; width:100%; margin-top:10px;">Cancelar</button>
+            <button onclick="cerrar('modal-nuevo-prod')" style="background:none; border:none; width:100%; margin-top:10px;">CANCELAR</button>
         </div>
     </div>
 
@@ -131,53 +176,7 @@
             <h3 id="cant-nombre"></h3>
             <input type="number" id="input-cantidad" value="1" min="1">
             <button onclick="agregarAlTicket()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">AÑADIR</button>
-            <button onclick="cerrar('modal-cantidad')" style="background:none; border:none; margin-top:10px;">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="modal-retirar" class="modal hidden">
-        <div class="modal-content" style="max-width:320px; text-align:center;">
-            <h3>Retirar Dinero</h3>
-            <input type="text" id="retNombre" placeholder="Concepto (ej: Cambio)">
-            <input type="number" id="retCantidad" placeholder="Importe €" step="0.01">
-            <button onclick="ejecutarRetiro()" style="background:var(--danger); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">CONFIRMAR RETIRO</button>
-            <button onclick="cerrar('modal-retirar')" style="background:none; border:none; margin-top:10px; color: #666;">CANCELAR</button>
-        </div>
-    </div>
-
-    <div id="modal-historial" class="modal hidden">
-        <div class="modal-content">
-            <h3>Historial Hoy</h3>
-            <div id="lista-historial-render" style="font-size: 0.9rem;"></div>
-            <button onclick="cerrar('modal-historial')" style="margin-top:20px;width:100%;padding:15px;background:var(--primary);color:white;border:none;border-radius:10px;">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-add-stock" class="modal hidden">
-        <div class="modal-content">
-            <h3>Gestión de Producto</h3>
-            <div id="lista-para-stock"></div>
-            <button onclick="cerrar('modal-add-stock')" style="margin-top:15px;width:100%;padding:10px;border:none;border-radius:10px;background:#eee;">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-edit-precio" class="modal hidden">
-        <div class="modal-content" style="max-width:280px; text-align:center;">
-            <h3 id="precio-nombre-edit"></h3>
-            <p>Nuevo Precio (€):</p>
-            <input type="number" id="input-nuevo-precio" step="0.01">
-            <button onclick="finalizarCambioPrecio()" style="background:var(--warning); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">ACTUALIZAR PRECIO</button>
-            <button onclick="cerrar('modal-edit-precio'); abrir('modal-add-stock')" style="background:none; border:none; margin-top:10px;">Volver</button>
-        </div>
-    </div>
-
-    <div id="modal-stock-manual" class="modal hidden">
-        <div class="modal-content" style="max-width:280px; text-align:center;">
-            <h3 id="stock-nombre-manual"></h3>
-            <p>Cantidad a sumar:</p>
-            <input type="number" id="input-stock-cantidad" value="24">
-            <button onclick="finalizarCargaStock()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">SUMAR AL STOCK</button>
-            <button onclick="cerrar('modal-stock-manual'); abrir('modal-add-stock')" style="background:none; border:none; margin-top:10px;">Volver</button>
+            <button onclick="cerrar('modal-cantidad')" style="background:none; border:none; margin-top:10px;">CANCELAR</button>
         </div>
     </div>
 
@@ -199,6 +198,16 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // --- LÓGICA DE RECETAS (IMPORTANTE: Nombres exactos como en base de datos) ---
+        const RECETAS = {
+            "Copa Vino Blanco": { "Botella Vino Blanco": 0.20 },
+            "Copa Vino Tinto": { "Botella Vino Tinto": 0.20 },
+            "Whisky CocaCola": { "Botella Whisky": 0.066, "CocaCola": 1 },
+            "Whisky Naranja": { "Botella Whisky": 0.066, "Naranja": 1 },
+            "Ginebra Tonica": { "Botella Ginebra": 0.066, "Tonica": 1 },
+            "Copa Whisky": { "Botella Whisky": 0.066 }
+        };
+
         let ticket = [], productosData = [], pActual = null, vTotal = 0, rTotal = 0;
         let catActual = "Todos", ventasHoy = [], retirosHoy = [];
 
@@ -207,7 +216,7 @@
 
         window.login = () => {
             const e = document.getElementById("email").value, p = document.getElementById("password").value;
-            signInWithEmailAndPassword(auth, e, p).catch(() => alert("Acceso denegado"));
+            signInWithEmailAndPassword(auth, e, p).catch(() => alert("Error de acceso"));
         };
 
         onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
@@ -244,7 +253,7 @@
                 const card = document.createElement("div");
                 card.className = "producto-card";
                 card.innerHTML = `<div class="btn-del-p" onclick="event.stopPropagation(); borrarP('${p.id}')">✖</div>
-                    <span class="stock-tag">${p.stock || 0}</span>
+                    <span class="stock-tag">${Number(p.stock || 0).toFixed(1)}</span>
                     <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3121/3121784.png'}">
                     <div style="font-size:0.75rem; font-weight:bold;">${p.id}</div>
                     <div style="color:var(--accent); font-weight:900">${Number(p.precio).toFixed(2)}€</div>`;
@@ -257,7 +266,7 @@
             const l = document.getElementById("lista-para-stock"); l.innerHTML = "";
             productosData.sort((a,b) => a.id.localeCompare(b.id)).forEach(p => {
                 l.innerHTML += `<div class="list-item-edit">
-                    <div style="margin-bottom:5px;"><b>${p.id}</b> <small>(${p.precio.toFixed(2)}€ | Stock: ${p.stock || 0})</small></div>
+                    <div><b>${p.id}</b> <small>(Stock: ${Number(p.stock||0).toFixed(2)} | ${Number(p.precio).toFixed(2)}€)</small></div>
                     <div style="display:flex; gap:5px;">
                         <button onclick="prepStock('${p.id}')" class="btn-small" style="background:var(--info)">+ STOCK</button>
                         <button onclick="prepPrecio('${p.id}', ${p.precio})" class="btn-small" style="background:var(--warning)">€ PRECIO</button>
@@ -269,7 +278,7 @@
 
         window.prepStock = (id) => { pActual={id}; document.getElementById("stock-nombre-manual").innerText = id; cerrar("modal-add-stock"); abrir("modal-stock-manual"); };
         window.finalizarCargaStock = async () => {
-            const c = parseInt(document.getElementById("input-stock-cantidad").value);
+            const c = parseFloat(document.getElementById("input-stock-cantidad").value);
             if(!isNaN(c)) { await updateDoc(doc(db, "productos", pActual.id), { stock: increment(c) }); cerrar("modal-stock-manual"); abrir("modal-add-stock"); }
         };
 
@@ -281,11 +290,11 @@
 
         window.abrirHistorial = () => {
             const cont = document.getElementById("lista-historial-render");
-            let html = "<b>Ventas:</b><hr>";
-            ventasHoy.forEach(v => html += `<div>${v.cantidad}x ${v.producto} - ${v.total.toFixed(2)}€</div>`);
-            html += "<br><b>Retiros:</b><hr>";
-            retirosHoy.forEach(r => html += `<div style="color:red">${r.nombre}: -${r.cantidad.toFixed(2)}€</div>`);
-            cont.innerHTML = html;
+            let h = "<b>Ventas:</b><hr>";
+            ventasHoy.forEach(v => h += `<div style="font-size:0.85rem">${v.cantidad}x ${v.producto} (${v.total.toFixed(2)}€)</div>`);
+            h += "<br><b>Retiros:</b><hr>";
+            retirosHoy.forEach(r => h += `<div style="color:red; font-size:0.85rem">${r.nombre}: -${r.cantidad.toFixed(2)}€</div>`);
+            cont.innerHTML = h;
             abrir("modal-historial");
         };
 
@@ -313,22 +322,27 @@
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
             for (const it of ticket) {
-                await updateDoc(doc(db, "productos", it.id), { stock: increment(-it.cantidad) });
+                // LÓGICA DE RECETAS / COMBINADOS
+                if (RECETAS[it.id]) {
+                    const ing = RECETAS[it.id];
+                    for (const [prodNom, cantResta] of Object.entries(ing)) {
+                        await updateDoc(doc(db, "productos", prodNom), { stock: increment(-(cantResta * it.cantidad)) });
+                    }
+                } else {
+                    await updateDoc(doc(db, "productos", it.id), { stock: increment(-it.cantidad) });
+                }
+                // REGISTRO DE VENTA
                 await addDoc(collection(db, "ventas"), { producto: it.id, cantidad: it.cantidad, total: it.cantidad * it.precio, fecha: new Date().toISOString() });
             }
-            limpiarTicket();
+            limpiarTicket(); alert("Cobrado y Stock actualizado");
         };
 
         window.ejecutarRetiro = async () => {
             const n = document.getElementById("retNombre").value, c = parseFloat(document.getElementById("retCantidad").value);
-            if(n && c) {
-                await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() });
-                document.getElementById("retNombre").value = ""; document.getElementById("retCantidad").value = "";
-                cerrar("modal-retirar");
-            }
+            if(n && c) { await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() }); cerrar("modal-retirar"); }
         };
 
-        window.borrarP = async (id) => { if(confirm("¿Eliminar producto?")) await deleteDoc(doc(db, "productos", id)); };
+        window.borrarP = async (id) => { if(confirm("¿Borrar producto?")) await deleteDoc(doc(db, "productos", id)); };
         function actCaja() { document.getElementById("totalCaja").innerText = (vTotal - rTotal).toFixed(2); }
     </script>
 </body>
