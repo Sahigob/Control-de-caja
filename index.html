@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Asociación - Gestión Stock</title>
+    <title>TPV Asociación - Gestión Stock y Precios</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
         
@@ -57,8 +57,8 @@
         .modal-content { background: white; padding: 25px; border-radius: 18px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
         input, select { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 16px !important; }
         
-        .list-item-edit { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .btn-small { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: white; }
+        .list-item-edit { padding: 12px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; gap: 10px; }
+        .btn-small { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: white; flex: 1; }
     </style>
 </head>
 <body>
@@ -83,7 +83,7 @@
                 <div class="action-bar">
                     <button onclick="abrir('modal-retirar')" style="background:var(--danger)">💸 RETIRO</button>
                     <button onclick="abrirHistorial()" style="background:var(--info)">📊 HIST.</button>
-                    <button onclick="abrirModStock()" style="background:var(--primary)">📦 STOCK</button>
+                    <button onclick="abrirModStock()" style="background:var(--primary)">📦 STOCK / €</button>
                     <button onclick="abrir('modal-nuevo-prod')" style="background:var(--primary); font-size: 1.2rem;">★</button>
                 </div>
 
@@ -155,9 +155,19 @@
 
     <div id="modal-add-stock" class="modal hidden">
         <div class="modal-content">
-            <h3>Añadir Stock</h3>
+            <h3>Gestión de Producto</h3>
             <div id="lista-para-stock"></div>
             <button onclick="cerrar('modal-add-stock')" style="margin-top:15px;width:100%;padding:10px;border:none;border-radius:10px;background:#eee;">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="modal-edit-precio" class="modal hidden">
+        <div class="modal-content" style="max-width:280px; text-align:center;">
+            <h3 id="precio-nombre-edit"></h3>
+            <p>Nuevo Precio (€):</p>
+            <input type="number" id="input-nuevo-precio" step="0.01">
+            <button onclick="finalizarCambioPrecio()" style="background:var(--warning); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">ACTUALIZAR PRECIO</button>
+            <button onclick="cerrar('modal-edit-precio'); abrir('modal-add-stock')" style="background:none; border:none; margin-top:10px;">Volver</button>
         </div>
     </div>
 
@@ -167,7 +177,7 @@
             <p>Cantidad a sumar:</p>
             <input type="number" id="input-stock-cantidad" value="24">
             <button onclick="finalizarCargaStock()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">SUMAR AL STOCK</button>
-            <button onclick="cerrar('modal-stock-manual')" style="background:none; border:none; margin-top:10px;">Cancelar</button>
+            <button onclick="cerrar('modal-stock-manual'); abrir('modal-add-stock')" style="background:none; border:none; margin-top:10px;">Volver</button>
         </div>
     </div>
 
@@ -247,8 +257,11 @@
             const l = document.getElementById("lista-para-stock"); l.innerHTML = "";
             productosData.sort((a,b) => a.id.localeCompare(b.id)).forEach(p => {
                 l.innerHTML += `<div class="list-item-edit">
-                    <span><b>${p.id}</b> (${p.stock || 0})</span>
-                    <button onclick="prepStock('${p.id}')" class="btn-small" style="background:var(--info)">+ AÑADIR</button>
+                    <div style="margin-bottom:5px;"><b>${p.id}</b> <small>(${p.precio.toFixed(2)}€ | Stock: ${p.stock || 0})</small></div>
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="prepStock('${p.id}')" class="btn-small" style="background:var(--info)">+ STOCK</button>
+                        <button onclick="prepPrecio('${p.id}', ${p.precio})" class="btn-small" style="background:var(--warning)">€ PRECIO</button>
+                    </div>
                 </div>`;
             });
             abrir("modal-add-stock");
@@ -257,7 +270,13 @@
         window.prepStock = (id) => { pActual={id}; document.getElementById("stock-nombre-manual").innerText = id; cerrar("modal-add-stock"); abrir("modal-stock-manual"); };
         window.finalizarCargaStock = async () => {
             const c = parseInt(document.getElementById("input-stock-cantidad").value);
-            if(!isNaN(c)) { await updateDoc(doc(db, "productos", pActual.id), { stock: increment(c) }); cerrar("modal-stock-manual"); }
+            if(!isNaN(c)) { await updateDoc(doc(db, "productos", pActual.id), { stock: increment(c) }); cerrar("modal-stock-manual"); abrir("modal-add-stock"); }
+        };
+
+        window.prepPrecio = (id, precio) => { pActual={id}; document.getElementById("precio-nombre-edit").innerText = id; document.getElementById("input-nuevo-precio").value = precio; cerrar("modal-add-stock"); abrir("modal-edit-precio"); };
+        window.finalizarCambioPrecio = async () => {
+            const nP = parseFloat(document.getElementById("input-nuevo-precio").value);
+            if(!isNaN(nP)) { await updateDoc(doc(db, "productos", pActual.id), { precio: nP }); cerrar("modal-edit-precio"); abrir("modal-add-stock"); }
         };
 
         window.abrirHistorial = () => {
@@ -306,7 +325,7 @@
                 await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() });
                 document.getElementById("retNombre").value = ""; document.getElementById("retCantidad").value = "";
                 cerrar("modal-retirar");
-            } else { alert("Rellena todos los campos"); }
+            }
         };
 
         window.borrarP = async (id) => { if(confirm("¿Eliminar producto?")) await deleteDoc(doc(db, "productos", id)); };
