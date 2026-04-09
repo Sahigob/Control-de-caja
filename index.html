@@ -6,26 +6,28 @@
     <title>TPV Pro - Versión Definitiva Total</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* CORRECCIÓN DE DESPLAZAMIENTO: Quitamos overflow hidden del body */
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
         
         .hidden { display: none !important; }
-        header { background: var(--primary); color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        header { background: var(--primary); color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; }
         .caja-badge { background: white; color: var(--primary); padding: 5px 12px; border-radius: 15px; font-weight: bold; border: 2px solid var(--accent); }
 
-        .app-layout { display: flex; flex: 1; overflow: hidden; }
+        .app-layout { display: flex; flex: 1; }
         
         /* Panel Izquierdo */
-        .productos-section { flex: 1; display: flex; flex-direction: column; padding: 15px; overflow: hidden; }
-        .search-bar { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #ddd; margin-bottom: 10px; font-size: 1rem; box-sizing: border-box; outline: none; }
+        .productos-section { flex: 1; display: flex; flex-direction: column; padding: 15px; }
         
+        /* Barra de acciones sin buscador */
         .action-bar { display: grid; grid-template-columns: 1.5fr 1fr 1fr 45px; gap: 8px; margin-bottom: 12px; }
         .action-bar button { padding: 10px; font-size: 0.7rem; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: white; text-transform: uppercase; }
 
-        .category-bar { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; min-height: 45px; scrollbar-width: none; }
+        .category-bar { display: flex; gap: 6px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; min-height: 45px; scrollbar-width: none; }
         .category-bar button { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; white-space: nowrap; font-size: 0.8rem; }
         .category-bar button.active { background: var(--warning); color: white; border-color: var(--warning); }
 
-        .grid-container { flex: 1; overflow-y: auto; padding-right: 5px; }
+        .grid-container { flex: 1; }
         .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
         
         .producto-card { background: white; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #ddd; position: relative; cursor: pointer; transition: 0.1s; display: flex; flex-direction: column; align-items: center; min-height: 140px; justify-content: space-between; }
@@ -34,8 +36,8 @@
 
         /* Panel Derecho (Ticket) */
         .ticket-section { width: 320px; background: white; border-left: 2px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
-        .ticket-list { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; }
-        .ticket-footer { padding: 15px; background: #f9f9f9; border-top: 1px solid #ddd; }
+        .ticket-list { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; min-height: 200px; }
+        .ticket-footer { padding: 15px; background: #f9f9f9; border-top: 1px solid #ddd; position: sticky; bottom: 0; }
         .total-pagar { font-size: 2.2rem; font-weight: 900; text-align: center; color: var(--primary); margin-bottom: 10px; }
         .btn-cobrar { background: var(--accent); color: white; width: 100%; padding: 18px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; border: none; cursor: pointer; }
 
@@ -47,9 +49,9 @@
         .btn-danger-outline { background: white; color: var(--danger); border: 2px solid var(--danger); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; }
 
         @media (max-width: 768px) {
-            .app-layout { flex-direction: column; overflow-y: auto; }
-            .ticket-section { width: 100%; border-left: none; height: auto; border-top: 2px solid #ddd; }
-            .grid-container { overflow-y: visible; }
+            .app-layout { flex-direction: column; }
+            .ticket-section { width: 100%; border-left: none; border-top: 2px solid #ddd; }
+            body { overflow-y: auto; }
         }
     </style>
 </head>
@@ -78,8 +80,6 @@
                     <button onclick="abrirModStock()" style="background:var(--primary)">📦 STOCK</button>
                     <button onclick="abrir('modal-nuevo-prod')" style="background:var(--primary)">★</button>
                 </div>
-
-                <input type="text" id="buscador" class="search-bar" placeholder="🔍 Buscar artículo..." onkeyup="renderizarProductos()">
 
                 <div class="category-bar">
                     <button onclick="filtrar('Todos')" class="active btn-cat">TODOS</button>
@@ -138,7 +138,7 @@
     <div id="modal-retirar" class="modal hidden">
         <div class="modal-content">
             <h3>Retirada de Caja</h3>
-            <input type="text" id="retNombre" placeholder="Concepto (Ej: Pago panadero)">
+            <input type="text" id="retNombre" placeholder="Concepto">
             <input type="number" id="retCantidad" placeholder="Importe (€)" step="0.01">
             <button onclick="ejecutarRetiro()" style="width:100%; padding:15px; background:var(--danger); color:white; border:none; border-radius:8px; font-weight:bold;">CONFIRMAR RETIRADA</button>
             <button onclick="cerrar('modal-retirar')" style="width:100%; background:none; border:none; margin-top:10px;">Cerrar</button>
@@ -148,7 +148,7 @@
     <div id="modal-nuevo-prod" class="modal hidden">
         <div class="modal-content">
             <h3>Añadir Nuevo Artículo</h3>
-            <input type="text" id="newN" placeholder="Nombre (Ej: Whisky Cola)">
+            <input type="text" id="newN" placeholder="Nombre">
             <input type="number" id="newP" placeholder="Precio venta (€)" step="0.01">
             <select id="newC">
                 <option value="Refrescos">Refrescos</option>
@@ -165,14 +165,13 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0", authDomain: "control-de-caja-41341.firebaseapp.com", projectId: "control-de-caja-41341", storageBucket: "control-de-caja-41341.firebasestorage.app", messagingSenderId: "802067725052", appId: "1:802067725052:web:a583fab3a16d4f8025f579" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // CONFIG RECETAS
         const RECETAS = {
             "Whisky Cola": { "Whisky": 0.066, "Coca Cola": 1 },
             "Whisky Naranja": { "Whisky": 0.066, "Fanta de Naranja": 1 },
@@ -201,14 +200,12 @@
         onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
 
         function iniciar() {
-            // Escuchar Productos
             onSnapshot(collection(db, "productos"), snap => {
                 productosData = [];
                 snap.forEach(d => productosData.push({id: d.id, ...d.data()}));
                 renderizarProductos();
             });
 
-            // Escuchar Ventas
             onSnapshot(collection(db, "ventas"), s => {
                 vTotal = 0; ventasHoy = [];
                 s.forEach(d => { 
@@ -219,7 +216,6 @@
                 actCaja();
             });
 
-            // Escuchar Retiradas
             onSnapshot(collection(db, "retiradas"), s => {
                 rTotal = 0; retirosHoy = [];
                 s.forEach(d => { 
@@ -239,8 +235,7 @@
 
         window.renderizarProductos = () => {
             const g = document.getElementById("productos-grid"); g.innerHTML = "";
-            const bus = document.getElementById("buscador").value.toLowerCase();
-            const fil = productosData.filter(p => (catActual === "Todos" || p.categoria === catActual) && p.id.toLowerCase().includes(bus));
+            const fil = productosData.filter(p => (catActual === "Todos" || p.categoria === catActual));
             
             fil.forEach(p => {
                 const img = p.img || ICONOS_CAT[p.categoria] || ICONOS_CAT["Refrescos"];
@@ -307,12 +302,9 @@
             if (prompt("Escribe '1234' para borrar TODO (Historial y poner Stock a 0):") !== "1234") return;
             const btn = event.target; btn.disabled = true; btn.innerText = "LIMPIANDO...";
             try {
-                // Reset stock
                 for (const p of productosData) { await updateDoc(doc(db, "productos", p.id), { stock: 0 }); }
-                // Borrar ventas
                 const vSnap = await getDocs(collection(db, "ventas"));
                 for (const d of vSnap.docs) { await deleteDoc(doc(db, "ventas", d.id)); }
-                // Borrar retiros
                 const rSnap = await getDocs(collection(db, "retiradas"));
                 for (const d of rSnap.docs) { await deleteDoc(doc(db, "retiradas", d.id)); }
                 alert("Limpieza completada.");
