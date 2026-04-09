@@ -3,43 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV PRO - Sistema Completo</title>
+    <title>TPV PRO - Funcional Total</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
         .hidden { display: none !important; }
-        
         header { background: var(--primary); color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .caja-badge { background: white; color: var(--primary); padding: 5px 12px; border-radius: 15px; font-weight: bold; border: 2px solid var(--accent); }
-
         .app-layout { display: flex; flex: 1; }
         .productos-section { flex: 1; display: flex; flex-direction: column; padding: 15px; }
-        
         .action-bar { display: grid; grid-template-columns: 1.5fr 1fr 1fr 45px; gap: 8px; margin-bottom: 12px; }
         .action-bar button { padding: 12px 5px; font-size: 0.7rem; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: white; text-transform: uppercase; }
-
         .category-bar { display: flex; gap: 6px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-        .category-bar::-webkit-scrollbar { display: none; }
         .category-bar button { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; white-space: nowrap; font-size: 0.8rem; }
         .category-bar button.active { background: var(--warning); color: white; border-color: var(--warning); }
-
         .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
         .producto-card { background: white; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #ddd; position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; min-height: 155px; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .producto-card img { width: 65px; height: 65px; object-fit: contain; margin-bottom: 5px; }
         .stock-tag { position: absolute; top: 5px; left: 5px; background: rgba(238, 238, 238, 0.95); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; border: 1px solid #ccc; color: #333; }
-
-        .ticket-section { width: 330px; background: white; border-left: 2px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
+        .ticket-section { width: 330px; background: white; border-left: 2px solid #ddd; display: flex; flex-direction: column; }
         .ticket-list { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; min-height: 250px; }
-        .ticket-footer { padding: 15px; background: #f9f9f9; border-top: 1px solid #ddd; position: sticky; bottom: 0; }
+        .ticket-footer { padding: 15px; background: #f9f9f9; border-top: 1px solid #ddd; }
         .total-pagar { font-size: 2.2rem; font-weight: 900; text-align: center; color: var(--primary); margin-bottom: 10px; }
         .btn-cobrar { background: var(--accent); color: white; width: 100%; padding: 18px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; border: none; cursor: pointer; }
-
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 10px; }
         .modal-content { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         .btn-mix { padding: 15px; border-radius: 10px; border: 2px solid #eee; background: white; font-weight: bold; cursor: pointer; }
-
-        @media (max-width: 768px) { .app-layout { flex-direction: column; } .ticket-section { width: 100%; border-left: none; border-top: 2px solid #ddd; } }
+        @media (max-width: 768px) { .app-layout { flex-direction: column; } .ticket-section { width: 100%; } }
     </style>
 </head>
 <body>
@@ -49,14 +40,14 @@
             <h2>Acceso TPV</h2>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Contraseña">
-            <button onclick="login()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">ENTRAR</button>
+            <button onclick="login()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:bold;">ENTRAR</button>
         </div>
     </div>
 
     <div id="app-section" class="hidden">
         <header>
             <div class="caja-badge">CAJA: <span id="totalCaja">0.00</span>€</div>
-            <button onclick="location.reload()" style="background:none; border:1px solid white; color:white; padding:5px 10px; border-radius:5px; cursor:pointer;">SALIR</button>
+            <button onclick="location.reload()" style="background:none; border:1px solid white; color:white; padding:5px 10px; border-radius:5px;">SALIR</button>
         </header>
 
         <div class="app-layout">
@@ -67,7 +58,6 @@
                     <button onclick="abrirModStock()" style="background:var(--primary)">📦 STOCK / €</button>
                     <button onclick="abrir('modal-nuevo-prod')" style="background:var(--primary)">★</button>
                 </div>
-
                 <div class="category-bar">
                     <button onclick="filtrar('Todos')" class="active btn-cat">TODOS</button>
                     <button onclick="filtrar('Refrescos')" class="btn-cat">REFRESCOS</button>
@@ -75,7 +65,6 @@
                     <button onclick="filtrar('Cubatas')" class="btn-cat">CUBATAS</button>
                     <button onclick="filtrar('Snacks')" class="btn-cat">SNACKS</button>
                 </div>
-
                 <div id="productos-grid" class="grid-productos"></div>
             </section>
 
@@ -84,7 +73,7 @@
                 <div class="ticket-footer">
                     <div class="total-pagar"><span id="ticket-total">0.00</span>€</div>
                     <button id="btn-cobrar" class="btn-cobrar">COBRAR VENTA</button>
-                    <button onclick="limpiarTicket()" style="width:100%; background:none; border:none; color:gray; margin-top:10px; cursor:pointer;">Vaciar Ticket</button>
+                    <button onclick="limpiarTicket()" style="width:100%; background:none; border:none; color:gray; margin-top:10px;">Vaciar Ticket</button>
                 </div>
             </section>
         </div>
@@ -94,16 +83,7 @@
         <div class="modal-content" style="text-align:center;">
             <h3 id="mezcla-titulo">Seleccionar Mezcla</h3>
             <div id="opciones-mezcla" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
-            <button onclick="cerrar('modal-mezcla')" style="margin-top:20px; border:none; background:none; color:red; font-weight:bold; cursor:pointer;">CANCELAR</button>
-        </div>
-    </div>
-
-    <div id="modal-add-stock" class="modal hidden">
-        <div class="modal-content">
-            <h3>Gestión de Stock y Precios</h3>
-            <input type="text" id="searchStock" placeholder="Buscar artículo..." onkeyup="abrirModStock()">
-            <div id="lista-para-stock" style="max-height: 350px; overflow-y: auto;"></div>
-            <button onclick="cerrar('modal-add-stock')" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; margin-top:10px; cursor:pointer;">CERRAR</button>
+            <button onclick="cerrar('modal-mezcla')" style="margin-top:20px; border:none; background:none; color:red; font-weight:bold;">CANCELAR</button>
         </div>
     </div>
 
@@ -111,37 +91,14 @@
         <div class="modal-content">
             <h3>Actividad Reciente</h3>
             <div id="lista-historial-render" style="max-height: 300px; overflow-y: auto;"></div>
-            <button onclick="limpiezaTotalPruebas()" style="background:white; color:red; border:2px solid red; width:100%; padding:10px; border-radius:8px; margin-top:15px; font-weight:bold; cursor:pointer;">RESET TOTAL (PIN 1234)</button>
-            <button onclick="cerrar('modal-historial')" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; margin-top:10px; cursor:pointer;">CERRAR</button>
+            <button onclick="limpiezaTotalPruebas()" style="background:white; color:red; border:2px solid red; width:100%; padding:10px; border-radius:8px; margin-top:15px; font-weight:bold;">RESET TOTAL</button>
+            <button onclick="cerrar('modal-historial')" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; margin-top:10px;">CERRAR</button>
         </div>
     </div>
 
-    <div id="modal-nuevo-prod" class="modal hidden">
-        <div class="modal-content">
-            <h3>Nuevo Artículo</h3>
-            <input type="text" id="newN" placeholder="Nombre (Ej: Whisky)">
-            <input type="number" id="newP" placeholder="Precio (€)" step="0.01">
-            <select id="newC">
-                <option value="Refrescos">Refrescos</option>
-                <option value="Cervezas">Cervezas</option>
-                <option value="Cubatas">Cubatas</option>
-                <option value="Snacks">Snacks</option>
-            </select>
-            <input type="text" id="newI" placeholder="URL de la Imagen">
-            <button onclick="guardarNuevo()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">CREAR</button>
-            <button onclick="cerrar('modal-nuevo-prod')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="modal-retirar" class="modal hidden">
-        <div class="modal-content">
-            <h3>Retirada de Efectivo</h3>
-            <input type="text" id="retNombre" placeholder="Concepto">
-            <input type="number" id="retCantidad" placeholder="Importe (€)">
-            <button onclick="ejecutarRetiro()" style="width:100%; padding:15px; background:var(--danger); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">CONFIRMAR RETIRO</button>
-            <button onclick="cerrar('modal-retirar')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Cerrar</button>
-        </div>
-    </div>
+    <div id="modal-add-stock" class="modal hidden"><div class="modal-content"><h3>Stock / Precios</h3><input type="text" id="searchStock" placeholder="Buscar..." onkeyup="abrirModStock()"><div id="lista-para-stock"></div><button onclick="cerrar('modal-add-stock')">CERRAR</button></div></div>
+    <div id="modal-nuevo-prod" class="modal hidden"><div class="modal-content"><h3>Nuevo</h3><input type="text" id="newN" placeholder="Nombre"><input type="number" id="newP" placeholder="Precio"><select id="newC"><option value="Refrescos">Refrescos</option><option value="Cervezas">Cervezas</option><option value="Cubatas">Cubatas</option><option value="Snacks">Snacks</option></select><input type="text" id="newI" placeholder="URL Imagen"><button onclick="guardarNuevo()">CREAR</button><button onclick="cerrar('modal-nuevo-prod')">Cancelar</button></div></div>
+    <div id="modal-retirar" class="modal hidden"><div class="modal-content"><h3>Retirada</h3><input type="text" id="retNombre" placeholder="Concepto"><input type="number" id="ret_cantidad" placeholder="Importe"><button onclick="ejecutarRetiro()">CONFIRMAR</button><button onclick="cerrar('modal-retirar')">Cerrar</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
@@ -153,16 +110,16 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // CONFIGURACIÓN REGLAS
-        const REGLAS_MIX = { "Whisky": ["Coca Cola", "Fanta Naranja", "Fanta Limón"], "Ginebra": ["Tónica", "Fanta Limón"], "Ron": ["Coca Cola", "Fanta Limón"] };
-        const FRACCIONES = { "Whisky": 0.066, "Ginebra": 0.066, "Ron": 0.066, "Vino Tinto": 0.20, "Vino Blanco": 0.20 };
+        // REGLAS
+        const REGLAS_COMBOS = { "whisky": ["Coca Cola", "Fanta Naranja", "Fanta Limón"], "ginebra": ["Tónica", "Fanta Limón"], "ron": ["Coca Cola", "Fanta Limón"] };
+        const FRACCIONES = { "whisky": 0.066, "ginebra": 0.066, "ron": 0.066, "vino": 0.20 };
         const ICONOS_CAT = { "Refrescos": "https://cdn-icons-png.flaticon.com/512/2722/2722527.png", "Cervezas": "https://cdn-icons-png.flaticon.com/512/931/931949.png", "Cubatas": "https://cdn-icons-png.flaticon.com/512/920/920605.png", "Snacks": "https://cdn-icons-png.flaticon.com/512/2553/2553691.png" };
 
         let ticket = [], productosData = [], vTotal = 0, rTotal = 0, catActual = "Todos", ventasHoy = [], retirosHoy = [];
 
         window.abrir = id => document.getElementById(id).classList.remove("hidden");
         window.cerrar = id => document.getElementById(id).classList.add("hidden");
-        window.login = () => { signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(() => alert("Acceso Denegado")); };
+        window.login = () => { signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(() => alert("Error")); };
 
         onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
 
@@ -183,17 +140,23 @@
                     <div style="color:var(--accent); font-weight:bold;">${(Number(p.precio)||0).toFixed(2)}€</div>`;
                 
                 card.onclick = () => {
-                    if (REGLAS_MIX[p.id]) {
+                    const nMin = p.id.toLowerCase();
+                    let clave = Object.keys(REGLAS_COMBOS).find(k => nMin.includes(k));
+                    
+                    if (clave) {
                         const opt = document.getElementById("opciones-mezcla");
-                        document.getElementById("mezcla-titulo").innerText = "Mezcla para " + p.id;
+                        document.getElementById("mezcla-titulo").innerText = "Mezcla: " + p.id;
                         opt.innerHTML = "";
-                        REGLAS_MIX[p.id].forEach(m => {
+                        REGLAS_COMBOS[clave].forEach(m => {
                             const b = document.createElement("button"); b.className = "btn-mix"; b.innerText = m;
                             b.onclick = () => { agregarAlTicket(p, m); cerrar("modal-mezcla"); };
                             opt.appendChild(b);
                         });
                         abrir("modal-mezcla");
-                    } else { agregarAlTicket(p); }
+                    } else {
+                        // SI NO ES COMBINADO, SE AÑADE DIRECTO (ESTO ES LO QUE FALLABA)
+                        agregarAlTicket(p);
+                    }
                 };
                 g.appendChild(card);
             });
@@ -207,7 +170,7 @@
                 const pr = Number(it.precio) || 0; s += pr;
                 l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee; align-items:center;">
                     <span><b>${it.id}</b>${it.mezcla ? '<br><small style="color:blue;">+ '+it.mezcla+'</small>' : ''}</span>
-                    <div><span>${pr.toFixed(2)}€</span> <button onclick="ticket.splice(${idx},1);dibujarTicket()" style="border:none;background:none;color:red;margin-left:5px;cursor:pointer;">✕</button></div>
+                    <span>${pr.toFixed(2)}€ <button onclick="ticket.splice(${idx},1);dibujarTicket()" style="color:red;border:none;background:none;cursor:pointer;">✕</button></span>
                 </div>`;
             });
             document.getElementById("ticket-total").innerText = s.toFixed(2);
@@ -216,10 +179,12 @@
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
             for (const it of ticket) {
-                const desc = FRACCIONES[it.id] || 1;
-                await updateDoc(doc(db, "productos", it.id), { stock: increment(-desc) });
+                const nMin = it.id.toLowerCase();
+                let f = 1;
+                Object.keys(FRACCIONES).forEach(k => { if(nMin.includes(k)) f = FRACCIONES[k]; });
+                await updateDoc(doc(db, "productos", it.id), { stock: increment(-f) });
                 if (it.mezcla) await updateDoc(doc(db, "productos", it.mezcla), { stock: increment(-1) });
-                await addDoc(collection(db, "ventas"), { producto: it.id + (it.mezcla ? " + "+it.mezcla : ""), total: Number(it.precio), fecha: new Date().toISOString() });
+                await addDoc(collection(db, "ventas"), { producto: it.id + (it.mezcla ? " + "+it.mezcla : ""), total: Number(it.precio), fecha: new Date() });
             }
             ticket = []; dibujarTicket(); alert("Venta registrada");
         };
@@ -229,50 +194,34 @@
             const bus = document.getElementById("searchStock").value.toLowerCase();
             productosData.filter(p => p.id.toLowerCase().includes(bus)).forEach(p => {
                 l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                    <div style="font-size:0.8rem;"><b>${p.id}</b><br>Stock: ${p.stock.toFixed(2)} | ${p.precio}€</div>
+                    <div style="font-size:0.8rem;"><b>${p.id}</b><br>Stock: ${p.stock.toFixed(2)}</div>
                     <div>
-                        <button onclick="editS('${p.id}')" style="background:var(--info); color:white; border:none; padding:5px; border-radius:4px; cursor:pointer;">+STOCK</button>
-                        <button onclick="editP('${p.id}', ${p.precio})" style="background:var(--warning); color:white; border:none; padding:5px; border-radius:4px; cursor:pointer;">€</button>
-                        <button onclick="borrarProd('${p.id}')" style="background:var(--danger); color:white; border:none; padding:5px; border-radius:4px; cursor:pointer;">✕</button>
+                        <button onclick="editS('${p.id}')" style="background:var(--info);color:white;border:none;padding:5px;border-radius:4px;">+S</button>
+                        <button onclick="editP('${p.id}', ${p.precio})" style="background:var(--warning);color:white;border:none;padding:5px;border-radius:4px;">€</button>
+                        <button onclick="borrarProd('${p.id}')" style="background:var(--danger);color:white;border:none;padding:5px;border-radius:4px;">✕</button>
                     </div>
                 </div>`;
             });
             abrir("modal-add-stock");
         };
 
-        window.editS = async id => { const n = prompt("Sumar unidades:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
+        window.editS = async id => { const n = prompt("Sumar stock:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
         window.editP = async (id, act) => { const n = prompt("Nuevo precio:", act); if(n) await updateDoc(doc(db, "productos", id), { precio: parseFloat(n) }); };
         window.borrarProd = async id => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "productos", id)); };
-        
         window.guardarNuevo = async () => {
             const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), c = document.getElementById("newC").value, i = document.getElementById("newI").value;
             if(n && p) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, categoria: c, img: i }); cerrar("modal-nuevo-prod"); }
         };
-
         window.filtrar = (cat) => { catActual = cat; document.querySelectorAll('.btn-cat').forEach(b => b.classList.toggle('active', b.innerText === cat.toUpperCase())); renderizarProductos(); };
-        
         window.abrirHistorial = () => {
-            let h = "<b>VENTAS RECIENTES:</b><hr>"; 
-            ventasHoy.slice().reverse().slice(0,10).forEach(v => h += `<div style="display:flex; justify-content:space-between; font-size:0.8rem;"><span>${v.producto}</span><b>${Number(v.total).toFixed(2)}€</b></div>`);
-            h += "<br><b>RETIRADAS:</b><hr>";
-            retirosHoy.slice().reverse().forEach(r => h += `<div style="display:flex; justify-content:space-between; font-size:0.8rem; color:red;"><span>${r.nombre}</span><b>-${Number(r.cantidad).toFixed(2)}€</b></div>`);
+            let h = "<b>VENTAS:</b><hr>"; ventasHoy.slice().reverse().slice(0,8).forEach(v => h += `<div style="display:flex;justify-content:space-between;font-size:0.8rem;"><span>${v.producto}</span><b>${v.total.toFixed(2)}€</b></div>`);
             document.getElementById("lista-historial-render").innerHTML = h; abrir("modal-historial");
         };
-
-        window.limpiezaTotalPruebas = async () => {
-            if (prompt("Escribe el PIN 1234 para resetear:") === "1234") {
-                const vs = await getDocs(collection(db, "ventas")); vs.forEach(async d => await deleteDoc(doc(db, "ventas", d.id)));
-                const rs = await getDocs(collection(db, "retiradas")); rs.forEach(async d => await deleteDoc(doc(db, "retiradas", d.id)));
-                for (const p of productosData) await updateDoc(doc(db, "productos", p.id), { stock: 0 });
-                alert("Sistema Limpio"); location.reload();
-            }
-        };
-
+        window.limpiezaTotalPruebas = async () => { if (prompt("PIN 1234:") === "1234") { for (const p of productosData) await updateDoc(doc(db, "productos", p.id), { stock: 0 }); location.reload(); } };
         window.ejecutarRetiro = async () => { 
-            const n = document.getElementById("retNombre").value, c = parseFloat(document.getElementById("retCantidad").value);
-            if(n && c) { await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() }); cerrar("modal-retirar"); }
+            const n = document.getElementById("retNombre").value, c = parseFloat(document.getElementById("ret_cantidad").value);
+            if(n && c) { await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c }); cerrar("modal-retirar"); }
         };
-
         function actCaja() { document.getElementById("totalCaja").innerText = (vTotal - rTotal).toFixed(2); }
         window.limpiarTicket = () => { ticket = []; dibujarTicket(); };
     </script>
