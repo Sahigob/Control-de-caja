@@ -3,79 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Asociación - Gestión Total</title>
+    <title>TPV Asociación - Versión Final</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh; 
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch; 
-        }
-
         .hidden { display: none !important; }
+        header { background: var(--primary); color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .caja-badge { background: white; color: var(--primary); padding: 5px 12px; border-radius: 15px; font-weight: bold; border: 2px solid var(--accent); }
+
+        .app-layout { display: flex; flex: 1; overflow: hidden; }
         
-        header { background: var(--primary); color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; z-index: 100; position: sticky; top: 0; }
-        .caja-badge { background: white; color: var(--primary); padding: 5px 12px; border-radius: 15px; font-weight: bold; font-size: 1.1rem; border: 2px solid var(--accent); }
-
-        .app-layout { display: flex; flex: 1; flex-direction: row; }
+        .productos-section { flex: 1; display: flex; flex-direction: column; padding: 15px; overflow: hidden; }
+        .search-bar { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #ddd; margin-bottom: 10px; font-size: 1rem; box-sizing: border-box; }
         
-        .productos-section { flex: 1; padding: 15px; display: flex; flex-direction: column; }
+        .action-bar { display: grid; grid-template-columns: 1.5fr 1fr 1fr 45px; gap: 8px; margin-bottom: 12px; }
+        .action-bar button { padding: 10px; font-size: 0.7rem; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: white; text-transform: uppercase; }
+
+        .category-bar { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; min-height: 45px; }
+        .category-bar button { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; white-space: nowrap; font-size: 0.8rem; }
+        .category-bar button.active { background: var(--warning); color: white; border-color: var(--warning); }
+
+        .grid-container { flex: 1; overflow-y: auto; padding-right: 5px; }
+        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
         
-        .action-bar { display: grid; grid-template-columns: 1.2fr 1fr 1fr 45px; gap: 8px; margin-bottom: 12px; }
-        .action-bar button { padding: 12px 5px; font-size: 0.75rem; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: white; text-transform: uppercase; }
+        .producto-card { background: white; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #ddd; position: relative; cursor: pointer; height: 100px; display: flex; flex-direction: column; justify-content: center; }
+        .stock-tag { position: absolute; top: 5px; left: 5px; background: #eee; padding: 2px 5px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; }
 
-        .category-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 15px; }
-        .category-bar button { padding: 12px 2px; font-size: 0.7rem; border-radius: 8px; border: 2px solid #ddd; cursor: pointer; font-weight: bold; background: white; color: var(--primary); }
-        .category-bar button.active { border-color: var(--warning); background: var(--warning); color: white; }
-
-        .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; padding-bottom: 30px; }
-        .producto-card { background: white; border-radius: 12px; padding: 12px; text-align: center; border: 1px solid #ddd; position: relative; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .producto-card img { width: 65px; height: 65px; object-fit: contain; margin-bottom: 5px; }
-        .stock-tag { position: absolute; top: 5px; left: 5px; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
-        .btn-del-p { position: absolute; top: 5px; right: 5px; color: #ddd; font-size: 16px; padding: 2px; }
-
-        .ticket-section { width: 340px; background: white; display: flex; flex-direction: column; border-left: 1px solid #ddd; position: sticky; top: 60px; height: calc(100vh - 60px); }
-        .ticket-list { flex: 1; overflow-y: auto; padding: 15px; }
-        .ticket-footer { padding: 20px; background: #f9f9f9; border-top: 1px solid #ddd; }
-        .total-pagar { font-size: 2.2rem; font-weight: 900; text-align: center; margin-bottom: 15px; color: var(--primary); }
+        .ticket-section { width: 320px; background: white; border-left: 2px solid #ddd; display: flex; flex-direction: column; flex-shrink: 0; }
+        .ticket-list { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; }
+        .ticket-footer { padding: 15px; background: #f9f9f9; border-top: 1px solid #ddd; }
+        .total-pagar { font-size: 2.2rem; font-weight: 900; text-align: center; color: var(--primary); margin-bottom: 10px; }
         .btn-cobrar { background: var(--accent); color: white; width: 100%; padding: 18px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; border: none; cursor: pointer; }
 
-        @media (max-width: 768px) {
-            .app-layout { flex-direction: column; }
-            .ticket-section { width: 100%; height: auto; border-left: none; border-top: 2px solid #ddd; position: relative; top: 0; }
-            .grid-productos { grid-template-columns: 1fr 1fr; }
-            .category-bar { grid-template-columns: repeat(3, 1fr); }
-        }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 10px; }
+        .modal-content { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px !important; }
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 15px; box-sizing: border-box; }
-        .modal-content { background: white; padding: 25px; border-radius: 18px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
-        input, select { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; box-sizing: border-box; font-size: 16px !important; }
-        
-        .list-item-edit { padding: 12px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; gap: 8px; }
-        .btn-small { padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: bold; color: white; flex: 1; }
+        @media (max-width: 768px) {
+            .app-layout { flex-direction: column; overflow-y: auto; }
+            .ticket-section { width: 100%; border-left: none; height: auto; border-top: 2px solid #ddd; }
+            .grid-container { overflow-y: visible; }
+        }
     </style>
 </head>
 <body>
 
     <div id="login-section" class="modal">
-        <div class="modal-content" style="max-width: 320px; text-align: center;">
-            <h2 style="margin-top:0">Acceso TPV</h2>
+        <div class="modal-content" style="max-width:300px; text-align:center;">
+            <h2>Acceso TPV</h2>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Contraseña">
-            <button onclick="login()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">ENTRAR</button>
+            <button onclick="login()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:bold;">ENTRAR</button>
         </div>
     </div>
 
     <div id="app-section" class="hidden">
         <header>
             <div class="caja-badge">CAJA: <span id="totalCaja">0.00</span>€</div>
-            <button onclick="location.reload()" style="background:transparent; color:white; border:none; font-weight:bold;">SALIR</button>
+            <button onclick="location.reload()" style="background:none; border:none; color:white; cursor:pointer;">Cerrar Sesión</button>
         </header>
 
         <div class="app-layout">
@@ -83,9 +69,11 @@
                 <div class="action-bar">
                     <button onclick="abrir('modal-retirar')" style="background:var(--danger)">💸 RETIRADA DE CAJA</button>
                     <button onclick="abrirHistorial()" style="background:var(--info)">📊 HIST.</button>
-                    <button onclick="abrirModStock()" style="background:var(--primary)">📦 STOCK / €</button>
-                    <button onclick="abrir('modal-nuevo-prod')" style="background:var(--primary); font-size: 1.2rem;">★</button>
+                    <button onclick="abrirModStock()" style="background:var(--primary)">📦 STOCK</button>
+                    <button onclick="abrir('modal-nuevo-prod')" style="background:var(--primary)">★</button>
                 </div>
+
+                <input type="text" id="buscador" class="search-bar" placeholder="🔍 Buscar artículo..." onkeyup="renderizarProductos()">
 
                 <div class="category-bar">
                     <button onclick="filtrar('Todos')" class="active btn-cat">TODOS</button>
@@ -95,88 +83,71 @@
                     <button onclick="filtrar('Snacks')" class="btn-cat">SNACKS</button>
                 </div>
 
-                <div id="productos-grid" class="grid-productos"></div>
+                <div class="grid-container">
+                    <div id="productos-grid" class="grid-productos"></div>
+                </div>
             </section>
 
             <section class="ticket-section">
                 <div id="ticket-list" class="ticket-list"></div>
                 <div class="ticket-footer">
                     <div class="total-pagar"><span id="ticket-total">0.00</span>€</div>
-                    <button id="btn-cobrar" class="btn-cobrar">COBRAR</button>
-                    <button onclick="limpiarTicket()" style="background:none; border:none; color:#888; width:100%; margin-top:10px; cursor:pointer;">Vaciar ticket</button>
+                    <button id="btn-cobrar" class="btn-cobrar">COBRAR VENTA</button>
+                    <button onclick="limpiarTicket()" style="width:100%; background:none; border:none; color:gray; margin-top:10px; cursor:pointer;">Vaciar Ticket</button>
                 </div>
             </section>
         </div>
     </div>
 
+    <div id="modal-add-stock" class="modal hidden">
+        <div class="modal-content">
+            <h3>Inventario y Precios</h3>
+            <input type="text" id="searchStock" placeholder="Filtrar por nombre..." onkeyup="abrirModStock()" style="margin-bottom:10px;">
+            <div id="lista-para-stock"></div>
+            <button onclick="cerrar('modal-add-stock')" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; margin-top:15px;">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="modal-cantidad" class="modal hidden">
+        <div class="modal-content" style="text-align:center;">
+            <h3 id="cant-nombre"></h3>
+            <input type="number" id="input-cantidad" value="1" min="1">
+            <button onclick="agregarAlTicket()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:bold;">AÑADIR</button>
+            <button onclick="cerrar('modal-cantidad')" style="width:100%; background:none; border:none; margin-top:10px;">Cancelar</button>
+        </div>
+    </div>
+
     <div id="modal-retirar" class="modal hidden">
-        <div class="modal-content" style="max-width:320px; text-align:center;">
+        <div class="modal-content">
             <h3>Retirada de Caja</h3>
             <input type="text" id="retNombre" placeholder="Concepto (Ej: Cambio)">
             <input type="number" id="retCantidad" placeholder="Importe €" step="0.01">
-            <button onclick="ejecutarRetiro()" style="background:var(--danger); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">CONFIRMAR RETIRADA</button>
-            <button onclick="cerrar('modal-retirar')" style="background:none; border:none; margin-top:10px; color:#666;">CANCELAR</button>
+            <button onclick="ejecutarRetiro()" style="width:100%; padding:12px; background:var(--danger); color:white; border:none; border-radius:8px; font-weight:bold;">CONFIRMAR RETIRADA</button>
+            <button onclick="cerrar('modal-retirar')" style="width:100%; background:none; border:none; margin-top:10px;">Cancelar</button>
         </div>
     </div>
 
     <div id="modal-historial" class="modal hidden">
         <div class="modal-content">
-            <h3>Historial de Ventas y Retiros</h3>
+            <h3>Resumen de Hoy</h3>
             <div id="lista-historial-render" style="font-size: 0.9rem;"></div>
-            <button onclick="cerrar('modal-historial')" style="margin-top:20px;width:100%;padding:15px;background:var(--primary);color:white;border:none;border-radius:10px;">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-add-stock" class="modal hidden">
-        <div class="modal-content">
-            <h3>Gestión de Stock y Precios</h3>
-            <div id="lista-para-stock"></div>
-            <button onclick="cerrar('modal-add-stock')" style="margin-top:15px;width:100%;padding:10px;border:none;border-radius:10px;background:#eee;">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-edit-precio" class="modal hidden">
-        <div class="modal-content" style="max-width:280px; text-align:center;">
-            <h3 id="precio-nombre-edit"></h3>
-            <input type="number" id="input-nuevo-precio" step="0.01">
-            <button onclick="finalizarCambioPrecio()" style="background:var(--warning); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">ACTUALIZAR PRECIO</button>
-            <button onclick="cerrar('modal-edit-precio'); abrir('modal-add-stock')" style="background:none; border:none; margin-top:10px;">VOLVER</button>
-        </div>
-    </div>
-
-    <div id="modal-stock-manual" class="modal hidden">
-        <div class="modal-content" style="max-width:280px; text-align:center;">
-            <h3 id="stock-nombre-manual"></h3>
-            <p>Cantidad a añadir:</p>
-            <input type="number" id="input-stock-cantidad" value="1">
-            <button onclick="finalizarCargaStock()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">SUMAR AL STOCK</button>
-            <button onclick="cerrar('modal-stock-manual'); abrir('modal-add-stock')" style="background:none; border:none; margin-top:10px;">VOLVER</button>
+            <button onclick="cerrar('modal-historial')" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:8px; margin-top:10px;">CERRAR</button>
         </div>
     </div>
 
     <div id="modal-nuevo-prod" class="modal hidden">
         <div class="modal-content">
-            <h3>Añadir Nuevo Producto</h3>
+            <h3>Nuevo Artículo</h3>
             <input type="text" id="newN" placeholder="Nombre exacto">
-            <input type="number" id="newP" placeholder="Precio €" step="0.01">
+            <input type="number" id="newP" placeholder="Precio venta €" step="0.01">
             <select id="newC">
                 <option value="Refrescos">Refrescos</option>
                 <option value="Cervezas">Cervezas</option>
                 <option value="Cubatas">Cubatas</option>
                 <option value="Snacks">Snacks</option>
             </select>
-            <input type="text" id="newI" placeholder="URL Imagen">
-            <button onclick="guardarNuevo()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">GUARDAR</button>
-            <button onclick="cerrar('modal-nuevo-prod')" style="background:none; border:none; width:100%; margin-top:10px;">CANCELAR</button>
-        </div>
-    </div>
-
-    <div id="modal-cantidad" class="modal hidden">
-        <div class="modal-content" style="max-width:280px; text-align:center;">
-            <h3 id="cant-nombre"></h3>
-            <input type="number" id="input-cantidad" value="1" min="1">
-            <button onclick="agregarAlTicket()" style="background:var(--accent); color:white; width:100%; padding:15px; border:none; border-radius:10px; font-weight:bold;">AÑADIR</button>
-            <button onclick="cerrar('modal-cantidad')" style="background:none; border:none; margin-top:10px;">CANCELAR</button>
+            <button onclick="guardarNuevo()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:bold;">CREAR</button>
+            <button onclick="cerrar('modal-nuevo-prod')" style="width:100%; background:none; border:none; margin-top:10px;">Cancelar</button>
         </div>
     </div>
 
@@ -185,35 +156,27 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0",
-            authDomain: "control-de-caja-41341.firebaseapp.com",
-            projectId: "control-de-caja-41341",
-            storageBucket: "control-de-caja-41341.firebasestorage.app",
-            messagingSenderId: "802067725052",
-            appId: "1:802067725052:web:a583fab3a16d4f8025f579"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0", authDomain: "control-de-caja-41341.firebaseapp.com", projectId: "control-de-caja-41341", storageBucket: "control-de-caja-41341.firebasestorage.app", messagingSenderId: "802067725052", appId: "1:802067725052:web:a583fab3a16d4f8025f579" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // CONFIGURACIÓN DE RECETAS (Asegúrate que los ingredientes existan como productos en Stock)
+        // --- LAS RECETAS (Asegúrate que los ingredientes existan en Stock) ---
         const RECETAS = {
-            "Whisky con Coca Cola": { "Whisky": 0.066, "Coca Cola": 1 },
-            "Whisky con Naranja": { "Whisky": 0.066, "Naranja": 1 },
-            "Whisky con Limon": { "Whisky": 0.066, "Limon": 1 },
-            "Ginebra con Tonica": { "Ginebra": 0.066, "Tonica": 1 },
-            "Copa de Vino Tinto": { "Botella Vino Tinto": 0.20 },
-            "Copa de Vino Blanco": { "Botella Vino Blanco": 0.20 }
+            "Whisky Cola": { "Whisky": 0.066, "Coca Cola": 1 },
+            "Whisky Naranja": { "Whisky": 0.066, "Fanta de Naranja": 1 },
+            "Whisky Limon": { "Whisky": 0.066, "Fanta de Limón": 1 },
+            "Ron Cola": { "Ron": 0.066, "Coca Cola": 1 },
+            "Gin Tonic": { "Ginebra": 0.066, "Tónica": 1 },
+            "Copa de Vino Tinto": { "Vino Tinto": 0.20 },
+            "Copa de Vino Blanco": { "Vino Blanco": 0.20 }
         };
 
-        let ticket = [], productosData = [], pActual = null, vTotal = 0, rTotal = 0;
-        let catActual = "Todos", ventasHoy = [], retirosHoy = [];
+        let ticket = [], productosData = [], pActual = null, vTotal = 0, rTotal = 0, catActual = "Todos", ventasHoy = [], retirosHoy = [];
 
         window.abrir = id => document.getElementById(id).classList.remove("hidden");
         window.cerrar = id => document.getElementById(id).classList.add("hidden");
-
+        
         window.login = () => {
             const e = document.getElementById("email").value, p = document.getElementById("password").value;
             signInWithEmailAndPassword(auth, e, p).catch(() => alert("Credenciales incorrectas"));
@@ -227,83 +190,41 @@
                 snap.forEach(d => productosData.push({id: d.id, ...d.data()}));
                 renderizarProductos();
             });
-            onSnapshot(query(collection(db, "ventas"), orderBy("fecha", "desc"), limit(50)), s => {
+            onSnapshot(query(collection(db, "ventas"), limit(100)), s => {
                 vTotal = 0; ventasHoy = [];
-                s.forEach(d => { vTotal += d.data().total; ventasHoy.push(d.data()); });
+                s.forEach(d => { const v = d.data(); vTotal += (Number(v.total) || 0); ventasHoy.push(v); });
                 actCaja();
             });
-            onSnapshot(query(collection(db, "retiradas"), orderBy("fecha", "desc"), limit(50)), s => {
+            onSnapshot(query(collection(db, "retiradas"), limit(100)), s => {
                 rTotal = 0; retirosHoy = [];
-                s.forEach(d => { rTotal += d.data().cantidad; retirosHoy.push(d.data()); });
+                s.forEach(d => { const r = d.data(); rTotal += (Number(r.cantidad) || 0); retirosHoy.push(r); });
                 actCaja();
             });
         }
 
         window.filtrar = (cat) => {
             catActual = cat;
-            document.querySelectorAll('.btn-cat').forEach(btn => btn.classList.toggle('active', btn.innerText === cat.toUpperCase()));
+            document.querySelectorAll('.btn-cat').forEach(b => b.classList.toggle('active', b.innerText === cat.toUpperCase()));
             renderizarProductos();
         };
 
-        function renderizarProductos() {
+        window.renderizarProductos = () => {
             const g = document.getElementById("productos-grid"); g.innerHTML = "";
-            const filtrados = catActual === "Todos" ? productosData : productosData.filter(p => p.categoria === catActual);
-            filtrados.forEach(p => {
-                const card = document.createElement("div");
-                card.className = "producto-card";
-                card.innerHTML = `<div class="btn-del-p" onclick="event.stopPropagation(); borrarP('${p.id}')">✖</div>
-                    <span class="stock-tag">${Number(p.stock || 0).toFixed(1)}</span>
-                    <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3121/3121784.png'}">
-                    <div style="font-size:0.75rem; font-weight:bold;">${p.id}</div>
-                    <div style="color:var(--accent); font-weight:900">${Number(p.precio).toFixed(2)}€</div>`;
+            const bus = document.getElementById("buscador").value.toLowerCase();
+            const fil = productosData.filter(p => (catActual === "Todos" || p.categoria === catActual) && p.id.toLowerCase().includes(bus));
+            
+            fil.forEach(p => {
+                const card = document.createElement("div"); card.className = "producto-card";
+                card.innerHTML = `<span class="stock-tag">${(Number(p.stock)||0).toFixed(1)}</span>
+                    <div style="font-weight:bold; font-size:0.8rem;">${p.id}</div>
+                    <div style="color:var(--accent); font-weight:bold;">${(Number(p.precio)||0).toFixed(2)}€</div>`;
                 card.onclick = () => { pActual = { id: p.id, precio: p.precio }; document.getElementById("cant-nombre").innerText = p.id; abrir("modal-cantidad"); };
                 g.appendChild(card);
             });
-        }
-
-        window.abrirModStock = () => {
-            const l = document.getElementById("lista-para-stock"); l.innerHTML = "";
-            productosData.sort((a,b) => a.id.localeCompare(b.id)).forEach(p => {
-                l.innerHTML += `<div class="list-item-edit">
-                    <div><b>${p.id}</b> <small>(Stock: ${Number(p.stock||0).toFixed(2)} | Precio: ${Number(p.precio).toFixed(2)}€)</small></div>
-                    <div style="display:flex; gap:5px;">
-                        <button onclick="prepStock('${p.id}')" class="btn-small" style="background:var(--info)">+ STOCK</button>
-                        <button onclick="prepPrecio('${p.id}', ${p.precio})" class="btn-small" style="background:var(--warning)">€ PRECIO</button>
-                    </div>
-                </div>`;
-            });
-            abrir("modal-add-stock");
-        };
-
-        window.prepStock = (id) => { pActual={id}; document.getElementById("stock-nombre-manual").innerText = id; cerrar("modal-add-stock"); abrir("modal-stock-manual"); };
-        window.finalizarCargaStock = async () => {
-            const c = parseFloat(document.getElementById("input-stock-cantidad").value);
-            if(!isNaN(c)) { await updateDoc(doc(db, "productos", pActual.id), { stock: increment(c) }); cerrar("modal-stock-manual"); abrir("modal-add-stock"); }
-        };
-
-        window.prepPrecio = (id, precio) => { pActual={id}; document.getElementById("precio-nombre-edit").innerText = id; document.getElementById("input-nuevo-precio").value = precio; cerrar("modal-add-stock"); abrir("modal-edit-precio"); };
-        window.finalizarCambioPrecio = async () => {
-            const nP = parseFloat(document.getElementById("input-nuevo-precio").value);
-            if(!isNaN(nP)) { await updateDoc(doc(db, "productos", pActual.id), { precio: nP }); cerrar("modal-edit-precio"); abrir("modal-add-stock"); }
-        };
-
-        window.abrirHistorial = () => {
-            const cont = document.getElementById("lista-historial-render");
-            let h = "<b>VENTAS RECIENTES:</b><hr>";
-            ventasHoy.forEach(v => h += `<div>${v.cantidad}x ${v.producto} (${v.total.toFixed(2)}€)</div>`);
-            h += "<br><b>RETIRADAS:</b><hr>";
-            retirosHoy.forEach(r => h += `<div style="color:red">${r.nombre}: -${r.cantidad.toFixed(2)}€</div>`);
-            cont.innerHTML = h;
-            abrir("modal-historial");
-        };
-
-        window.guardarNuevo = async () => {
-            const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), c = document.getElementById("newC").value, i = document.getElementById("newI").value;
-            if(n && !isNaN(p)) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, orden: 99, categoria: c, img: i || "" }); cerrar('modal-nuevo-prod'); }
         };
 
         window.agregarAlTicket = () => {
-            const cant = parseInt(document.getElementById("input-cantidad").value);
+            const cant = parseInt(document.getElementById("input-cantidad").value) || 1;
             const idx = ticket.findIndex(it => it.id === pActual.id);
             if(idx >= 0) ticket[idx].cantidad += cant; else ticket.push({ ...pActual, cantidad: cant });
             cerrar("modal-cantidad"); dibujarTicket();
@@ -311,46 +232,73 @@
 
         function dibujarTicket() {
             const l = document.getElementById("ticket-list"); l.innerHTML = ""; let s = 0;
-            ticket.forEach((it, i) => { s += it.cantidad * it.precio; l.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>${it.cantidad}x ${it.id}</span><span>${(it.cantidad*it.precio).toFixed(2)}€ <button onclick="quitar(${i})" style="color:red; border:none; background:none;">×</button></span></div>`; });
+            ticket.forEach((it, i) => { 
+                const sub = it.cantidad * (Number(it.precio) || 0); s += sub;
+                l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;">
+                    <span>${it.cantidad}x ${it.id}</span><span>${sub.toFixed(2)}€</span></div>`;
+            });
             document.getElementById("ticket-total").innerText = s.toFixed(2);
         }
 
-        window.quitar = (i) => { ticket.splice(i,1); dibujarTicket(); };
         window.limpiarTicket = () => { ticket = []; dibujarTicket(); };
 
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
-            const btn = document.getElementById("btn-cobrar");
-            btn.disabled = true; btn.innerText = "PROCESANDO...";
+            const btn = document.getElementById("btn-cobrar"); btn.disabled = true; btn.innerText = "PROCESANDO...";
 
             try {
                 for (const it of ticket) {
                     const receta = RECETAS[it.id];
                     if (receta) {
-                        for (const [ingrediente, racion] of Object.entries(receta)) {
-                            const restaTotal = racion * it.cantidad;
-                            await updateDoc(doc(db, "productos", ingrediente), { stock: increment(-restaTotal) }).catch(() => console.log("Falla ingrediente: " + ingrediente));
+                        for (const [ing, cant] of Object.entries(receta)) {
+                            await updateDoc(doc(db, "productos", ing), { stock: increment(-(cant * it.cantidad)) }).catch(() => console.log("Falla ing: " + ing));
                         }
                     } else {
-                        await updateDoc(doc(db, "productos", it.id), { stock: increment(-it.cantidad) }).catch(() => console.log("Falla producto: " + it.id));
+                        await updateDoc(doc(db, "productos", it.id), { stock: increment(-it.cantidad) }).catch(() => console.log("Falla: " + it.id));
                     }
-                    await addDoc(collection(db, "ventas"), { producto: it.id, cantidad: it.cantidad, total: it.cantidad * it.precio, fecha: new Date().toISOString() });
+                    await addDoc(collection(db, "ventas"), { producto: it.id, cantidad: it.cantidad, total: (it.cantidad * Number(it.precio)), fecha: new Date().toISOString() });
                 }
-                limpiarTicket();
-                alert("Cobro realizado correctamente");
-            } catch (e) {
-                alert("Error en el proceso de cobro.");
-            } finally {
-                btn.disabled = false; btn.innerText = "COBRAR";
-            }
+                limpiarTicket(); alert("Venta registrada correctamente");
+            } catch (e) { alert("Error al cobrar"); }
+            finally { btn.disabled = false; btn.innerText = "COBRAR VENTA"; }
         };
 
+        window.abrirModStock = () => {
+            const l = document.getElementById("lista-para-stock"); l.innerHTML = "";
+            const bus = document.getElementById("searchStock").value.toLowerCase();
+            productosData.filter(p => p.id.toLowerCase().includes(bus)).sort((a,b)=>a.id.localeCompare(b.id)).forEach(p => {
+                l.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
+                    <span><b>${p.id}</b> (${(Number(p.stock)||0).toFixed(2)})</span>
+                    <div>
+                        <button onclick="editStock('${p.id}')" style="background:var(--info); color:white; border:none; padding:8px; border-radius:5px;">STOCK</button>
+                        <button onclick="editPrecio('${p.id}')" style="background:var(--warning); color:white; border:none; padding:8px; border-radius:5px; margin:0 5px;">€</button>
+                        <button onclick="borrarP('${p.id}')" style="background:var(--danger); color:white; border:none; padding:8px; border-radius:5px;">X</button>
+                    </div>
+                </div>`;
+            });
+            abrir("modal-add-stock");
+        };
+
+        window.editStock = async (id) => { const n = prompt("Cantidad a añadir (usa negativos para restar):"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
+        window.editPrecio = async (id) => { const n = prompt("Nuevo precio:"); if(n) await updateDoc(doc(db, "productos", id), { precio: parseFloat(n) }); };
+        window.borrarP = async (id) => { if(confirm("¿Eliminar definitivamente?")) await deleteDoc(doc(db, "productos", id)); };
+        
         window.ejecutarRetiro = async () => {
             const n = document.getElementById("retNombre").value, c = parseFloat(document.getElementById("retCantidad").value);
-            if(n && c) { await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() }); cerrar("modal-retirar"); }
+            if(n && !isNaN(c)) { await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() }); cerrar("modal-retirar"); }
         };
 
-        window.borrarP = async (id) => { if(confirm("¿Eliminar producto definitivamente?")) await deleteDoc(doc(db, "productos", id)); };
+        window.abrirHistorial = () => {
+            let h = "<b>Ventas:</b><hr>"; ventasHoy.forEach(v => h += `<div>${v.cantidad}x ${v.producto} (${Number(v.total).toFixed(2)}€)</div>`);
+            h += "<br><b>Retiradas de Caja:</b><hr>"; retirosHoy.forEach(r => h += `<div style="color:red">${r.nombre}: -${Number(r.cantidad).toFixed(2)}€</div>`);
+            document.getElementById("lista-historial-render").innerHTML = h; abrir("modal-historial");
+        };
+
+        window.guardarNuevo = async () => {
+            const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), c = document.getElementById("newC").value;
+            if(n && !isNaN(p)) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, categoria: c }); cerrar("modal-nuevo-prod"); }
+        };
+
         function actCaja() { document.getElementById("totalCaja").innerText = (vTotal - rTotal).toFixed(2); }
     </script>
 </body>
