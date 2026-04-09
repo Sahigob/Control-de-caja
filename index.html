@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV Pro - Versión Final Total</title>
+    <title>TPV Pro - Gestión Total de Fracciones</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
         
-        /* REVISIÓN DE DESPLAZAMIENTO: Permitir scroll natural */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: var(--bg); 
@@ -39,7 +38,6 @@
         
         .productos-section { flex: 1; display: flex; flex-direction: column; padding: 15px; }
         
-        /* BARRA DE ACCIONES SIN BUSCADOR */
         .action-bar { display: grid; grid-template-columns: 1.5fr 1fr 1fr 45px; gap: 8px; margin-bottom: 12px; }
         .action-bar button { padding: 12px 5px; font-size: 0.7rem; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: white; text-transform: uppercase; }
 
@@ -64,10 +62,12 @@
         .total-pagar { font-size: 2.2rem; font-weight: 900; text-align: center; color: var(--primary); margin-bottom: 10px; }
         .btn-cobrar { background: var(--accent); color: white; width: 100%; padding: 18px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; border: none; cursor: pointer; }
 
-        /* Modales */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 10px; }
         .modal-content { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        .btn-mix { padding: 15px; border-radius: 10px; border: 2px solid #eee; background: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-mix:active { background: var(--info); color: white; border-color: var(--info); }
         
         .btn-danger-outline { background: white; color: var(--danger); border: 2px solid var(--danger); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; }
 
@@ -108,7 +108,7 @@
                     <button onclick="filtrar('Todos')" class="active btn-cat">TODOS</button>
                     <button onclick="filtrar('Refrescos')" class="btn-cat">REFRESCOS</button>
                     <button onclick="filtrar('Cervezas')" class="btn-cat">CERVEZAS</button>
-                    <button onclick="filtrar('Cubatas')" class="btn-cat">CUBATAS</button>
+                    <button onclick="filtrar('Copas')" class="btn-cat">COPAS / VINOS</button>
                     <button onclick="filtrar('Snacks')" class="btn-cat">SNACKS</button>
                 </div>
 
@@ -126,57 +126,55 @@
         </div>
     </div>
 
-    <div id="modal-historial" class="modal hidden">
-        <div class="modal-content">
-            <h3>Historial y Limpieza</h3>
-            <div id="lista-historial-render" style="max-height: 300px; overflow-y: auto;"></div>
-            <button onclick="limpiezaTotalPruebas()" class="btn-danger-outline">🔥 LIMPIEZA TOTAL (RESET)</button>
-            <button onclick="cerrar('modal-historial')" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; margin-top:10px; font-weight:bold;">CERRAR</button>
+    <div id="modal-mezcla" class="modal hidden">
+        <div class="modal-content" style="text-align:center;">
+            <h3 id="mezcla-titulo">¿Con qué lo servimos?</h3>
+            <div id="opciones-mezcla" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;"></div>
+            <button onclick="cerrar('modal-mezcla')" style="margin-top:20px; border:none; background:none; color:red; font-weight:bold; cursor:pointer;">CANCELAR</button>
         </div>
     </div>
 
     <div id="modal-add-stock" class="modal hidden">
         <div class="modal-content">
             <h3>Gestión de Stock y Precios</h3>
-            <input type="text" id="searchStock" placeholder="Buscar..." onkeyup="abrirModStock()">
+            <input type="text" id="searchStock" placeholder="Buscar artículo..." onkeyup="abrirModStock()">
             <div id="lista-para-stock" style="max-height: 350px; overflow-y: auto; margin-top:10px;"></div>
-            <button onclick="cerrar('modal-add-stock')" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; margin-top:10px;">CERRAR</button>
+            <button onclick="cerrar('modal-add-stock')" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; margin-top:10px; cursor:pointer;">CERRAR</button>
         </div>
     </div>
 
-    <div id="modal-cantidad" class="modal hidden">
-        <div class="modal-content" style="text-align:center;">
-            <h3 id="cant-nombre"></h3>
-            <input type="number" id="input-cantidad" value="1" style="font-size: 2.5rem; text-align:center; width: 120px; margin: 20px auto; display: block;">
-            <button onclick="agregarAlTicket()" style="width:100%; padding:18px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:bold; font-size: 1.2rem;">AÑADIR</button>
-            <button onclick="cerrar('modal-cantidad')" style="width:100%; background:none; border:none; margin-top:15px; color:red; cursor:pointer;">Cancelar</button>
+    <div id="modal-historial" class="modal hidden">
+        <div class="modal-content">
+            <h3>Actividad Reciente</h3>
+            <div id="lista-historial-render" style="max-height: 300px; overflow-y: auto;"></div>
+            <button onclick="limpiezaTotalPruebas()" class="btn-danger-outline">🔥 LIMPIEZA TOTAL (RESET)</button>
+            <button onclick="cerrar('modal-historial')" style="width:100%; padding:12px; background:#eee; border:none; border-radius:8px; margin-top:10px; cursor:pointer; font-weight:bold;">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="modal-nuevo-prod" class="modal hidden">
+        <div class="modal-content">
+            <h3>Nuevo Artículo</h3>
+            <input type="text" id="newN" placeholder="Nombre">
+            <input type="number" id="newP" placeholder="Precio (€)" step="0.01">
+            <select id="newC">
+                <option value="Copas">Copas / Vinos</option>
+                <option value="Refrescos">Refrescos / Latas</option>
+                <option value="Cervezas">Cervezas</option>
+                <option value="Snacks">Snacks</option>
+            </select>
+            <button onclick="guardarNuevo()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">CREAR</button>
+            <button onclick="cerrar('modal-nuevo-prod')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Cancelar</button>
         </div>
     </div>
 
     <div id="modal-retirar" class="modal hidden">
         <div class="modal-content">
             <h3>Retirada de Caja</h3>
-            <input type="text" id="retNombre" placeholder="Concepto (Ej: Pago Hielo)">
-            <input type="number" id="retCantidad" placeholder="Importe (€)">
-            <button onclick="ejecutarRetiro()" style="width:100%; padding:15px; background:var(--danger); color:white; border:none; border-radius:8px; font-weight:bold;">CONFIRMAR</button>
-            <button onclick="cerrar('modal-retirar')" style="width:100%; background:none; border:none; margin-top:10px;">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="modal-nuevo-prod" class="modal hidden">
-        <div class="modal-content">
-            <h3>Añadir Nuevo Artículo</h3>
-            <input type="text" id="newN" placeholder="Nombre">
-            <input type="number" id="newP" placeholder="Precio (€)" step="0.01">
-            <select id="newC">
-                <option value="Refrescos">Refrescos</option>
-                <option value="Cervezas">Cervezas</option>
-                <option value="Cubatas">Cubatas</option>
-                <option value="Snacks">Snacks</option>
-            </select>
-            <input type="text" id="newI" placeholder="URL Imagen (Opcional)">
-            <button onclick="guardarNuevo()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:bold;">GUARDAR PRODUCTO</button>
-            <button onclick="cerrar('modal-nuevo-prod')" style="width:100%; background:none; border:none; margin-top:10px;">Cancelar</button>
+            <input type="text" id="retNombre" placeholder="Concepto">
+            <input type="number" id="retCantidad" placeholder="Importe (€)" step="0.01">
+            <button onclick="ejecutarRetiro()" style="width:100%; padding:15px; background:var(--danger); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">CONFIRMAR RETIRO</button>
+            <button onclick="cerrar('modal-retirar')" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Cerrar</button>
         </div>
     </div>
 
@@ -190,34 +188,41 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const RECETAS = {
-            "Whisky Cola": { "Whisky": 0.066, "Coca Cola": 1 },
-            "Whisky Naranja": { "Whisky": 0.066, "Fanta de Naranja": 1 },
-            "Whisky Limon": { "Whisky": 0.066, "Fanta de Limón": 1 },
-            "Gin Tonic": { "Ginebra": 0.066, "Tónica": 1 },
-            "Ron Cola": { "Ron": 0.066, "Coca Cola": 1 }
+        // --- CONFIGURACIÓN DE REGLAS DE NEGOCIO ---
+        const REGLAS_COMBINADOS = {
+            "Whisky": ["Coca Cola", "Fanta Naranja", "Fanta Limón"],
+            "Ginebra": ["Tónica", "Fanta Limón"],
+            "Ron": ["Coca Cola", "Fanta Limón"]
+        };
+
+        const FRACCIONES_STOCK = {
+            "Whisky": 0.066,      // 15 copas por botella
+            "Ginebra": 0.066,     // 15 copas por botella
+            "Ron": 0.066,         // 15 copas por botella
+            "Vino Tinto": 0.20,   // 5 copas por botella
+            "Vino Blanco": 0.20   // 5 copas por botella
         };
 
         const ICONOS_CAT = {
             "Refrescos": "https://cdn-icons-png.flaticon.com/512/2722/2722527.png",
             "Cervezas": "https://cdn-icons-png.flaticon.com/512/931/931949.png",
-            "Cubatas": "https://cdn-icons-png.flaticon.com/512/920/920605.png",
+            "Copas": "https://cdn-icons-png.flaticon.com/512/920/920605.png",
             "Snacks": "https://cdn-icons-png.flaticon.com/512/2553/2553691.png"
         };
 
-        let ticket = [], productosData = [], pActual = null, vTotal = 0, rTotal = 0, catActual = "Todos", ventasHoy = [], retirosHoy = [];
+        let ticket = [], productosData = [], vTotal = 0, rTotal = 0, catActual = "Todos", ventasHoy = [], retirosHoy = [];
 
         window.abrir = id => document.getElementById(id).classList.remove("hidden");
         window.cerrar = id => document.getElementById(id).classList.add("hidden");
         
         window.login = () => {
             const e = document.getElementById("email").value, p = document.getElementById("password").value;
-            signInWithEmailAndPassword(auth, e, p).catch(() => alert("Credenciales incorrectas"));
+            signInWithEmailAndPassword(auth, e, p).catch(() => alert("Error de acceso"));
         };
 
-        onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); sincronizar(); } });
+        onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciarApp(); } });
 
-        function sincronizar() {
+        function iniciarApp() {
             onSnapshot(collection(db, "productos"), snap => {
                 productosData = [];
                 snap.forEach(d => productosData.push({id: d.id, ...d.data()}));
@@ -227,13 +232,13 @@
             onSnapshot(collection(db, "ventas"), s => {
                 vTotal = 0; ventasHoy = [];
                 s.forEach(d => { vTotal += (Number(d.data().total) || 0); ventasHoy.push(d.data()); });
-                actCaja();
+                actualizarCajaUI();
             });
 
             onSnapshot(collection(db, "retiradas"), s => {
                 rTotal = 0; retirosHoy = [];
                 s.forEach(d => { rTotal += (Number(d.data().cantidad) || 0); retirosHoy.push(d.data()); });
-                actCaja();
+                actualizarCajaUI();
             });
         }
 
@@ -247,99 +252,139 @@
             const g = document.getElementById("productos-grid"); g.innerHTML = "";
             productosData.filter(p => (catActual === "Todos" || p.categoria === catActual)).forEach(p => {
                 const card = document.createElement("div"); card.className = "producto-card";
-                card.innerHTML = `<span class="stock-tag">${(Number(p.stock)||0).toFixed(1)}</span>
-                    <img src="${p.img || ICONOS_CAT[p.categoria] || ICONOS_CAT["Refrescos"]}" onerror="this.src='${ICONOS_CAT["Refrescos"]}'">
-                    <div style="font-weight:bold; font-size:0.75rem;">${p.id}</div>
+                card.innerHTML = `<span class="stock-tag">${(Number(p.stock)||0).toFixed(2)}</span>
+                    <img src="${ICONOS_CAT[p.categoria] || ICONOS_CAT["Refrescos"]}">
+                    <div style="font-weight:bold; font-size:0.75rem; color:#333;">${p.id}</div>
                     <div style="color:var(--accent); font-weight:bold;">${(Number(p.precio)||0).toFixed(2)}€</div>`;
-                card.onclick = () => { 
-                    pActual = p; 
-                    document.getElementById("cant-nombre").innerText = p.id; 
-                    document.getElementById("input-cantidad").value = 1;
-                    abrir("modal-cantidad"); 
-                };
+                card.onclick = () => procesarSeleccion(p);
                 g.appendChild(card);
             });
         };
 
-        window.agregarAlTicket = () => {
-            const cant = parseInt(document.getElementById("input-cantidad").value) || 1;
-            const idx = ticket.findIndex(it => it.id === pActual.id);
-            if(idx >= 0) ticket[idx].cantidad += cant; else ticket.push({ ...pActual, cantidad: cant });
-            cerrar("modal-cantidad"); dibujarTicket();
-        };
-
-        function dibujarTicket() {
-            const l = document.getElementById("ticket-list"); l.innerHTML = ""; let s = 0;
-            ticket.forEach(it => { 
-                const sub = it.cantidad * (Number(it.precio) || 0); s += sub;
-                l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;"><span><b>${it.cantidad}x</b> ${it.id}</span><span>${sub.toFixed(2)}€</span></div>`;
-            });
-            document.getElementById("ticket-total").innerText = s.toFixed(2);
+        function procesarSeleccion(p) {
+            if (REGLAS_COMBINADOS[p.id]) {
+                const opt = document.getElementById("opciones-mezcla");
+                document.getElementById("mezcla-titulo").innerText = "Mezcla para " + p.id;
+                opt.innerHTML = "";
+                REGLAS_COMBINADOS[p.id].forEach(mezcla => {
+                    const btn = document.createElement("button");
+                    btn.className = "btn-mix";
+                    btn.innerText = mezcla;
+                    btn.onclick = () => { agregarAlTicket(p, mezcla); cerrar("modal-mezcla"); };
+                    opt.appendChild(btn);
+                });
+                abrir("modal-mezcla");
+            } else {
+                agregarAlTicket(p);
+            }
         }
 
-        window.limpiarTicket = () => { ticket = []; dibujarTicket(); };
+        function agregarAlTicket(p, mezcla = null) {
+            ticket.push({ ...p, mezcla: mezcla });
+            dibujarTicket();
+        }
+
+        function dibujarTicket() {
+            const l = document.getElementById("ticket-list"); l.innerHTML = ""; let suma = 0;
+            ticket.forEach((it, idx) => { 
+                const p = Number(it.precio) || 0;
+                suma += p;
+                l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee; align-items:center;">
+                    <span><b>${it.id}</b> ${it.mezcla ? '<br><small style="color:blue;">+ '+it.mezcla+'</small>' : ''}</span>
+                    <div style="display:flex; align-items:center;">
+                        <span style="margin-right:10px;">${p.toFixed(2)}€</span>
+                        <button onclick="borrarDelTicket(${idx})" style="border:none; background:none; color:red; cursor:pointer;">✕</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById("ticket-total").innerText = suma.toFixed(2);
+        }
+
+        window.borrarDelTicket = (idx) => { ticket.splice(idx, 1); dibujarTicket(); };
 
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
-            for (const it of ticket) {
-                const rec = RECETAS[it.id];
-                if (rec) { for (const [ing, cant] of Object.entries(rec)) await updateDoc(doc(db, "productos", ing), { stock: increment(-(cant * it.cantidad)) }); }
-                else { await updateDoc(doc(db, "productos", it.id), { stock: increment(-it.cantidad) }); }
-                await addDoc(collection(db, "ventas"), { producto: it.id, total: (it.cantidad * Number(it.precio)) });
-            }
-            limpiarTicket(); alert("Venta registrada");
+            try {
+                for (const it of ticket) {
+                    // Descontar alcohol por fracción
+                    const descAlco = FRACCIONES_STOCK[it.id] || 1;
+                    await updateDoc(doc(db, "productos", it.id), { stock: increment(-descAlco) });
+                    
+                    // Descontar refresco por unidad entera (si aplica)
+                    if (it.mezcla) {
+                        await updateDoc(doc(db, "productos", it.mezcla), { stock: increment(-1) });
+                    }
+                    
+                    await addDoc(collection(db, "ventas"), { 
+                        producto: it.id + (it.mezcla ? " + " + it.mezcla : ""), 
+                        total: Number(it.precio),
+                        fecha: new Date().toISOString()
+                    });
+                }
+                ticket = []; dibujarTicket(); alert("Cobrado con éxito");
+            } catch (e) { alert("Error al cobrar"); }
         };
 
-        window.abrirHistorial = () => {
-            let h = "<b>VENTAS RECIENTES:</b><hr>"; 
-            ventasHoy.slice().reverse().slice(0,15).forEach(v => h += `<div style="display:flex; justify-content:space-between; font-size:0.8rem;"><span>${v.producto}</span><b>${Number(v.total).toFixed(2)}€</b></div>`);
-            h += "<br><b>RETIRADAS:</b><hr>";
-            retirosHoy.forEach(r => h += `<div style="color:red; display:flex; justify-content:space-between; font-size:0.8rem;"><span>${r.nombre}</span><b>-${Number(r.cantidad).toFixed(2)}€</b></div>`);
-            document.getElementById("lista-historial-render").innerHTML = h;
-            abrir("modal-historial");
-        };
-
-        window.limpiezaTotalPruebas = async () => {
-            if (prompt("Escribe '1234' para RESET TOTAL (Borra Historial y Stock a 0):") !== "1234") return;
-            for (const p of productosData) await updateDoc(doc(db, "productos", p.id), { stock: 0 });
-            const vSnap = await getDocs(collection(db, "ventas"));
-            for (const d of vSnap.docs) await deleteDoc(doc(db, "ventas", d.id));
-            const rSnap = await getDocs(collection(db, "retiradas"));
-            for (const d of rSnap.docs) await deleteDoc(doc(db, "retiradas", d.id));
-            alert("Base de datos limpia"); location.reload();
-        };
-
+        // --- GESTIÓN DE STOCK Y PRECIOS ---
         window.abrirModStock = () => {
             const l = document.getElementById("lista-para-stock"); l.innerHTML = "";
-            const bus = document.getElementById("searchStock").value.toLowerCase();
-            productosData.filter(p => p.id.toLowerCase().includes(bus)).forEach(p => {
-                l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                    <div style="font-size:0.8rem;"><b>${p.id}</b><br>Stock: ${p.stock.toFixed(1)} | €: ${p.precio}</div>
-                    <div>
-                        <button onclick="editStock('${p.id}')" style="background:var(--info); color:white; border:none; padding:5px 8px; border-radius:4px; font-size:0.7rem;">+STOCK</button>
-                        <button onclick="editPrecio('${p.id}', ${p.precio})" style="background:var(--warning); color:white; border:none; padding:5px 8px; border-radius:4px; font-size:0.7rem; margin: 0 2px;">€</button>
-                        <button onclick="borrarP('${p.id}')" style="background:var(--danger); color:white; border:none; padding:5px 8px; border-radius:4px; font-size:0.7rem;">X</button>
+            const filtro = document.getElementById("searchStock").value.toLowerCase();
+            productosData.filter(p => p.id.toLowerCase().includes(filtro)).forEach(p => {
+                l.innerHTML += `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:0.85rem;"><b>${p.id}</b><br>Stock: ${p.stock.toFixed(2)} | Precio: ${p.precio}€</div>
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="editStock('${p.id}')" style="background:var(--info); color:white; border:none; padding:8px; border-radius:5px; font-size:0.7rem;">+BOTELLA</button>
+                        <button onclick="editPrecio('${p.id}', ${p.precio})" style="background:var(--warning); color:white; border:none; padding:8px; border-radius:5px; font-size:0.7rem;">PRECIO</button>
+                        <button onclick="borrarProd('${p.id}')" style="background:var(--danger); color:white; border:none; padding:8px; border-radius:5px; font-size:0.7rem;">✕</button>
                     </div>
                 </div>`;
             });
             abrir("modal-add-stock");
         };
 
-        window.editStock = async id => { const n = prompt("Cantidad a añadir:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
-        window.editPrecio = async (id, actual) => { const n = prompt("Nuevo precio:", actual); if(n) await updateDoc(doc(db, "productos", id), { precio: parseFloat(n) }); };
-        window.borrarP = async id => { if(confirm("¿Borrar definitivamente?")) await deleteDoc(doc(db, "productos", id)); };
-        
-        window.ejecutarRetiro = async () => { 
+        window.editStock = async id => { const n = prompt("Número de botellas/unidades a sumar:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
+        window.editPrecio = async (id, act) => { const n = prompt("Nuevo precio de venta:", act); if(n) await updateDoc(doc(db, "productos", id), { precio: parseFloat(n) }); };
+        window.borrarProd = async id => { if(confirm("¿Eliminar " + id + "?")) await deleteDoc(doc(db, "productos", id)); };
+
+        // --- HISTORIAL Y CAJA ---
+        window.abrirHistorial = () => {
+            let html = "<b>ÚLTIMAS 15 VENTAS:</b><hr>";
+            ventasHoy.slice().reverse().slice(0,15).forEach(v => {
+                html += `<div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:4px;">
+                    <span>${v.producto}</span><b>${Number(v.total).toFixed(2)}€</b>
+                </div>`;
+            });
+            html += "<br><b>ÚLTIMAS RETIRADAS:</b><hr>";
+            retirosHoy.slice().reverse().forEach(r => {
+                html += `<div style="color:red; display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>${r.nombre}</span><b>-${Number(r.cantidad).toFixed(2)}€</b>
+                </div>`;
+            });
+            document.getElementById("lista-historial-render").innerHTML = html;
+            abrir("modal-historial");
+        };
+
+        window.limpiezaTotalPruebas = async () => {
+            if (prompt("Escribe '1234' para limpiar historial y poner stock a 0:") !== "1234") return;
+            for (const p of productosData) await updateDoc(doc(db, "productos", p.id), { stock: 0 });
+            const vS = await getDocs(collection(db, "ventas")); vS.forEach(async d => await deleteDoc(doc(db, "ventas", d.id)));
+            const rS = await getDocs(collection(db, "retiradas")); rS.forEach(async d => await deleteDoc(doc(db, "retiradas", d.id)));
+            alert("Sistema reseteado"); location.reload();
+        };
+
+        window.ejecutarRetiro = async () => {
             const n = document.getElementById("retNombre").value, c = parseFloat(document.getElementById("retCantidad").value);
-            if(n && c) { await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c }); cerrar("modal-retirar"); }
+            if(n && c) { await addDoc(collection(db, "retiradas"), { nombre: n, cantidad: c, fecha: new Date().toISOString() }); cerrar("modal-retirar"); }
         };
 
         window.guardarNuevo = async () => {
-            const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), c = document.getElementById("newC").value, i = document.getElementById("newI").value;
-            if(n && p) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, categoria: c, img: i || "" }); cerrar("modal-nuevo-prod"); }
+            const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), c = document.getElementById("newC").value;
+            if(n && p) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, categoria: c }); cerrar("modal-nuevo-prod"); }
         };
 
-        function actCaja() { document.getElementById("totalCaja").innerText = (vTotal - rTotal).toFixed(2); }
+        function actualizarCajaUI() { document.getElementById("totalCaja").innerText = (vTotal - rTotal).toFixed(2); }
+        window.limpiarTicket = () => { ticket = []; dibujarTicket(); };
+
     </script>
 </body>
 </html>
