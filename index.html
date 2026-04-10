@@ -3,59 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV PRO - Control Total</title>
+    <title>TPV PRO - Edición Compacta</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; user-select: none; overflow: hidden; }
         .hidden { display: none !important; }
 
         /* HEADER */
-        header { background: var(--primary); color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; height: 50px; box-sizing: border-box; }
-        .caja-badge { background: white; color: var(--primary); padding: 4px 12px; border-radius: 20px; font-weight: 900; border: 2px solid var(--accent); font-size: 1rem; }
+        header { background: var(--primary); color: white; padding: 5px 15px; display: flex; justify-content: space-between; align-items: center; height: 45px; box-sizing: border-box; }
+        .caja-badge { background: white; color: var(--primary); padding: 2px 10px; border-radius: 15px; font-weight: 900; border: 2px solid var(--accent); font-size: 0.9rem; }
 
         /* PRODUCTOS SECTION */
-        .productos-section { height: calc(100vh - 230px); overflow-y: auto; padding: 10px; padding-bottom: 20px; }
+        .productos-section { height: calc(100vh - 165px); overflow-y: auto; padding: 8px; box-sizing: border-box; }
         
-        .action-bar { display: grid; grid-template-columns: 1fr 1fr 1fr 50px; gap: 6px; margin-bottom: 10px; }
-        .action-bar button { padding: 8px 2px; border-radius: 8px; border: none; color: white; font-weight: bold; font-size: 0.65rem; text-transform: uppercase; }
+        .action-bar { display: grid; grid-template-columns: 1fr 1fr 1fr 45px; gap: 5px; margin-bottom: 8px; }
+        .action-bar button { padding: 6px 0; border-radius: 6px; border: none; color: white; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; }
 
-        .category-bar { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; }
-        .category-bar button { padding: 8px 15px; border-radius: 15px; border: 1px solid #ddd; background: white; white-space: nowrap; font-size: 0.75rem; font-weight: bold; }
+        .category-bar { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; padding-bottom: 3px; }
+        .category-bar button { padding: 6px 12px; border-radius: 12px; border: 1px solid #ddd; background: white; white-space: nowrap; font-size: 0.7rem; font-weight: bold; }
         .category-bar button.active { background: var(--warning); color: white; border-color: var(--warning); }
 
-        .grid-productos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .producto-card { background: white; border-radius: 12px; padding: 8px; text-align: center; border: 1px solid #eee; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .producto-card img { width: 45px; height: 45px; object-fit: contain; }
-        .producto-card span { display: block; font-size: 0.7rem; font-weight: bold; margin: 4px 0; height: 1.4em; overflow: hidden; }
-        .stock-tag { position: absolute; top: 4px; left: 4px; background: #f8f9fa; padding: 1px 4px; border-radius: 4px; font-size: 0.6rem; border: 1px solid #ddd; }
+        .grid-productos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .producto-card { background: white; border-radius: 10px; padding: 6px; text-align: center; border: 1px solid #eee; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .producto-card img { width: 40px; height: 40px; object-fit: contain; }
+        .producto-card span { display: block; font-size: 0.65rem; font-weight: bold; margin: 2px 0; height: 1.2em; overflow: hidden; white-space: nowrap; }
+        .producto-card b { font-size: 0.75rem; color: var(--accent); }
+        .stock-tag { position: absolute; top: 2px; left: 2px; background: #f8f9fa; padding: 1px 3px; border-radius: 3px; font-size: 0.55rem; border: 1px solid #ddd; }
 
-        /* TICKET COMPACTO (MÁS PEQUEÑO) */
-        .ticket-section { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 3px solid var(--primary); height: 180px; display: flex; flex-direction: column; z-index: 90; }
-        .ticket-list { flex: 1; overflow-y: auto; padding: 8px 15px; font-size: 0.8rem; }
-        .ticket-footer { padding: 8px 15px; background: #f8f9fa; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-        .total-pagar { font-size: 1.5rem; font-weight: 900; color: var(--primary); min-width: 80px; }
-        .btn-cobrar { background: var(--accent); color: white; flex: 1; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: bold; border: none; }
+        /* TICKET ULTRA-COMPACTO */
+        .ticket-section { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 2px solid var(--primary); height: 120px; display: flex; flex-direction: column; z-index: 90; }
+        .ticket-list { flex: 1; overflow-y: auto; padding: 5px 12px; font-size: 0.75rem; background: #fff; }
+        .ticket-footer { padding: 5px 12px; background: #f1f2f6; display: flex; align-items: center; gap: 8px; height: 50px; }
+        .total-pagar { font-size: 1.3rem; font-weight: 900; color: var(--primary); min-width: 70px; }
+        .btn-cobrar { background: var(--accent); color: white; flex: 1; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; border: none; }
 
         /* MODALES */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 15px; box-sizing: border-box; }
-        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 10px; box-sizing: border-box; }
+        .modal-content { background: white; padding: 15px; border-radius: 15px; width: 100%; max-width: 380px; max-height: 90vh; overflow-y: auto; }
         
-        /* TABS HISTORIAL */
-        .tab-container { display: flex; border-bottom: 2px solid #eee; margin-bottom: 15px; }
-        .tab { flex: 1; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; color: #999; }
+        .tab-container { display: flex; border-bottom: 2px solid #eee; margin-bottom: 10px; }
+        .tab { flex: 1; padding: 8px; text-align: center; font-weight: bold; cursor: pointer; color: #999; font-size: 0.8rem; }
         .tab.active { color: var(--primary); border-bottom: 3px solid var(--info); }
 
-        .btn-primario { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: bold; margin-top: 10px; }
-        .btn-cerrar { width: 100%; padding: 10px; background: #eee; border: none; border-radius: 12px; margin-top: 8px; font-weight: bold; }
+        .btn-primario { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 8px; }
+        .btn-cerrar { width: 100%; padding: 10px; background: #eee; border: none; border-radius: 10px; margin-top: 5px; font-weight: bold; font-size: 0.8rem; }
         
-        input, select { width: 100%; padding: 12px; margin: 6px 0; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 10px; margin: 4px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
     <div id="login-section" class="modal">
         <div class="modal-content" style="text-align:center;">
-            <h3>🔐 Acceso TPV</h3>
+            <h3>🔐 Acceso</h3>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Contraseña">
             <button id="btnLogin" class="btn-primario">ENTRAR</button>
@@ -65,15 +65,15 @@
     <div id="app-section" class="hidden">
         <header>
             <div class="caja-badge">CAJA: <span id="totalCaja">0.00</span>€</div>
-            <button onclick="location.reload()" style="background:none; border:1px solid white; color:white; border-radius:5px; font-size:0.7rem;">SALIR</button>
+            <button onclick="location.reload()" style="background:none; border:1px solid white; color:white; border-radius:4px; font-size:0.6rem; padding:3px 7px;">SALIR</button>
         </header>
 
         <div class="app-layout">
             <section class="productos-section">
                 <div class="action-bar">
-                    <button onclick="window.abrir('modal-retirar')" style="background:var(--danger)">💸 RETIRO</button>
-                    <button onclick="window.abrirHistorial()" style="background:var(--info)">📊 HISTORIAL</button>
-                    <button onclick="window.abrirModStock()" style="background:var(--primary)">📦 STOCK</button>
+                    <button onclick="window.abrir('modal-retirar')" style="background:var(--danger)">RETIRO</button>
+                    <button onclick="window.abrirHistorial()" style="background:var(--info)">HISTORIAL</button>
+                    <button onclick="window.abrirModStock()" style="background:var(--primary)">STOCK</button>
                     <button onclick="window.abrir('modal-nuevo-prod')" style="background:var(--accent)">➕</button>
                 </div>
                 
@@ -93,7 +93,7 @@
                 <div class="ticket-footer">
                     <div class="total-pagar"><span id="ticket-total">0.00</span>€</div>
                     <button id="btn-cobrar" class="btn-cobrar">COBRAR</button>
-                    <button onclick="window.limpiarTicket()" style="background:none; border:none; color:red; font-size:1.2rem; font-weight:bold;">🗑️</button>
+                    <button onclick="window.limpiarTicket()" style="background:none; border:none; font-size:1.3rem;">🗑️</button>
                 </div>
             </section>
         </div>
@@ -101,8 +101,8 @@
 
     <div id="modal-cantidad" class="modal hidden">
         <div class="modal-content">
-            <h3 id="cant-nombre-prod">Unidades</h3>
-            <input type="number" id="input-cant" style="font-size:1.8rem; text-align:center;" value="1" min="1">
+            <h3 id="cant-nombre-prod" style="font-size:1rem; margin:0 0 10px 0;">Unidades</h3>
+            <input type="number" id="input-cant" style="font-size:1.5rem; text-align:center;" value="1" min="1">
             <button id="btnConfirmarCant" class="btn-primario">AÑADIR</button>
             <button onclick="cerrar('modal-cantidad')" class="btn-cerrar">CANCELAR</button>
         </div>
@@ -110,9 +110,9 @@
 
     <div id="modal-mezcla" class="modal hidden">
         <div class="modal-content">
-            <h3>Seleccionar Mezcla</h3>
-            <div id="opciones-mezcla" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
-            <button onclick="cerrar('modal-mezcla')" class="btn-cerrar">CANCELAR</button>
+            <h3 style="font-size:1rem; margin:0 0 10px 0;">Mezcla</h3>
+            <div id="opciones-mezcla" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
+            <button onclick="cerrar('modal-mezcla')" class="btn-cerrar">SIN MEZCLA</button>
         </div>
     </div>
 
@@ -122,38 +122,34 @@
                 <div id="tabVentas" class="tab active" onclick="cambiarTab('ventas')">VENTAS</div>
                 <div id="tabRetiros" class="tab" onclick="cambiarTab('retiros')">RETIROS</div>
             </div>
-            <div id="contenidoVentas">
-                <div id="lista-ventas" style="max-height:300px; overflow-y:auto;"></div>
-            </div>
-            <div id="contenidoRetiros" class="hidden">
-                <div id="lista-retiros" style="max-height:300px; overflow-y:auto;"></div>
-            </div>
+            <div id="contenidoVentas"><div id="lista-ventas" style="max-height:250px; overflow-y:auto;"></div></div>
+            <div id="contenidoRetiros" class="hidden"><div id="lista-retiros" style="max-height:250px; overflow-y:auto;"></div></div>
             <button onclick="cerrar('modal-historial')" class="btn-cerrar">CERRAR</button>
         </div>
     </div>
 
     <div id="modal-retirar" class="modal hidden">
         <div class="modal-content">
-            <h3>💸 Retirada de Efectivo</h3>
-            <input type="text" id="retN" placeholder="Nombre de quien retira">
-            <input type="text" id="retConcepto" placeholder="Concepto (Ej: Pago Frutas)">
+            <h3>💸 Retirada</h3>
+            <input type="text" id="retN" placeholder="Quién retira">
+            <input type="text" id="retConcepto" placeholder="Concepto">
             <input type="number" id="retC" placeholder="Importe €">
-            <button id="btnConfirmRet" class="btn-primario" style="background:var(--danger)">REGISTRAR RETIRO</button>
+            <button id="btnConfirmRet" class="btn-primario" style="background:var(--danger)">REGISTRAR</button>
             <button onclick="cerrar('modal-retirar')" class="btn-cerrar">CANCELAR</button>
         </div>
     </div>
 
     <div id="modal-stock" class="modal hidden">
         <div class="modal-content">
-            <h3>📦 Gestión de Inventario</h3>
-            <div id="lista-stock" style="max-height: 400px; overflow-y: auto;"></div>
+            <h3>📦 Inventario</h3>
+            <div id="lista-stock" style="max-height: 350px; overflow-y: auto;"></div>
             <button onclick="cerrar('modal-stock')" class="btn-cerrar">CERRAR</button>
         </div>
     </div>
 
     <div id="modal-nuevo-prod" class="modal hidden">
         <div class="modal-content">
-            <h3>➕ Nuevo Producto</h3>
+            <h3>➕ Nuevo</h3>
             <input type="text" id="newN" placeholder="Nombre">
             <input type="number" id="newP" placeholder="Precio €">
             <select id="newC">
@@ -163,7 +159,7 @@
                 <option value="Snacks">Snacks</option>
             </select>
             <input type="text" id="newI" placeholder="URL Imagen">
-            <button id="btnGuardarNuevo" class="btn-primario">CREAR PRODUCTO</button>
+            <button id="btnGuardarNuevo" class="btn-primario">CREAR</button>
             <button onclick="cerrar('modal-nuevo-prod')" class="btn-cerrar">CANCELAR</button>
         </div>
     </div>
@@ -171,7 +167,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, increment, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0", authDomain: "control-de-caja-41341.firebaseapp.com", projectId: "control-de-caja-41341", storageBucket: "control-de-caja-41341.firebasestorage.app", messagingSenderId: "802067725052", appId: "1:802067725052:web:a583fab3a16d4f8025f579" };
         const app = initializeApp(firebaseConfig);
@@ -198,7 +194,7 @@
 
         function renderizarProductos() {
             const g = document.getElementById("productos-grid"); g.innerHTML = "";
-            productosData.filter(p => (catActual === "Todos" || p.categoria === catActual)).forEach(p => {
+            productosData.filter(p => (catActual === "Todos" || p.categoria === catActual)).sort((a,b)=>a.id.localeCompare(b.id)).forEach(p => {
                 const card = document.createElement("div"); card.className = "producto-card";
                 card.innerHTML = `<span class="stock-tag">${(Number(p.stock)||0).toFixed(1)}</span>
                     <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/2722/2722527.png'}">
@@ -216,7 +212,7 @@
             if (clave) {
                 const opt = document.getElementById("opciones-mezcla"); opt.innerHTML = "";
                 REGLAS_MIX[clave].forEach(m => {
-                    const b = document.createElement("button"); b.className = "btn-primario"; b.style.padding="10px"; b.innerText = m;
+                    const b = document.createElement("button"); b.className = "btn-primario"; b.style.padding="8px"; b.style.fontSize="0.7rem"; b.innerText = m;
                     b.onclick = () => { window.agregarAlTicket(tempProd, m, cant); cerrar("modal-mezcla"); };
                     opt.appendChild(b);
                 });
@@ -230,63 +226,65 @@
             const l = document.getElementById("ticket-list"); l.innerHTML = ""; let s = 0;
             ticket.forEach((it, idx) => { 
                 s += Number(it.precio);
-                l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #eee;">
+                l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid #eee; align-items:center;">
                     <span><b>${it.id}</b> ${it.mezcla ? '<small style="color:blue">+'+it.mezcla+'</small>' : ''}</span>
-                    <span>${Number(it.precio).toFixed(2)}€ <button onclick="window.borrarI(${idx})" style="color:red;border:none;background:none;font-size:0.9rem;">✕</button></span>
+                    <span>${Number(it.precio).toFixed(2)}€ <button onclick="window.borrarI(${idx})" style="color:red;border:none;background:none;font-weight:bold;padding:0 5px;">✕</button></span>
                 </div>`;
             });
             document.getElementById("ticket-total").innerText = s.toFixed(2);
+            l.scrollTop = l.scrollHeight;
         }
 
         window.borrarI = i => { ticket.splice(i, 1); dibujarTicket(); };
-        window.limpiarTicket = () => { ticket = []; dibujarTicket(); };
+        window.limpiarTicket = () => { if(confirm("¿Vaciar todo?")) { ticket = []; dibujarTicket(); } };
 
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
-            for (const it of ticket) {
+            const tempTicket = [...ticket];
+            ticket = []; dibujarTicket();
+            for (const it of tempTicket) {
                 const nMin = it.id.toLowerCase();
                 let f = 1; Object.keys(FRACCIONES).forEach(k => { if(nMin.includes(k)) f = FRACCIONES[k]; });
                 await updateDoc(doc(db, "productos", it.id), { stock: increment(-f) });
                 if (it.mezcla) await updateDoc(doc(db, "productos", it.mezcla), { stock: increment(-1) });
                 await addDoc(collection(db, "ventas"), { producto: it.id + (it.mezcla ? " + "+it.mezcla : ""), total: Number(it.precio), fecha: new Date() });
             }
-            ticket = []; dibujarTicket();
         };
 
         window.abrirHistorial = () => {
             const lv = document.getElementById("lista-ventas"); lv.innerHTML = "";
-            ventasData.slice().reverse().forEach(v => {
-                const fecha = v.fecha ? new Date(v.fecha.seconds * 1000).toLocaleTimeString() : "";
-                lv.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:0.8rem;">
-                    <span>${fecha} - ${v.producto}</span><b>${v.total.toFixed(2)}€</b>
+            ventasData.slice().reverse().slice(0,30).forEach(v => {
+                const f = v.fecha ? new Date(v.fecha.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
+                lv.innerHTML += `<div style="padding:5px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:0.75rem;">
+                    <span>${f} - ${v.producto}</span><b>${v.total.toFixed(2)}€</b>
                 </div>`;
             });
             const lr = document.getElementById("lista-retiros"); lr.innerHTML = "";
             retirosData.slice().reverse().forEach(r => {
-                const fecha = r.fecha ? new Date(r.fecha.seconds * 1000).toLocaleString() : "";
-                lr.innerHTML += `<div style="padding:10px 0; border-bottom:1px solid #eee; font-size:0.8rem;">
+                const f = r.fecha ? new Date(r.fecha.seconds * 1000).toLocaleString([], {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : "";
+                lr.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #eee; font-size:0.75rem;">
                     <div style="color:red; font-weight:bold;">-${r.cantidad.toFixed(2)}€</div>
-                    <div>${r.nombre} (${r.concepto})</div>
-                    <div style="font-size:0.65rem; color:gray;">${fecha}</div>
+                    <div>${r.nombre} (${r.concepto})</div><div style="font-size:0.6rem; color:gray;">${f}</div>
                 </div>`;
             });
             abrir("modal-historial");
         };
 
-        window.cambiarTab = (tipo) => {
-            document.getElementById("tabVentas").classList.toggle("active", tipo === 'ventas');
-            document.getElementById("tabRetiros").classList.toggle("active", tipo === 'retiros');
-            document.getElementById("contenidoVentas").classList.toggle("hidden", tipo !== 'ventas');
-            document.getElementById("contenidoRetiros").classList.toggle("hidden", tipo !== 'retiros');
+        window.cambiarTab = (t) => {
+            document.getElementById("tabVentas").classList.toggle("active", t === 'ventas');
+            document.getElementById("tabRetiros").classList.toggle("active", t === 'retiros');
+            document.getElementById("contenidoVentas").classList.toggle("hidden", t !== 'ventas');
+            document.getElementById("contenidoRetiros").classList.toggle("hidden", t !== 'retiros');
         };
 
         window.abrirModStock = () => {
             let h = "";
-            productosData.forEach(p => h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee;">
-                <span style="font-size:0.8rem"><b>${p.id}</b><br>Stock: ${Number(p.stock).toFixed(1)}</span>
+            productosData.sort((a,b)=>a.id.localeCompare(b.id)).forEach(p => h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
+                <span style="font-size:0.75rem"><b>${p.id}</b><br>Stock: ${Number(p.stock).toFixed(1)}</span>
                 <div>
-                    <button style="padding:6px; background:var(--info); color:white; border:none; border-radius:5px;" onclick="window.edS('${p.id}')">+S</button>
-                    <button style="padding:6px; background:var(--warning); color:white; border:none; border-radius:5px;" onclick="window.edP('${p.id}', ${p.precio})">€</button>
+                    <button style="padding:5px; background:var(--info); color:white; border:none; border-radius:4px;" onclick="window.edS('${p.id}')">+S</button>
+                    <button style="padding:5px; background:var(--warning); color:white; border:none; border-radius:4px;" onclick="window.edP('${p.id}', ${p.precio})">€</button>
+                    <button style="padding:5px; background:var(--danger); color:white; border:none; border-radius:4px;" onclick="window.borrarProd('${p.id}')">🗑️</button>
                 </div>
             </div>`);
             document.getElementById("lista-stock").innerHTML = h;
@@ -295,6 +293,7 @@
 
         window.edS = async id => { let n = prompt("Suma:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
         window.edP = async (id, act) => { let n = prompt("Precio:", act); if(n) await updateDoc(doc(db, "productos", id), { precio: parseFloat(n) }); };
+        window.borrarProd = async id => { if(confirm(`¿Borrar ${id}?`)) await deleteDoc(doc(db, "productos", id)); window.abrirModStock(); };
 
         document.getElementById("btnConfirmRet").onclick = async () => {
             const n = document.getElementById("retN").value, concept = document.getElementById("retConcepto").value, cant = parseFloat(document.getElementById("retC").value);
@@ -306,7 +305,7 @@
             if(n && p) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, categoria: c, img: i }); cerrar("modal-nuevo-prod"); }
         };
 
-        window.filtrar = (cat) => { catActual = cat; document.querySelectorAll('#catBar button').forEach(b => b.classList.toggle('active', b.innerText === cat.toUpperCase())); renderizarProductos(); };
+        window.filtrar = (c) => { catActual = c; document.querySelectorAll('#catBar button').forEach(b => b.classList.toggle('active', b.innerText === c.toUpperCase())); renderizarProductos(); };
         function actCaja() { document.getElementById("totalCaja").innerText = (vTotal - rTotal).toFixed(2); }
     </script>
 </body>
