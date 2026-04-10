@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV PRO - Versión Estable</title>
+    <title>TPV PRO - Gestión Total</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; --gray: #95a5a6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; user-select: none; overflow: hidden; }
@@ -12,6 +12,7 @@
         /* HEADER */
         header { background: var(--primary); color: white; padding: 5px 15px; display: flex; justify-content: space-between; align-items: center; height: 45px; z-index: 101; position: relative; }
         .caja-badge { background: white; color: var(--primary); padding: 2px 10px; border-radius: 15px; font-weight: 900; border: 2px solid var(--accent); font-size: 0.9rem; }
+        .btn-header { background: rgba(255,255,255,0.1); border: 1px solid white; color: white; border-radius: 6px; padding: 4px 8px; font-size: 0.7rem; font-weight: bold; cursor: pointer; }
 
         /* PRODUCTOS SECTION */
         .productos-section { height: calc(100vh - 125px); overflow-y: auto; padding: 8px; box-sizing: border-box; }
@@ -75,8 +76,11 @@
 
     <div id="app-section" class="hidden">
         <header>
-            <div class="caja-badge">EFECTIVO: <span id="totalCaja">0.00</span>€</div>
-            <button onclick="location.reload()" style="background:none; border:1px solid white; color:white; border-radius:6px; font-size:0.7rem; padding:4px 10px; font-weight:bold;">CERRAR SESIÓN</button>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="window.abrir('modal-ajustes')" class="btn-header">⚙️</button>
+                <div class="caja-badge">EFECTIVO: <span id="totalCaja">0.00</span>€</div>
+            </div>
+            <button onclick="location.reload()" class="btn-header">CERRAR SESIÓN</button>
         </header>
 
         <section class="productos-section">
@@ -106,6 +110,27 @@
                 <button onclick="window.limpiarTicket()" style="background:none; border:none; font-size:1.8rem; margin-left:5px;">🗑️</button>
             </div>
         </section>
+    </div>
+
+    <div id="modal-ajustes" class="modal hidden">
+        <div class="modal-content">
+            <h3 style="margin-top:0">⚙️ Ajustes de Seguridad</h3>
+            
+            <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
+                <p style="font-size:0.8rem; color:gray; margin-bottom:5px;">Cambiar contraseña de acceso:</p>
+                <input type="password" id="newPass1" placeholder="Nueva Contraseña">
+                <input type="password" id="newPass2" placeholder="Repite Nueva Contraseña">
+                <button id="btnUpdatePass" class="btn-accion" style="background:var(--primary); padding: 10px;">ACTUALIZAR CONTRASEÑA</button>
+            </div>
+
+            <div style="background: #fff5f5; padding: 15px; border-radius: 12px; border: 1px solid #fed7d7;">
+                <h4 style="margin:0; color:var(--danger);">⚠️ Zona de Peligro</h4>
+                <p style="font-size:0.75rem; color:#c53030;">Esta acción borrará todas las ventas y retiradas permanentemente.</p>
+                <button id="btnResetTodo" class="btn-accion" style="background:var(--danger); margin-top:5px;">RESETEAR CAJA TOTAL</button>
+            </div>
+
+            <button onclick="cerrar('modal-ajustes')" class="btn-cancelar">CERRAR AJUSTES</button>
+        </div>
     </div>
 
     <div id="modal-cantidad" class="modal hidden">
@@ -173,8 +198,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment, getDocs, query, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0", authDomain: "control-de-caja-41341.firebaseapp.com", projectId: "control-de-caja-41341", storageBucket: "control-de-caja-41341.firebasestorage.app", messagingSenderId: "802067725052", appId: "1:802067725052:web:a583fab3a16d4f8025f579" };
         const app = initializeApp(firebaseConfig);
@@ -190,6 +215,37 @@
 
         onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
         document.getElementById("btnLogin").onclick = () => { signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value); };
+
+        // ACTUALIZAR CONTRASEÑA
+        document.getElementById("btnUpdatePass").onclick = () => {
+            const p1 = document.getElementById("newPass1").value;
+            const p2 = document.getElementById("newPass2").value;
+            if(p1.length < 6) { alert("Mínimo 6 caracteres"); return; }
+            if(p1 !== p2) { alert("Las contraseñas no coinciden"); return; }
+            updatePassword(auth.currentUser, p1).then(() => {
+                alert("Contraseña actualizada.");
+                cerrar('modal-ajustes');
+            }).catch(e => alert("Error: Re-autenticación necesaria. Cierra sesión y entra de nuevo."));
+        };
+
+        // RESETEO TOTAL CON CÓDIGO
+        document.getElementById("btnResetTodo").onclick = async () => {
+            const code = prompt("Introduce el código de seguridad para BORRAR TODO:");
+            if(code === "Arallo26") {
+                if(confirm("¿Estás seguro? Se borrarán todas las ventas y retiradas.")) {
+                    const batch = writeBatch(db);
+                    const vSnap = await getDocs(collection(db, "ventas"));
+                    vSnap.forEach(d => batch.delete(d.ref));
+                    const rSnap = await getDocs(collection(db, "retiradas"));
+                    rSnap.forEach(d => batch.delete(d.ref));
+                    await batch.commit();
+                    alert("Caja reseteada a cero.");
+                    cerrar('modal-ajustes');
+                }
+            } else if(code !== null) {
+                alert("Código incorrecto.");
+            }
+        };
 
         function iniciar() {
             onSnapshot(collection(db, "productos"), s => { productosData = []; s.forEach(d => productosData.push({id: d.id, ...d.data()})); renderizarProductos(); });
