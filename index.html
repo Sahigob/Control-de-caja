@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV PRO - Versión Final Estable</title>
+    <title>TPV PRO - Versión Estable</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; --gray: #95a5a6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; user-select: none; overflow: hidden; }
@@ -81,7 +81,7 @@
 
         <section class="productos-section">
             <div class="action-bar">
-                <button onclick="window.abrir('modal-retirar')" style="background:var(--danger)">💸 RETIRO</button>
+                <button onclick="window.abrir('modal-retirar')" style="background:var(--danger)">💸 RETIRADA EFECTIVO</button>
                 <button onclick="window.abrirHistorial()" style="background:var(--info)">📊 HISTORIAL</button>
                 <button onclick="window.abrirModStock()" style="background:var(--primary)">📦 STOCK</button>
                 <button onclick="window.abrir('modal-nuevo-prod')" style="background:var(--accent)">➕</button>
@@ -119,11 +119,11 @@
 
     <div id="modal-retirar" class="modal hidden">
         <div class="modal-content">
-            <h3 style="margin-top:0">💸 Registrar Salida de Dinero</h3>
+            <h3 style="margin-top:0">💸 Registrar Retirada Efectivo</h3>
             <input type="text" id="retN" placeholder="Nombre (Quién lo lleva)">
             <input type="text" id="retConcepto" placeholder="Concepto (Ej: Pago CocaCola)">
             <input type="number" id="retC" placeholder="Cantidad en €">
-            <button id="btnConfirmRet" class="btn-accion" style="background:var(--danger)">CONFIRMAR RETIRO</button>
+            <button id="btnConfirmRet" class="btn-accion" style="background:var(--danger)">CONFIRMAR RETIRADA</button>
             <button onclick="cerrar('modal-retirar')" class="btn-cancelar">CANCELAR OPERACIÓN</button>
         </div>
     </div>
@@ -149,7 +149,7 @@
         <div class="modal-content" style="max-width: 450px;">
             <div class="tab-container">
                 <div id="tabVentas" class="tab active" onclick="cambiarTab('ventas')">VENTAS</div>
-                <div id="tabRetiros" class="tab" onclick="cambiarTab('retiros')">RETIROS</div>
+                <div id="tabRetiros" class="tab" onclick="cambiarTab('retiros')">RETIRADAS</div>
             </div>
             <div id="contenidoVentas">
                 <div id="lista-ventas" style="max-height:350px; overflow-y:auto;"></div>
