@@ -79,7 +79,7 @@
                 <button onclick="window.abrir('modal-ajustes')" class="btn-header">⚙️</button>
                 <div class="caja-badge">EFECTIVO: <span id="totalCaja">0.00</span>€</div>
             </div>
-            <button onclick="location.reload()" class="btn-header">CERRAR SESIÓN</button>
+            <button id="btnCerrarSesion" class="btn-header">CERRAR SESIÓN</button>
         </header>
 
         <section class="productos-section">
@@ -207,7 +207,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, updatePassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, updatePassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0", authDomain: "control-de-caja-41341.firebaseapp.com", projectId: "control-de-caja-41341", storageBucket: "control-de-caja-41341.firebasestorage.app", messagingSenderId: "802067725052", appId: "1:802067725052:web:a583fab3a16d4f8025f579" };
@@ -223,34 +223,53 @@
         window.toggleTicket = () => document.getElementById('ticket-ui').classList.toggle('expanded');
         window.toggleVer = id => { const x = document.getElementById(id); x.type = x.type === "password" ? "text" : "password"; };
 
-        onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
-        document.getElementById("btnLogin").onclick = () => { signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(e => alert("Error al entrar: Correo o clave incorrectos.")); };
+        // DETECTOR DE SESIÓN
+        onAuthStateChanged(auth, user => { 
+            if(user) { 
+                cerrar("login-section"); 
+                abrir("app-section"); 
+                iniciar(); 
+            } else {
+                cerrar("app-section");
+                abrir("login-section");
+            }
+        });
+
+        // BOTÓN LOGIN
+        document.getElementById("btnLogin").onclick = () => { 
+            signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value)
+            .catch(e => alert("Error: Correo o clave incorrectos.")); 
+        };
+
+        // BOTÓN CERRAR SESIÓN REAL
+        document.getElementById("btnCerrarSesion").onclick = () => {
+            if(confirm("¿Cerrar sesión de usuario?")) {
+                signOut(auth).then(() => {
+                    location.reload();
+                }).catch(e => alert("Error al cerrar sesión."));
+            }
+        };
 
         // CAMBIAR CONTRASEÑA
         document.getElementById("btnUpdatePass").onclick = () => {
             const p = document.getElementById("newPass1").value;
-            if(p.length < 6) { alert("La clave debe tener al menos 6 caracteres."); return; }
+            if(p.length < 6) { alert("Mínimo 6 caracteres."); return; }
             updatePassword(auth.currentUser, p).then(() => {
-                alert("Contraseña actualizada con éxito.");
+                alert("Clave cambiada.");
                 cerrar('modal-ajustes');
-            }).catch(e => alert("Seguridad: Debes cerrar sesión y volver a entrar justo antes de cambiar la clave para que Google lo permita."));
+            }).catch(e => alert("Seguridad: Cierra sesión y entra de nuevo para poder cambiar la clave."));
         };
 
-        // AÑADIR NUEVO USUARIO
+        // AÑADIR USUARIO
         document.getElementById("btnAddUser").onclick = async () => {
             const email = document.getElementById("newUserEmail").value;
             const pass = document.getElementById("newUserPass").value;
-            if(!email || pass.length < 6) { alert("Escribe un email válido y clave de 6+ caracteres."); return; }
-            
+            if(!email || pass.length < 6) { alert("Email válido y clave de 6+ carac."); return; }
             try {
-                // Esto crea un usuario en Firebase Auth.
-                // Nota: El usuario que crea queda logueado como el nuevo, así que recargamos.
                 await createUserWithEmailAndPassword(auth, email, pass);
-                alert("Usuario " + email + " creado con éxito.");
+                alert("Usuario creado. Se ha iniciado sesión con el nuevo usuario.");
                 location.reload(); 
-            } catch (e) {
-                alert("Error al crear: Probablemente el usuario ya existe o necesitas re-loguearte tú primero.");
-            }
+            } catch (e) { alert("Error: Necesitas re-loguearte para realizar esta acción administrativa."); }
         };
 
         // RESETEO TOTAL
