@@ -3,52 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TPV PRO - Edición Compacta</title>
+    <title>TPV PRO - Flujo Rápido</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --danger: #e74c3c; --info: #3498db; --bg: #f1f2f6; --warning: #f39c12; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; user-select: none; overflow: hidden; }
         .hidden { display: none !important; }
 
         /* HEADER */
-        header { background: var(--primary); color: white; padding: 5px 15px; display: flex; justify-content: space-between; align-items: center; height: 45px; box-sizing: border-box; }
+        header { background: var(--primary); color: white; padding: 5px 15px; display: flex; justify-content: space-between; align-items: center; height: 45px; z-index: 101; position: relative; }
         .caja-badge { background: white; color: var(--primary); padding: 2px 10px; border-radius: 15px; font-weight: 900; border: 2px solid var(--accent); font-size: 0.9rem; }
 
         /* PRODUCTOS SECTION */
-        .productos-section { height: calc(100vh - 165px); overflow-y: auto; padding: 8px; box-sizing: border-box; }
+        .productos-section { height: calc(100vh - 125px); overflow-y: auto; padding: 8px; box-sizing: border-box; }
         
         .action-bar { display: grid; grid-template-columns: 1fr 1fr 1fr 45px; gap: 5px; margin-bottom: 8px; }
-        .action-bar button { padding: 6px 0; border-radius: 6px; border: none; color: white; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; }
+        .action-bar button { padding: 8px 0; border-radius: 6px; border: none; color: white; font-weight: bold; font-size: 0.6rem; text-transform: uppercase; }
 
         .category-bar { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; padding-bottom: 3px; }
         .category-bar button { padding: 6px 12px; border-radius: 12px; border: 1px solid #ddd; background: white; white-space: nowrap; font-size: 0.7rem; font-weight: bold; }
         .category-bar button.active { background: var(--warning); color: white; border-color: var(--warning); }
 
         .grid-productos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-        .producto-card { background: white; border-radius: 10px; padding: 6px; text-align: center; border: 1px solid #eee; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .producto-card { background: white; border-radius: 10px; padding: 6px; text-align: center; border: 1px solid #eee; position: relative; }
         .producto-card img { width: 40px; height: 40px; object-fit: contain; }
-        .producto-card span { display: block; font-size: 0.65rem; font-weight: bold; margin: 2px 0; height: 1.2em; overflow: hidden; white-space: nowrap; }
-        .producto-card b { font-size: 0.75rem; color: var(--accent); }
+        .producto-card span { display: block; font-size: 0.65rem; font-weight: bold; margin: 2px 0; white-space: nowrap; overflow: hidden; }
         .stock-tag { position: absolute; top: 2px; left: 2px; background: #f8f9fa; padding: 1px 3px; border-radius: 3px; font-size: 0.55rem; border: 1px solid #ddd; }
 
-        /* TICKET ULTRA-COMPACTO */
-        .ticket-section { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 2px solid var(--primary); height: 120px; display: flex; flex-direction: column; z-index: 90; }
-        .ticket-list { flex: 1; overflow-y: auto; padding: 5px 12px; font-size: 0.75rem; background: #fff; }
-        .ticket-footer { padding: 5px 12px; background: #f1f2f6; display: flex; align-items: center; gap: 8px; height: 50px; }
-        .total-pagar { font-size: 1.3rem; font-weight: 900; color: var(--primary); min-width: 70px; }
-        .btn-cobrar { background: var(--accent); color: white; flex: 1; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; border: none; }
+        /* TICKET EXPANDIBLE */
+        .ticket-section { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 2px solid var(--primary); height: 85px; display: flex; flex-direction: column; z-index: 200; transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .ticket-section.expanded { height: 80vh; }
+        
+        .ticket-header-expand { background: #eee; height: 25px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .ticket-header-expand::after { content: '▲ REVISAR TICKET ▲'; font-size: 0.6rem; font-weight: bold; color: #666; }
+        .ticket-section.expanded .ticket-header-expand::after { content: '▼ CERRAR ▼'; }
+
+        .ticket-list { flex: 1; overflow-y: auto; padding: 5px 15px; font-size: 0.8rem; display: none; }
+        .ticket-section.expanded .ticket-list { display: block; }
+
+        .ticket-footer { padding: 5px 12px; background: #fff; display: flex; align-items: center; gap: 8px; height: 60px; border-top: 1px solid #eee; }
+        .total-pagar { font-size: 1.4rem; font-weight: 900; color: var(--primary); min-width: 80px; text-align: center; }
+        .btn-cobrar { background: var(--accent); color: white; flex: 1; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; border: none; }
 
         /* MODALES */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 10px; box-sizing: border-box; }
-        .modal-content { background: white; padding: 15px; border-radius: 15px; width: 100%; max-width: 380px; max-height: 90vh; overflow-y: auto; }
-        
-        .tab-container { display: flex; border-bottom: 2px solid #eee; margin-bottom: 10px; }
-        .tab { flex: 1; padding: 8px; text-align: center; font-weight: bold; cursor: pointer; color: #999; font-size: 0.8rem; }
-        .tab.active { color: var(--primary); border-bottom: 3px solid var(--info); }
-
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 10px; }
+        .modal-content { background: white; padding: 15px; border-radius: 15px; width: 100%; max-width: 380px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1.1rem; }
         .btn-primario { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 8px; }
-        .btn-cerrar { width: 100%; padding: 10px; background: #eee; border: none; border-radius: 10px; margin-top: 5px; font-weight: bold; font-size: 0.8rem; }
-        
-        input, select { width: 100%; padding: 10px; margin: 4px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -84,14 +84,14 @@
                     <button onclick="filtrar('Cubatas')">CUBATAS</button>
                     <button onclick="filtrar('Snacks')">SNACKS</button>
                 </div>
-
                 <div id="productos-grid" class="grid-productos"></div>
             </section>
 
-            <section class="ticket-section">
+            <section id="ticket-ui" class="ticket-section">
+                <div class="ticket-header-expand" onclick="toggleTicket()"></div>
                 <div id="ticket-list" class="ticket-list"></div>
                 <div class="ticket-footer">
-                    <div class="total-pagar"><span id="ticket-total">0.00</span>€</div>
+                    <div class="total-pagar" onclick="toggleTicket()"><span id="ticket-total">0.00</span>€</div>
                     <button id="btn-cobrar" class="btn-cobrar">COBRAR</button>
                     <button onclick="window.limpiarTicket()" style="background:none; border:none; font-size:1.3rem;">🗑️</button>
                 </div>
@@ -101,68 +101,18 @@
 
     <div id="modal-cantidad" class="modal hidden">
         <div class="modal-content">
-            <h3 id="cant-nombre-prod" style="font-size:1rem; margin:0 0 10px 0;">Unidades</h3>
-            <input type="number" id="input-cant" style="font-size:1.5rem; text-align:center;" value="1" min="1">
-            <button id="btnConfirmarCant" class="btn-primario">AÑADIR</button>
-            <button onclick="cerrar('modal-cantidad')" class="btn-cerrar">CANCELAR</button>
+            <h3 id="cant-nombre-prod" style="font-size:1rem; margin:0;">Seleccionar Cantidad</h3>
+            <input type="number" id="input-cant" value="1" min="1" step="1">
+            <button id="btnConfirmarCant" class="btn-primario">AÑADIR AL TICKET</button>
+            <button onclick="cerrar('modal-cantidad')" style="width:100%; margin-top:5px; background:none; border:none; color:gray;">Cancelar</button>
         </div>
     </div>
 
-    <div id="modal-mezcla" class="modal hidden">
-        <div class="modal-content">
-            <h3 style="font-size:1rem; margin:0 0 10px 0;">Mezcla</h3>
-            <div id="opciones-mezcla" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
-            <button onclick="cerrar('modal-mezcla')" class="btn-cerrar">SIN MEZCLA</button>
-        </div>
-    </div>
-
-    <div id="modal-historial" class="modal hidden">
-        <div class="modal-content">
-            <div class="tab-container">
-                <div id="tabVentas" class="tab active" onclick="cambiarTab('ventas')">VENTAS</div>
-                <div id="tabRetiros" class="tab" onclick="cambiarTab('retiros')">RETIROS</div>
-            </div>
-            <div id="contenidoVentas"><div id="lista-ventas" style="max-height:250px; overflow-y:auto;"></div></div>
-            <div id="contenidoRetiros" class="hidden"><div id="lista-retiros" style="max-height:250px; overflow-y:auto;"></div></div>
-            <button onclick="cerrar('modal-historial')" class="btn-cerrar">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-retirar" class="modal hidden">
-        <div class="modal-content">
-            <h3>💸 Retirada</h3>
-            <input type="text" id="retN" placeholder="Quién retira">
-            <input type="text" id="retConcepto" placeholder="Concepto">
-            <input type="number" id="retC" placeholder="Importe €">
-            <button id="btnConfirmRet" class="btn-primario" style="background:var(--danger)">REGISTRAR</button>
-            <button onclick="cerrar('modal-retirar')" class="btn-cerrar">CANCELAR</button>
-        </div>
-    </div>
-
-    <div id="modal-stock" class="modal hidden">
-        <div class="modal-content">
-            <h3>📦 Inventario</h3>
-            <div id="lista-stock" style="max-height: 350px; overflow-y: auto;"></div>
-            <button onclick="cerrar('modal-stock')" class="btn-cerrar">CERRAR</button>
-        </div>
-    </div>
-
-    <div id="modal-nuevo-prod" class="modal hidden">
-        <div class="modal-content">
-            <h3>➕ Nuevo</h3>
-            <input type="text" id="newN" placeholder="Nombre">
-            <input type="number" id="newP" placeholder="Precio €">
-            <select id="newC">
-                <option value="Refrescos">Refrescos</option>
-                <option value="Cervezas">Cervezas</option>
-                <option value="Cubatas">Cubatas</option>
-                <option value="Snacks">Snacks</option>
-            </select>
-            <input type="text" id="newI" placeholder="URL Imagen">
-            <button id="btnGuardarNuevo" class="btn-primario">CREAR</button>
-            <button onclick="cerrar('modal-nuevo-prod')" class="btn-cerrar">CANCELAR</button>
-        </div>
-    </div>
+    <div id="modal-mezcla" class="modal hidden"><div class="modal-content"><h3>Mezcla</h3><div id="opciones-mezcla" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div><button onclick="cerrar('modal-mezcla')" class="btn-primario" style="background:gray">SIN MEZCLA</button></div></div>
+    <div id="modal-retirar" class="modal hidden"><div class="modal-content"><h3>💸 Retirada</h3><input id="retN" placeholder="Quién"><input id="retConcepto" placeholder="Concepto"><input id="retC" type="number" placeholder="Importe €"><button id="btnConfirmRet" class="btn-primario" style="background:var(--danger)">REGISTRAR</button><button onclick="cerrar('modal-retirar')">Cerrar</button></div></div>
+    <div id="modal-historial" class="modal hidden"><div class="modal-content"><div class="tab-container"><div id="tabVentas" class="tab active" onclick="cambiarTab('ventas')">VENTAS</div><div id="tabRetiros" class="tab" onclick="cambiarTab('retiros')">RETIROS</div></div><div id="contenidoVentas"><div id="lista-ventas" style="max-height:250px; overflow-y:auto;"></div></div><div id="contenidoRetiros" class="hidden"><div id="lista-retiros" style="max-height:250px; overflow-y:auto;"></div></div><button onclick="cerrar('modal-historial')" class="btn-primario">CERRAR</button></div></div>
+    <div id="modal-stock" class="modal hidden"><div class="modal-content"><h3>📦 Stock</h3><div id="lista-stock" style="max-height: 350px; overflow-y: auto;"></div><button onclick="cerrar('modal-stock')" class="btn-primario">CERRAR</button></div></div>
+    <div id="modal-nuevo-prod" class="modal hidden"><div class="modal-content"><h3>➕ Nuevo</h3><input id="newN" placeholder="Nombre"><input id="newP" type="number" placeholder="Precio"><select id="newC"><option value="Refrescos">Refrescos</option><option value="Cervezas">Cervezas</option><option value="Cubatas">Cubatas</option><option value="Snacks">Snacks</option></select><input id="newI" placeholder="URL Imagen"><button id="btnGuardarNuevo" class="btn-primario">CREAR</button><button onclick="cerrar('modal-nuevo-prod')">Cerrar</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
@@ -177,11 +127,10 @@
         let ticket = [], productosData = [], vTotal = 0, rTotal = 0, catActual = "Todos", tempProd = null;
         let ventasData = [], retirosData = [];
 
-        const REGLAS_MIX = { "whisky": ["Coca Cola", "Fanta Naranja", "Fanta Limón"], "ginebra": ["Tónica", "Fanta Limón"], "ron": ["Coca Cola", "Fanta Limón"] };
-        const FRACCIONES = { "whisky": 0.066, "ginebra": 0.066, "ron": 0.066, "vino": 0.20 };
-
         window.abrir = id => document.getElementById(id).classList.remove("hidden");
         window.cerrar = id => document.getElementById(id).classList.add("hidden");
+
+        window.toggleTicket = () => document.getElementById('ticket-ui').classList.toggle('expanded');
 
         onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
         document.getElementById("btnLogin").onclick = () => { signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value); };
@@ -199,20 +148,29 @@
                 card.innerHTML = `<span class="stock-tag">${(Number(p.stock)||0).toFixed(1)}</span>
                     <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/2722/2722527.png'}">
                     <span>${p.id}</span><b>${Number(p.precio).toFixed(2)}€</b>`;
-                card.onclick = () => { tempProd = p; document.getElementById("input-cant").value = 1; abrir("modal-cantidad"); };
+                card.onclick = () => { 
+                    tempProd = p; 
+                    document.getElementById("cant-nombre-prod").innerText = p.id;
+                    const inp = document.getElementById("input-cant");
+                    inp.value = 1; 
+                    abrir("modal-cantidad");
+                    // TRUCO: Seleccionar el texto después de que el modal sea visible
+                    setTimeout(() => { inp.focus(); inp.select(); }, 100);
+                };
                 g.appendChild(card);
             });
         }
 
         document.getElementById("btnConfirmarCant").onclick = () => {
-            const cant = parseInt(document.getElementById("input-cant").value);
+            const cant = parseInt(document.getElementById("input-cant").value) || 1;
             cerrar("modal-cantidad");
             const nMin = tempProd.id.toLowerCase();
-            let clave = Object.keys(REGLAS_MIX).find(k => nMin.includes(k));
+            const mixes = { "whisky": ["Coca Cola", "Fanta Naranja", "Fanta Limón"], "ginebra": ["Tónica", "Fanta Limón"], "ron": ["Coca Cola", "Fanta Limón"] };
+            let clave = Object.keys(mixes).find(k => nMin.includes(k));
             if (clave) {
                 const opt = document.getElementById("opciones-mezcla"); opt.innerHTML = "";
-                REGLAS_MIX[clave].forEach(m => {
-                    const b = document.createElement("button"); b.className = "btn-primario"; b.style.padding="8px"; b.style.fontSize="0.7rem"; b.innerText = m;
+                mixes[clave].forEach(m => {
+                    const b = document.createElement("button"); b.className = "btn-primario"; b.style.padding="8px"; b.innerText = m;
                     b.onclick = () => { window.agregarAlTicket(tempProd, m, cant); cerrar("modal-mezcla"); };
                     opt.appendChild(b);
                 });
@@ -226,25 +184,25 @@
             const l = document.getElementById("ticket-list"); l.innerHTML = ""; let s = 0;
             ticket.forEach((it, idx) => { 
                 s += Number(it.precio);
-                l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid #eee; align-items:center;">
-                    <span><b>${it.id}</b> ${it.mezcla ? '<small style="color:blue">+'+it.mezcla+'</small>' : ''}</span>
-                    <span>${Number(it.precio).toFixed(2)}€ <button onclick="window.borrarI(${idx})" style="color:red;border:none;background:none;font-weight:bold;padding:0 5px;">✕</button></span>
+                l.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
+                    <span><b>${it.id}</b> ${it.mezcla ? '<br><small style="color:blue">+'+it.mezcla+'</small>' : ''}</span>
+                    <span>${Number(it.precio).toFixed(2)}€ <button onclick="window.borrarI(${idx})" style="color:red;border:none;background:none;padding:5px;">✕</button></span>
                 </div>`;
             });
             document.getElementById("ticket-total").innerText = s.toFixed(2);
-            l.scrollTop = l.scrollHeight;
         }
 
         window.borrarI = i => { ticket.splice(i, 1); dibujarTicket(); };
-        window.limpiarTicket = () => { if(confirm("¿Vaciar todo?")) { ticket = []; dibujarTicket(); } };
+        window.limpiarTicket = () => { if(confirm("¿Vaciar?")) { ticket = []; dibujarTicket(); } };
 
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
-            const tempTicket = [...ticket];
-            ticket = []; dibujarTicket();
-            for (const it of tempTicket) {
-                const nMin = it.id.toLowerCase();
-                let f = 1; Object.keys(FRACCIONES).forEach(k => { if(nMin.includes(k)) f = FRACCIONES[k]; });
+            const temp = [...ticket]; ticket = []; dibujarTicket();
+            if(document.getElementById('ticket-ui').classList.contains('expanded')) toggleTicket();
+            for (const it of temp) {
+                const n = it.id.toLowerCase(); let f = 1;
+                if(n.includes("whisky") || n.includes("ginebra") || n.includes("ron")) f = 0.066;
+                if(n.includes("vino")) f = 0.20;
                 await updateDoc(doc(db, "productos", it.id), { stock: increment(-f) });
                 if (it.mezcla) await updateDoc(doc(db, "productos", it.mezcla), { stock: increment(-1) });
                 await addDoc(collection(db, "ventas"), { producto: it.id + (it.mezcla ? " + "+it.mezcla : ""), total: Number(it.precio), fecha: new Date() });
@@ -254,18 +212,13 @@
         window.abrirHistorial = () => {
             const lv = document.getElementById("lista-ventas"); lv.innerHTML = "";
             ventasData.slice().reverse().slice(0,30).forEach(v => {
-                const f = v.fecha ? new Date(v.fecha.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
-                lv.innerHTML += `<div style="padding:5px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:0.75rem;">
-                    <span>${f} - ${v.producto}</span><b>${v.total.toFixed(2)}€</b>
-                </div>`;
+                const f = v.fecha ? new Date(v.fecha.seconds * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : "";
+                lv.innerHTML += `<div style="display:flex;justify-content:space-between;font-size:0.8rem;padding:5px 0;border-bottom:1px solid #eee;"><span>${f} - ${v.producto}</span><b>${v.total.toFixed(2)}€</b></div>`;
             });
             const lr = document.getElementById("lista-retiros"); lr.innerHTML = "";
             retirosData.slice().reverse().forEach(r => {
                 const f = r.fecha ? new Date(r.fecha.seconds * 1000).toLocaleString([], {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : "";
-                lr.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #eee; font-size:0.75rem;">
-                    <div style="color:red; font-weight:bold;">-${r.cantidad.toFixed(2)}€</div>
-                    <div>${r.nombre} (${r.concepto})</div><div style="font-size:0.6rem; color:gray;">${f}</div>
-                </div>`;
+                lr.innerHTML += `<div style="padding:5px 0;border-bottom:1px solid #eee;font-size:0.8rem;"><b style="color:red">-${r.cantidad.toFixed(2)}€</b> ${r.nombre} (${r.concepto}) <br><small>${f}</small></div>`;
             });
             abrir("modal-historial");
         };
@@ -280,7 +233,7 @@
         window.abrirModStock = () => {
             let h = "";
             productosData.sort((a,b)=>a.id.localeCompare(b.id)).forEach(p => h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
-                <span style="font-size:0.75rem"><b>${p.id}</b><br>Stock: ${Number(p.stock).toFixed(1)}</span>
+                <span style="font-size:0.8rem"><b>${p.id}</b><br>Stock: ${Number(p.stock).toFixed(1)}</span>
                 <div>
                     <button style="padding:5px; background:var(--info); color:white; border:none; border-radius:4px;" onclick="window.edS('${p.id}')">+S</button>
                     <button style="padding:5px; background:var(--warning); color:white; border:none; border-radius:4px;" onclick="window.edP('${p.id}', ${p.precio})">€</button>
@@ -293,7 +246,7 @@
 
         window.edS = async id => { let n = prompt("Suma:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
         window.edP = async (id, act) => { let n = prompt("Precio:", act); if(n) await updateDoc(doc(db, "productos", id), { precio: parseFloat(n) }); };
-        window.borrarProd = async id => { if(confirm(`¿Borrar ${id}?`)) await deleteDoc(doc(db, "productos", id)); window.abrirModStock(); };
+        window.borrarProd = async id => { if(confirm(`¿Borrar ${id}?`)) await deleteDoc(doc(db, "productos", id)); };
 
         document.getElementById("btnConfirmRet").onclick = async () => {
             const n = document.getElementById("retN").value, concept = document.getElementById("retConcepto").value, cant = parseFloat(document.getElementById("retC").value);
