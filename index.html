@@ -50,17 +50,19 @@
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 15px; box-sizing: border-box; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         
+        /* INPUTS CON OJO */
+        .input-group { position: relative; width: 100%; }
+        .btn-ver { position: absolute; right: 10px; top: 22px; background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+
         /* PESTAÑAS HISTORIAL */
         .tab-container { display: flex; border-bottom: 2px solid #eee; margin-bottom: 15px; border-radius: 10px 10px 0 0; overflow: hidden; }
         .tab { flex: 1; padding: 12px; text-align: center; font-weight: bold; cursor: pointer; color: #999; background: #f9f9f9; }
         .tab.active { color: white; background: var(--info); }
 
-        /* INPUTS Y BOTONES MODALES */
-        input, select { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1.1rem; transition: border-color 0.3s; }
-        input:focus { border-color: var(--info); outline: none; }
-        
+        /* BOTONES */
         .btn-accion { width: 100%; padding: 16px; color: white; border: none; border-radius: 12px; font-weight: bold; margin-top: 10px; font-size: 1.1rem; cursor: pointer; }
         .btn-cancelar { width: 100%; padding: 14px; background: #f1f2f6; color: #555; border: 1px solid #ccc; border-radius: 12px; margin-top: 25px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        input, select { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1.1rem; }
     </style>
 </head>
 <body>
@@ -69,7 +71,10 @@
         <div class="modal-content" style="text-align:center;">
             <h2 style="margin-top:0">🔐 Acceso Caja</h2>
             <input type="email" id="email" placeholder="Correo electrónico">
-            <input type="password" id="password" placeholder="Contraseña">
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Contraseña">
+                <button class="btn-ver" onclick="toggleVer('password')">👁️</button>
+            </div>
             <button id="btnLogin" class="btn-accion" style="background: var(--primary);">ENTRAR AL SISTEMA</button>
         </div>
     </div>
@@ -117,16 +122,19 @@
             <h3 style="margin-top:0">⚙️ Ajustes de Seguridad</h3>
             
             <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
-                <p style="font-size:0.8rem; color:gray; margin-bottom:5px;">Cambiar contraseña de acceso:</p>
-                <input type="password" id="newPass1" placeholder="Nueva Contraseña">
-                <input type="password" id="newPass2" placeholder="Repite Nueva Contraseña">
-                <button id="btnUpdatePass" class="btn-accion" style="background:var(--primary); padding: 10px;">ACTUALIZAR CONTRASEÑA</button>
+                <p style="font-size:0.8rem; color:gray; margin-bottom:5px;">Nueva Contraseña (mín. 6 carac.):</p>
+                <div class="input-group">
+                    <input type="password" id="newPass1" placeholder="Escribe la nueva clave">
+                    <button class="btn-ver" onclick="toggleVer('newPass1')">👁️</button>
+                </div>
+                <button id="btnUpdatePass" class="btn-accion" style="background:var(--primary); padding: 10px;">CAMBIAR CONTRASEÑA</button>
             </div>
 
             <div style="background: #fff5f5; padding: 15px; border-radius: 12px; border: 1px solid #fed7d7;">
                 <h4 style="margin:0; color:var(--danger);">⚠️ Zona de Peligro</h4>
-                <p style="font-size:0.75rem; color:#c53030;">Esta acción borrará todas las ventas y retiradas permanentemente.</p>
-                <button id="btnResetTodo" class="btn-accion" style="background:var(--danger); margin-top:5px;">RESETEAR CAJA TOTAL</button>
+                <p style="font-size:0.7rem; color:#c53030; margin:5px 0;">Se requiere código: <b>Arallo26</b></p>
+                <button id="btnResetTodo" class="btn-accion" style="background:var(--danger); margin-top:5px; font-size:0.8rem;">BORRAR VENTAS Y RETIRADAS</button>
+                <button id="btnResetStock" class="btn-accion" style="background:var(--warning); margin-top:10px; font-size:0.8rem;">PONER TODO EL STOCK A 0</button>
             </div>
 
             <button onclick="cerrar('modal-ajustes')" class="btn-cancelar">CERRAR AJUSTES</button>
@@ -199,7 +207,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment, getDocs, query, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, increment, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyDt5Ldo_-62A82ZmsxP5nB87LsefAPIxR0", authDomain: "control-de-caja-41341.firebaseapp.com", projectId: "control-de-caja-41341", storageBucket: "control-de-caja-41341.firebasestorage.app", messagingSenderId: "802067725052", appId: "1:802067725052:web:a583fab3a16d4f8025f579" };
         const app = initializeApp(firebaseConfig);
@@ -212,39 +220,44 @@
         window.abrir = id => document.getElementById(id).classList.remove("hidden");
         window.cerrar = id => document.getElementById(id).classList.add("hidden");
         window.toggleTicket = () => document.getElementById('ticket-ui').classList.toggle('expanded');
+        window.toggleVer = id => { const x = document.getElementById(id); x.type = x.type === "password" ? "text" : "password"; };
 
         onAuthStateChanged(auth, user => { if(user) { cerrar("login-section"); abrir("app-section"); iniciar(); } });
-        document.getElementById("btnLogin").onclick = () => { signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value); };
+        document.getElementById("btnLogin").onclick = () => { signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value).catch(e => alert("Error al entrar: " + e.message)); };
 
-        // ACTUALIZAR CONTRASEÑA
+        // ACTUALIZAR CONTRASEÑA MEJORADO
         document.getElementById("btnUpdatePass").onclick = () => {
-            const p1 = document.getElementById("newPass1").value;
-            const p2 = document.getElementById("newPass2").value;
-            if(p1.length < 6) { alert("Mínimo 6 caracteres"); return; }
-            if(p1 !== p2) { alert("Las contraseñas no coinciden"); return; }
-            updatePassword(auth.currentUser, p1).then(() => {
-                alert("Contraseña actualizada.");
+            const p = document.getElementById("newPass1").value;
+            if(p.length < 6) { alert("Mínimo 6 caracteres"); return; }
+            updatePassword(auth.currentUser, p).then(() => {
+                alert("Contraseña cambiada con éxito.");
                 cerrar('modal-ajustes');
-            }).catch(e => alert("Error: Re-autenticación necesaria. Cierra sesión y entra de nuevo."));
+            }).catch(e => alert("Error de seguridad: Debes cerrar sesión y volver a entrar justo antes de cambiar la contraseña."));
         };
 
-        // RESETEO TOTAL CON CÓDIGO
+        // RESETEO TOTAL
         document.getElementById("btnResetTodo").onclick = async () => {
-            const code = prompt("Introduce el código de seguridad para BORRAR TODO:");
-            if(code === "Arallo26") {
-                if(confirm("¿Estás seguro? Se borrarán todas las ventas y retiradas.")) {
-                    const batch = writeBatch(db);
-                    const vSnap = await getDocs(collection(db, "ventas"));
-                    vSnap.forEach(d => batch.delete(d.ref));
-                    const rSnap = await getDocs(collection(db, "retiradas"));
-                    rSnap.forEach(d => batch.delete(d.ref));
-                    await batch.commit();
-                    alert("Caja reseteada a cero.");
-                    cerrar('modal-ajustes');
+            if(prompt("Introduce código de seguridad:") === "Arallo26") {
+                if(confirm("¿BORRAR TODAS LAS VENTAS Y RETIRADAS?")) {
+                    const b = writeBatch(db);
+                    const vS = await getDocs(collection(db, "ventas")); vS.forEach(d => b.delete(d.ref));
+                    const rS = await getDocs(collection(db, "retiradas")); rS.forEach(d => b.delete(d.ref));
+                    await b.commit();
+                    alert("Historial limpiado.");
                 }
-            } else if(code !== null) {
-                alert("Código incorrecto.");
-            }
+            } else { alert("Código incorrecto."); }
+        };
+
+        // RESETEO STOCK TOTAL
+        document.getElementById("btnResetStock").onclick = async () => {
+            if(prompt("Introduce código de seguridad:") === "Arallo26") {
+                if(confirm("¿PONER EL STOCK DE TODOS LOS PRODUCTOS A 0?")) {
+                    const b = writeBatch(db);
+                    productosData.forEach(p => b.update(doc(db, "productos", p.id), { stock: 0 }));
+                    await b.commit();
+                    alert("Stock reseteado.");
+                }
+            } else { alert("Código incorrecto."); }
         };
 
         function iniciar() {
@@ -302,13 +315,13 @@
         }
 
         window.borrarI = i => { ticket.splice(i, 1); dibujarTicket(); };
-        window.limpiarTicket = () => { if(confirm("¿Borrar todo el ticket actual?")) { ticket = []; dibujarTicket(); } };
+        window.limpiarTicket = () => { if(confirm("¿Borrar ticket?")) { ticket = []; dibujarTicket(); } };
 
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
-            const temp = [...ticket]; ticket = []; dibujarTicket();
+            const tCopy = [...ticket]; ticket = []; dibujarTicket();
             if(document.getElementById('ticket-ui').classList.contains('expanded')) toggleTicket();
-            for (const it of temp) {
+            for (const it of tCopy) {
                 const n = it.id.toLowerCase(); let f = 1;
                 if(n.includes("whisky") || n.includes("ginebra") || n.includes("ron")) f = 0.066;
                 if(n.includes("vino")) f = 0.20;
@@ -353,9 +366,9 @@
             abrir("modal-stock");
         };
 
-        window.edS = async id => { let n = prompt("Suma de stock (Ej: 10 o -2):"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
+        window.edS = async id => { let n = prompt("Suma de stock:"); if(n) await updateDoc(doc(db, "productos", id), { stock: increment(parseFloat(n)) }); };
         window.edP = async (id, act) => { let n = prompt("Nuevo Precio:", act); if(n) await updateDoc(doc(db, "productos", id), { precio: parseFloat(n) }); };
-        window.borrarProd = async id => { if(confirm(`¿ELIMINAR ${id} PARA SIEMPRE?`)) await deleteDoc(doc(db, "productos", id)); };
+        window.borrarProd = async id => { if(confirm(`¿ELIMINAR ${id}?`)) await deleteDoc(doc(db, "productos", id)); };
 
         document.getElementById("btnConfirmRet").onclick = async () => {
             const n = document.getElementById("retN").value, concept = document.getElementById("retConcepto").value, cant = parseFloat(document.getElementById("retC").value);
