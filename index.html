@@ -144,7 +144,24 @@
 
     <div id="modal-cantidad" class="modal hidden"><div class="modal-content"><h3>Unidades</h3><input type="number" id="input-cant" value="1"><button id="btnConfirmarCant" class="btn-accion" style="background:var(--accent)">AÑADIR</button><button onclick="cerrar('modal-cantidad')" class="btn-cancelar">ATRÁS</button></div></div>
     <div id="modal-retirar" class="modal hidden"><div class="modal-content"><h3>Retirada</h3><input type="text" id="retN" placeholder="Quién"><input type="text" id="retConcepto" placeholder="Concepto"><input type="number" id="retC" placeholder="€"><button id="btnConfirmRet" class="btn-accion" style="background:var(--danger)">CONFIRMAR</button><button onclick="cerrar('modal-retirar')" class="btn-cancelar">CANCELAR</button></div></div>
-    <div id="modal-nuevo-prod" class="modal hidden"><div class="modal-content"><h3>Nuevo Producto</h3><input type="text" id="newN" placeholder="Nombre"><input type="number" id="newP" placeholder="Precio"><select id="newC"><option value="Refrescos">Refrescos</option><option value="Cervezas">Cervezas</option><option value="Cubatas">Cubatas</option><option value="Snacks">Snacks</option></select><button id="btnGuardarNuevo" class="btn-accion" style="background:var(--accent)">GUARDAR</button><button onclick="cerrar('modal-nuevo-prod')" class="btn-cancelar">CERRAR</button></div></div>
+    
+    <div id="modal-nuevo-prod" class="modal hidden">
+        <div class="modal-content">
+            <h3>Nuevo Producto</h3>
+            <input type="text" id="newN" placeholder="Nombre">
+            <input type="number" id="newP" placeholder="Precio">
+            <input type="text" id="newI" placeholder="URL Imagen (opcional)">
+            <select id="newC">
+                <option value="Refrescos">Refrescos</option>
+                <option value="Cervezas">Cervezas</option>
+                <option value="Cubatas">Cubatas</option>
+                <option value="Snacks">Snacks</option>
+            </select>
+            <button id="btnGuardarNuevo" class="btn-accion" style="background:var(--accent)">GUARDAR</button>
+            <button onclick="cerrar('modal-nuevo-prod')" class="btn-cancelar">CERRAR</button>
+        </div>
+    </div>
+
     <div id="modal-mezcla" class="modal hidden"><div class="modal-content"><h3>Mezcla</h3><div id="opciones-mezcla" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div><button onclick="cerrar('modal-mezcla')" class="btn-cancelar">SOLO</button></div></div>
 
     <script type="module">
@@ -295,9 +312,28 @@
             if(n && cant) { await addDoc(collection(db, "retiradas"), { nombre: n, concepto: c, cantidad: cant, fecha: new Date() }); cerrar("modal-retirar"); }
         };
 
+        // FUNCIÓN ACTUALIZADA PARA GUARDAR LA IMAGEN
         document.getElementById("btnGuardarNuevo").onclick = async () => {
-            const n = document.getElementById("newN").value, p = parseFloat(document.getElementById("newP").value), c = document.getElementById("newC").value;
-            if(n && p) { await setDoc(doc(db, "productos", n), { precio: p, stock: 0, categoria: c }); cerrar("modal-nuevo-prod"); }
+            const n = document.getElementById("newN").value;
+            const p = parseFloat(document.getElementById("newP").value);
+            const c = document.getElementById("newC").value;
+            const imgUrl = document.getElementById("newI").value; // Captura URL imagen
+            
+            if(n && p) { 
+                await setDoc(doc(db, "productos", n), { 
+                    precio: p, 
+                    stock: 0, 
+                    categoria: c,
+                    img: imgUrl || "" // Guarda la imagen (o vacío si no hay)
+                }); 
+                // Limpiar campos y cerrar
+                document.getElementById("newN").value = "";
+                document.getElementById("newP").value = "";
+                document.getElementById("newI").value = "";
+                cerrar("modal-nuevo-prod"); 
+            } else {
+                alert("Nombre y precio son obligatorios");
+            }
         };
 
         window.filtrar = (c) => { catActual = c; document.querySelectorAll('#catBar button').forEach(b => b.classList.toggle('active', b.innerText === c.toUpperCase())); renderizarProductos(); };
