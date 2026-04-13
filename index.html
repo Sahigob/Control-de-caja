@@ -50,8 +50,8 @@
         .tab { flex: 1; padding: 12px; text-align: center; font-weight: bold; cursor: pointer; color: #999; background: #f9f9f9; }
         .tab.active { color: white; background: var(--info); }
 
-        .btn-accion { width: 100%; padding: 16px; color: white; border: none; border-radius: 12px; font-weight: bold; margin-top: 10px; font-size: 1.1rem; }
-        .btn-cancelar { width: 100%; padding: 14px; background: #f1f2f6; color: #555; border: 1px solid #ccc; border-radius: 12px; margin-top: 25px; font-weight: bold; }
+        .btn-accion { width: 100%; padding: 16px; color: white; border: none; border-radius: 12px; font-weight: bold; margin-top: 10px; font-size: 1.1rem; cursor: pointer; }
+        .btn-cancelar { width: 100%; padding: 14px; background: #f1f2f6; color: #555; border: 1px solid #ccc; border-radius: 12px; margin-top: 25px; font-weight: bold; cursor: pointer; }
         input, select { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1.1rem; }
     </style>
 </head>
@@ -135,7 +135,7 @@
             <input type="password" id="newUserPass" placeholder="Nueva Contraseña">
             <button id="btnAddUser" class="btn-accion" style="background:var(--info)">AÑADIR USUARIO</button>
             <div style="background: #fff5f5; padding: 15px; border-radius: 12px; border: 1px solid #fed7d7; margin-top:15px;">
-                <p style="font-size:0.7rem; color:red; margin:0;">Código <b>necesario</b></p>
+                <p style="font-size:0.7rem; color:red; margin:0;">Código <b>necesario</b>: Arallo26</p>
                 <button id="btnResetTodo" class="btn-accion" style="background:var(--danger); font-size:0.8rem; padding:10px;">BORRAR TODO (CAJA)</button>
             </div>
             <button onclick="cerrar('modal-ajustes')" class="btn-cancelar">CERRAR</button>
@@ -245,7 +245,7 @@
         }
 
         window.borrarI = i => { ticket.splice(i, 1); dibujarTicket(); };
-        window.limpiarTicket = () => { if(confirm("¿Borrar?")) { ticket = []; dibujarTicket(); } };
+        window.limpiarTicket = () => { if(confirm("¿Borrar ticket actual?")) { ticket = []; dibujarTicket(); } };
 
         document.getElementById("btn-cobrar").onclick = async () => {
             if(ticket.length === 0) return;
@@ -261,15 +261,28 @@
             }
         };
 
+        // HISTORIAL ACTUALIZADO CON FECHA Y HORA COMPLETAS
         window.abrirHistorial = () => {
             const lv = document.getElementById("lista-ventas"); lv.innerHTML = "";
-            ventasData.slice().reverse().slice(0,50).forEach(v => {
-                const f = v.fecha ? new Date(v.fecha.seconds * 1000).toLocaleTimeString() : "--";
-                lv.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;"><span>${f} - ${v.producto}</span><b>${v.total.toFixed(2)}€</b></div>`;
+            ventasData.slice().sort((a,b) => b.fecha - a.fecha).slice(0,100).forEach(v => {
+                const d = v.fecha ? new Date(v.fecha.seconds * 1000) : new Date();
+                const fStr = d.toLocaleDateString() + " " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                lv.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:0.85rem;">
+                    <span><small style="color:gray;display:block;">${fStr}</small><b>${v.producto}</b></span>
+                    <b style="color:var(--accent)">${v.total.toFixed(2)}€</b>
+                </div>`;
             });
             const lr = document.getElementById("lista-retiros"); lr.innerHTML = "";
-            retirosData.slice().reverse().forEach(r => {
-                lr.innerHTML += `<div style="padding:10px 0;border-bottom:1px solid #eee;"><b style="color:red">-${r.cantidad.toFixed(2)}€</b> | ${r.nombre}<br><small>${r.concepto}</small></div>`;
+            retirosData.slice().sort((a,b) => b.fecha - a.fecha).forEach(r => {
+                const d = r.fecha ? new Date(r.fecha.seconds * 1000) : new Date();
+                const fStr = d.toLocaleDateString() + " " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                lr.innerHTML += `<div style="padding:10px 0;border-bottom:1px solid #eee;font-size:0.85rem;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span><small style="color:gray;display:block;">${fStr}</small><b>${r.nombre}</b></span>
+                        <b style="color:var(--danger)">-${r.cantidad.toFixed(2)}€</b>
+                    </div>
+                    <small style="font-style:italic;color:#666;">${r.concepto}</small>
+                </div>`;
             });
             abrir("modal-historial");
         };
@@ -278,11 +291,11 @@
             let h = "";
             productosData.sort((a,b)=>a.id.localeCompare(b.id)).forEach(p => h += `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #eee;">
-                    <span style="font-size:0.85rem"><b>${p.id}</b><br>Stock: ${Number(p.stock).toFixed(1)}</span>
+                    <span style="font-size:0.85rem"><b>${p.id}</b><br>Stock: ${Number(p.stock).toFixed(2)}</span>
                     <div style="display:flex; gap:5px;">
-                        <button style="padding:8px 10px; background:var(--info); color:white; border:none; border-radius:5px;" onclick="window.edS('${p.id}')">+S</button>
-                        <button style="padding:8px 10px; background:var(--warning); color:white; border:none; border-radius:5px;" onclick="window.edP('${p.id}',${p.precio})">€</button>
-                        <button style="padding:8px 10px; background:var(--danger); color:white; border:none; border-radius:5px;" onclick="window.borrarProd('${p.id}')">🗑️</button>
+                        <button style="padding:8px 10px; background:var(--info); color:white; border:none; border-radius:5px; font-weight:bold;" onclick="window.edS('${p.id}')">+S</button>
+                        <button style="padding:8px 10px; background:var(--warning); color:white; border:none; border-radius:5px; font-weight:bold;" onclick="window.edP('${p.id}',${p.precio})">€</button>
+                        <button style="padding:8px 10px; background:var(--danger); color:white; border:none; border-radius:5px; font-weight:bold;" onclick="window.borrarProd('${p.id}')">🗑️</button>
                     </div>
                 </div>`);
             document.getElementById("lista-stock").innerHTML = h;
@@ -312,21 +325,19 @@
             if(n && cant) { await addDoc(collection(db, "retiradas"), { nombre: n, concepto: c, cantidad: cant, fecha: new Date() }); cerrar("modal-retirar"); }
         };
 
-        // FUNCIÓN ACTUALIZADA PARA GUARDAR LA IMAGEN
         document.getElementById("btnGuardarNuevo").onclick = async () => {
             const n = document.getElementById("newN").value;
             const p = parseFloat(document.getElementById("newP").value);
             const c = document.getElementById("newC").value;
-            const imgUrl = document.getElementById("newI").value; // Captura URL imagen
+            const imgUrl = document.getElementById("newI").value;
             
             if(n && p) { 
                 await setDoc(doc(db, "productos", n), { 
                     precio: p, 
                     stock: 0, 
                     categoria: c,
-                    img: imgUrl || "" // Guarda la imagen (o vacío si no hay)
+                    img: imgUrl || "" 
                 }); 
-                // Limpiar campos y cerrar
                 document.getElementById("newN").value = "";
                 document.getElementById("newP").value = "";
                 document.getElementById("newI").value = "";
